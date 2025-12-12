@@ -3,3 +3,5 @@ SDL2-2.32.2-win32-x64.zip
 SDL2-2.32.2.tar.gz
 thirdparty/flag
 thirdparty/nob
+thirdparty/SDL
+nob
