@@ -46,7 +46,15 @@ int main(int argc, char **argv)
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return 1;
 
     if (nob_needs_rebuild1(BUILD_FOLDER"main", SRC_FOLDER"main.c")) {
-        nob_cmd_append(&cmd, "cc", "-Wall", "-Wextra", "-o", BUILD_FOLDER"main", SRC_FOLDER"main.c");
+        nob_cmd_append(&cmd, "cc",
+                             "-Wall",
+                             "-Wextra",
+                             "-o", BUILD_FOLDER"main",
+                             SRC_FOLDER"main.c",
+                             "-Ithirdparty/SDL2/include",
+                             "-Lthirdparty/SDL2/",
+                             "-l:libSDL2.a",
+                             "-lm");
         if (*debug)
             nob_cmd_append(&cmd, "-ggdb");
         if (!nob_cmd_run(&cmd)) return 1;
