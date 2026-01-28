@@ -44,7 +44,6 @@ int main(int argc, char **argv)
     }
 
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return 1;
-
     if (nob_needs_rebuild1(BUILD_FOLDER"main", SRC_FOLDER"main.c")) {
         nob_cmd_append(&cmd, "cc",
                              "-Wall",
