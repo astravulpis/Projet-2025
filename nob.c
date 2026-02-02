@@ -7,6 +7,7 @@
 #define FLAG_IMPLEMENTATION
 #include "thirdparty/flag.h"
 
+#define VENDOR_FOLDER "thirdparty/"
 #define BUILD_FOLDER "build/"
 #define BINARIES_FOLDER BUILD_FOLDER "bin/"
 #define SRC_FOLDER "src/"
@@ -22,6 +23,8 @@ int main(int argc, char **argv)
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
     Nob_Cmd cmd = {0};
+    int result = 0;
+    size_t mark = nob_temp_save();
 
     bool *help   = flag_bool("help", false, "Print this help");
     bool *clean  = flag_bool("clean", false, "Does a clean build (i.e. rebuilds the build folder)");
@@ -31,7 +34,7 @@ int main(int argc, char **argv)
     if (!flag_parse(argc, argv)) {
         usage(stderr);
         flag_print_error(stderr);
-        return 1;
+        return_defer(1);
     }
 
     if (*help) {
@@ -41,12 +44,12 @@ int main(int argc, char **argv)
 
     if (*clean) {
         nob_cmd_append(&cmd, "rm", "-rf", BUILD_FOLDER);
-        if (!nob_cmd_run(&cmd)) return 1;
+        if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     minimal_log_level = ERROR;
-    if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return 1;
-    if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return 1;
+    if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
+    if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
     minimal_log_level = INFO;
 
     // Object file
@@ -59,7 +62,7 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, "-o", BUILD_FOLDER "main.o");
         nob_cmd_append(&cmd, SRC_FOLDER "main.c");
         if (*debug) nob_cmd_append(&cmd, "-ggdb");
-        if (!nob_cmd_run(&cmd)) return 1;
+        if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     // Binary compiling
@@ -67,24 +70,29 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, "cc");
         nob_cmd_append(&cmd, "-Wall");
         nob_cmd_append(&cmd, "-Wextra");
-        nob_cmd_append(&cmd, "-o", BINARIES_FOLDER "main");
-        nob_cmd_append(&cmd, BUILD_FOLDER "main.o");
-        nob_cmd_append(&cmd, "-Ithirdparty/SDL3/include");
-        nob_cmd_append(&cmd, "-Lthirdparty/SDL3/lib");
+        nob_cmd_append(&cmd, "-o", temp_sprintf("%smain", BINARIES_FOLDER));
+        nob_cmd_append(&cmd, temp_sprintf("%smain.o", BUILD_FOLDER));
+        nob_cmd_append(&cmd, temp_sprintf("-I%s/include", VENDOR_FOLDER "SDL3"));
+        nob_cmd_append(&cmd, temp_sprintf("-L%s/lib", VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, "-lSDL3");
-        nob_cmd_append(&cmd, "-lSDL3_test");
+        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, "-lm");
         if (*debug) nob_cmd_append(&cmd, "-ggdb");
-        if (!nob_cmd_run(&cmd)) return 1;
+        if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     if (*debug) {
         nob_cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
-        if (!nob_cmd_run(&cmd)) return 1;
+        if (!nob_cmd_run(&cmd)) return_defer(1);
     }
     if (*run && !(*debug)) {
         nob_cmd_append(&cmd, "./" BINARIES_FOLDER "main");
-        if (!nob_cmd_run(&cmd)) return 1;
+        if (!nob_cmd_run(&cmd)) return_defer(1);
     }
-    return 0;
+
+defer:
+    free(cmd.items);
+    temp_rewind(mark);
+
+    return result;
 }
