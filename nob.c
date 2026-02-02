@@ -62,6 +62,7 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, temp_sprintf("-I%s/include", VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, temp_sprintf("-L%s/lib",     VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, "-lSDL3");
+        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, "-lm");
         if (*debug) nob_cmd_append(&cmd, "-ggdb");
         if (!nob_cmd_run(&cmd)) return_defer(1);
