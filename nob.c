@@ -52,30 +52,16 @@ int main(int argc, char **argv)
     if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
     minimal_log_level = INFO;
 
-    // Object file
-    // This can be extended using an array and iterating through it
-    if (nob_needs_rebuild1(BUILD_FOLDER "main.o", SRC_FOLDER "main.c")) {
-        nob_cmd_append(&cmd, "cc");
-        nob_cmd_append(&cmd, "-c");
-        nob_cmd_append(&cmd, "-Wall");
-        nob_cmd_append(&cmd, "-Wextra");
-        nob_cmd_append(&cmd, "-o", BUILD_FOLDER "main.o");
-        nob_cmd_append(&cmd, SRC_FOLDER "main.c");
-        if (*debug) nob_cmd_append(&cmd, "-ggdb");
-        if (!nob_cmd_run(&cmd)) return_defer(1);
-    }
-
     // Binary compiling
-    if (nob_needs_rebuild1(BINARIES_FOLDER "main", BUILD_FOLDER "main.o")) {
+    if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c")) {
         nob_cmd_append(&cmd, "cc");
         nob_cmd_append(&cmd, "-Wall");
         nob_cmd_append(&cmd, "-Wextra");
         nob_cmd_append(&cmd, "-o", temp_sprintf("%smain", BINARIES_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("%smain.o", BUILD_FOLDER));
+        nob_cmd_append(&cmd, temp_sprintf("%smain.c",     SRC_FOLDER));
         nob_cmd_append(&cmd, temp_sprintf("-I%s/include", VENDOR_FOLDER "SDL3"));
-        nob_cmd_append(&cmd, temp_sprintf("-L%s/lib", VENDOR_FOLDER "SDL3"));
+        nob_cmd_append(&cmd, temp_sprintf("-L%s/lib",     VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, "-lSDL3");
-        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", VENDOR_FOLDER "SDL3"));
         nob_cmd_append(&cmd, "-lm");
         if (*debug) nob_cmd_append(&cmd, "-ggdb");
         if (!nob_cmd_run(&cmd)) return_defer(1);
