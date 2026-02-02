@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -187,6 +187,21 @@ typedef enum SDL_JoystickConnectionState
  * \since This function is available since SDL 3.2.0.
  */
 extern SDL_DECLSPEC void SDLCALL SDL_LockJoysticks(void) SDL_ACQUIRE(SDL_joystick_lock);
+
+/**
+ * Locking for atomic access to the joystick API.
+ *
+ * The SDL joystick functions are thread-safe, however you can lock the
+ * joysticks while processing to guarantee that the joystick list won't change
+ * and joystick and gamepad events will not be delivered.
+ *
+ * \returns true if the joysticks were successfully locked, false otherwise.
+ *
+ * \threadsafety It is safe to call this function from any thread.
+ *
+ * \since This function is available since SDL 3.6.0.
+ */
+extern SDL_DECLSPEC bool SDLCALL SDL_TryLockJoysticks(void) SDL_ACQUIRE(SDL_joystick_lock);
 
 /**
  * Unlocking for atomic access to the joystick API.
