@@ -69,7 +69,11 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, "-Wextra");
         nob_cmd_append(&cmd, "-o", BINARIES_FOLDER "main");
         nob_cmd_append(&cmd, BUILD_FOLDER "main.o");
-        nob_cmd_append(&cmd, "-Ithirdparty/SDL3/include", "-Lthirdparty/SDL3/lib", "-lSDL3", "-lm");
+        nob_cmd_append(&cmd, "-Ithirdparty/SDL3/include");
+        nob_cmd_append(&cmd, "-Lthirdparty/SDL3/lib");
+        nob_cmd_append(&cmd, "-lSDL3");
+        nob_cmd_append(&cmd, "-lSDL3_test");
+        nob_cmd_append(&cmd, "-lm");
         if (*debug) nob_cmd_append(&cmd, "-ggdb");
         if (!nob_cmd_run(&cmd)) return 1;
     }
