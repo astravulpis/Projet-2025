@@ -64,6 +64,7 @@ set_target_properties(SDL3::SDL3-shared PROPERTIES
   INTERFACE_LINK_LIBRARIES "SDL3::Headers"
   INTERFACE_SDL3_SHARED "TRUE"
   INTERFACE_SDL_VERSION "SDL3"
+  SDL_FULL_VERSION "3.5.0"
 )
 
 # Load information for each installed configuration.
