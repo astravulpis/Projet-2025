@@ -6,8 +6,8 @@ OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
 CXX := cc
 CXXFLAGS := -Wall -Wextra -ggdb
-INCLUDES := -Isrc -Ithirdparty/SDL2/include
-LIBS :=  -Lthirdparty/SDL2/ -l:libSDL2.a -lm
+INCLUDES := -Isrc -Ithirdparty/SDL3/include
+LIBS :=  -Lthirdparty/SDL3/ -lSDL3 -lm
 
 all: $(BUILD_DIR)/$(OUTPUT)
 
