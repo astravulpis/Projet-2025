@@ -7,17 +7,27 @@
 #define NOB_IMPLEMENTATION
 #include "../thirdparty/nob.h"
 
+#define FLAG_IMPLEMENTATION
+#include "../thirdparty/flag.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-int main()
+int main(int argc, char *argv[])
 {
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
-        return 1;
+    bool *autoQuit = flag_bool("-auto-quit", false, "Auto quits the application, useful for testing");
+    int result = 0;
+    if (!flag_parse(argc, argv)) {
+        flag_print_error(stderr);
+        return_defer(1);
     }
 
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        return_defer(1);
+    }
+
+defer:
     SDL_Quit();
-    return 0;
+    return result;
 }

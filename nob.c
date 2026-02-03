@@ -26,10 +26,11 @@ int main(int argc, char **argv)
     int result = 0;
     size_t mark = nob_temp_save();
 
-    bool *help   = flag_bool("help", false, "Print this help");
-    bool *clean  = flag_bool("clean", false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run    = flag_bool("run", false, "run the program");
-    bool *debug  = flag_bool("debug", false, "run in debug mode");
+    bool *help      = flag_bool("-help", false, "Print this help");
+    bool *clean     = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run       = flag_bool("-run", false, "run the program");
+    bool *debug     = flag_bool("-debug", false, "run in debug mode");
+    bool *autoQuit  = flag_bool("-auto-quit", false, "runs the program and automatically quits");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -70,10 +71,15 @@ int main(int argc, char **argv)
 
     if (*debug) {
         nob_cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
+        if (*autoQuit)
+            nob_cmd_append(&cmd, "--auto-quit");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
+
     if (*run && !(*debug)) {
         nob_cmd_append(&cmd, "./" BINARIES_FOLDER "main");
+        if (*autoQuit)
+            nob_cmd_append(&cmd, "--auto-quit");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
