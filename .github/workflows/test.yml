@@ -25,5 +25,5 @@ jobs:
         uses: actions/checkout@v4
       - name: compile nob
         run: cc -x c -o nob nob.c
-      - name: run program
-        run: ./nob --run --auto-quit
+      - name: run the tests
+        run: ./nob --tests
