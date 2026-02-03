@@ -14,12 +14,13 @@ int main(int argc, char **argv)
     int result = 0;
     size_t mark = nob_temp_save();
 
-    bool *help  = flag_bool("-help", false, "Print this help");
-    bool *clean = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run   = flag_bool("-run", false, "run the program");
-    bool *debug = flag_bool("-debug", false, "run in debug mode");
-    bool *tests = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
-    bool *rec   = flag_bool("-test-rec", false, "builds, run, record the output of tests");
+    bool *help    = flag_bool("-help", false, "Print this help");
+    bool *clean   = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run     = flag_bool("-run", false, "run the program");
+    bool *debug   = flag_bool("-debug", false, "run in debug mode");
+    bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2 (YOU NEED TO HAVE GF2 IN YOUR PATH)");
+    bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
+    bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -27,27 +28,29 @@ int main(int argc, char **argv)
         return_defer(1);
     }
 
+    if (*debugui) *debug = true;
+
     if (*help) {
         usage(stdout);
         return 0;
     }
 
     if (*clean) {
-        if (!file_exists(BUILD_FOLDER)) {
+        if (file_exists(BUILD_FOLDER)) {
             nob_cmd_append(&cmd, "rm", "-rf", BUILD_FOLDER);
             if (!nob_cmd_run(&cmd)) return_defer(1);
         }
     }
 
-    if (!file_exists(BUILD_FOLDER))
-        if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
-
-    if (!file_exists(BINARIES_FOLDER))
-        if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
+    if (!(*clean)) minimal_log_level = WARNING;
+    if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
+    if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
+    minimal_log_level = INFO;
 
     // IMPORTANT: `Tests` cannot be run with other commands.
     if (*tests || *rec) {
         set_current_dir("./tests/");
+        nob_log(INFO, "CMD: cd ./tests/");
         if (nob_needs_rebuild1("nob", "nob.c")) {
             nob_cmd_append(&cmd, "cc", "-x", "c", "-o", "nob", "nob.c");
             if (!nob_cmd_run(&cmd)) return_defer(1);
@@ -60,7 +63,7 @@ int main(int argc, char **argv)
     }
 
     // Binary compiling
-    if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c")) {
+    if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
         nob_cmd_append(&cmd, "cc");
         nob_cmd_append(&cmd, "-Wall");
         nob_cmd_append(&cmd, "-Wextra");
@@ -75,12 +78,12 @@ int main(int argc, char **argv)
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
-    if (*debug) {
+    if (*debugui) {
         nob_cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
-    if (*run && !(*debug)) {
+    if (*run && !(*debugui)) {
         nob_cmd_append(&cmd, "./" BINARIES_FOLDER "main");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
