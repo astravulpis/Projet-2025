@@ -1,16 +1,4 @@
-#include <stdbool.h>
-
-#define NOB_IMPLEMENTATION
-#define NOB_EXPERIMENTAL_DELETE_OLD
-#include "thirdparty/nob.h"
-
-#define FLAG_IMPLEMENTATION
-#include "thirdparty/flag.h"
-
-#define VENDOR_FOLDER "thirdparty/"
-#define BUILD_FOLDER "build/"
-#define BINARIES_FOLDER BUILD_FOLDER "bin/"
-#define SRC_FOLDER "src/"
+#include "shared.h"
 
 void usage(FILE *stream)
 {
@@ -26,10 +14,12 @@ int main(int argc, char **argv)
     int result = 0;
     size_t mark = nob_temp_save();
 
-    bool *help   = flag_bool("help", false, "Print this help");
-    bool *clean  = flag_bool("clean", false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run    = flag_bool("run", false, "run the program");
-    bool *debug  = flag_bool("debug", false, "run in debug mode");
+    bool *help  = flag_bool("-help", false, "Print this help");
+    bool *clean = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run   = flag_bool("-run", false, "run the program");
+    bool *debug = flag_bool("-debug", false, "run in debug mode");
+    bool *tests = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
+    bool *rec   = flag_bool("-test-rec", false, "builds, run, record the output of tests");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -43,14 +33,31 @@ int main(int argc, char **argv)
     }
 
     if (*clean) {
-        nob_cmd_append(&cmd, "rm", "-rf", BUILD_FOLDER);
-        if (!nob_cmd_run(&cmd)) return_defer(1);
+        if (!file_exists(BUILD_FOLDER)) {
+            nob_cmd_append(&cmd, "rm", "-rf", BUILD_FOLDER);
+            if (!nob_cmd_run(&cmd)) return_defer(1);
+        }
     }
 
-    minimal_log_level = ERROR;
-    if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
-    if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
-    minimal_log_level = INFO;
+    if (!file_exists(BUILD_FOLDER))
+        if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
+
+    if (!file_exists(BINARIES_FOLDER))
+        if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
+
+    // IMPORTANT: `Tests` cannot be run with other commands.
+    if (*tests || *rec) {
+        set_current_dir("./tests/");
+        if (nob_needs_rebuild1("nob", "nob.c")) {
+            nob_cmd_append(&cmd, "cc", "-x", "c", "-o", "nob", "nob.c");
+            if (!nob_cmd_run(&cmd)) return_defer(1);
+        }
+
+        if (*rec) nob_cmd_append(&cmd, "./nob", "-record");
+        else nob_cmd_append(&cmd, "./nob");
+        if (!nob_cmd_run(&cmd)) return_defer(1);
+        return 0;
+    }
 
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c")) {
@@ -72,6 +79,7 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
+
     if (*run && !(*debug)) {
         nob_cmd_append(&cmd, "./" BINARIES_FOLDER "main");
         if (!nob_cmd_run(&cmd)) return_defer(1);
