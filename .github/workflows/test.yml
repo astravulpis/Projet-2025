@@ -19,5 +19,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: compile nob
+        run: cc -x c -o nob nob.c
       - name: run program
         run: ./nob --run --auto-quit
