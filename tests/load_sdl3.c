@@ -6,7 +6,7 @@ int main(void)
 {
     int result = 0;
 
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+    if (!SDL_Init(SDL_INIT_EVENTS)) {
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
         return_defer(1);
     }
