@@ -1,9 +1,7 @@
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_surface.h"
 
-#define NOB_IMPLEMENTATION
-#include "../thirdparty/nob.h"
-
+#include "../shared.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -34,7 +32,7 @@ int main()
 
     float color = 0x18/255.0f;
 
-    while ( !quitterBool ){
+    while (!quitterBool){
 
         SDL_PollEvent(&evenement);
         switch (evenement.type){

@@ -1,0 +1,29 @@
+name: compile and run
+
+on:
+  push:
+    branches : [ "main", "master", "github-actions" ]
+  pull_request:
+    branches : [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: compile nob
+        run: cc -x c -o nob nob.c
+      - name: compile program
+        run: ./nob --clean
+
+  tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: compile nob
+        run: cc -x c -o nob nob.c
+      - name: run the tests
+        run: ./nob --tests
