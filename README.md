@@ -5,7 +5,7 @@ Codé en langage C, Jeu 2D, inspiré de FPS 3D, notamment [ULTRAKILL](https://st
 
 ### Outils utilisés :
 - Utilisation de [SDL3](https://github.com/libsdl-org/SDL) pour l'interface graphique.
-- Utilisation de [nob.h](github.com/tsoding/nob.h) pour la compilation des fichier `.c`.
+- Utilisation de [nob.h](https://github.com/tsoding/nob.h) pour la compilation des fichier `.c`.
 - Utilisation de [Doxygen](https://github.com/doxygen/doxygen) pour la documentation du code.
 
 ## Construire le projet
@@ -17,7 +17,7 @@ cc -x c -o nob nob.c
 
 ### Qu'est-ce que nob?
 
-L'outil `nob` est un programme C utilisant la librairie [nob.h](github.com/tsoding/nob.h) afin de proposer une compilation qui se fait avec le langage C.
+L'outil `nob` est un programme C utilisant la librairie [nob.h](https://github.com/tsoding/nob.h) afin de proposer une compilation qui se fait avec le langage C.
 Les différents flags implémentés:  
 - `./nob --run`     Pour faire fonctionner l'application.
 - `./nob --clean`   Pour supprimer les objets compilés.
