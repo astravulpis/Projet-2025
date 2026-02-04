@@ -1,8 +1,5 @@
-#include "../thirdparty/SDL3/include/SDL3/SDL.h"
-#include "../thirdparty/SDL3/include/SDL3/SDL_init.h"
-#include "../thirdparty/SDL3/include/SDL3/SDL_error.h"
-#include <SDL3/SDL_log.h>
-#include <stdbool.h>
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_surface.h"
 
 #define NOB_IMPLEMENTATION
 #include "../thirdparty/nob.h"
@@ -11,77 +8,101 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-//donnée de l'affichage
-SDL_Window *WINDOW_GLOBAL = NULL;
-SDL_Surface *WINDOW_SURFACE_GLOBAL = NULL;
+typedef struct sdl_context_s sdl_context_t;
+static struct sdl_context_s {
+    SDL_Window *window; //< SDL3 window context
+    SDL_Surface *renderingSurface; //< SDL3 surface context
+} sdl_context = {0};
+
 SDL_Surface *WINDOW_IMAGE_TEST = NULL;
 
-//fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
-bool init_all(void){
-        if ( !SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) ){
-           nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
-        }
-        return true;
-}
+/**
+ * fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
+ */
+bool init_all(void);
 
-//charge une image en recevant son chemin et un pointeur de type SDL_surface, surface qui va recevoir l'image
-bool chargerImage(char *chemin, SDL_Surface *surface){
-   surface = SDL_LoadBMP(chemin);
+/**
+ * charge une image en recevant son chemin et un pointeur de type SDL_surface
+ * @var chemin Chemin de l'image charger
+ * @var surface Surface qui va recevoir l'image
+ */
+bool chargerImage(char *chemin, SDL_Surface *surface);
 
-   if( surface == NULL ){
-       SDL_Log( "Impossible de charger l'image %s! cause: %s\n", chemin, SDL_GetError() );
-       return false;
-    }
-   return true;
-}
+/**
+ * @brief fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
+ * Detruit la fenetre et le context d'SDL3
+ */
+void close_SDL();
 
-//fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
-void close_SDL(){
-    SDL_DestroyWindow( WINDOW_GLOBAL );
-
-    //mise a NULL avant la désacollaction opérée par SQL_Quit()
-    WINDOW_IMAGE_TEST = NULL;
-    WINDOW_SURFACE_GLOBAL = NULL;
-    WINDOW_GLOBAL = NULL;
-
-    SDL_Quit();
-}
 
 int main()
 {
     init_all();
-    WINDOW_GLOBAL = SDL_CreateWindow( "ULTRACOOL", WINDOW_WIDTH, WINDOW_HEIGHT, 0 );
-    WINDOW_SURFACE_GLOBAL = SDL_GetWindowSurface( WINDOW_GLOBAL );
 
-    if(WINDOW_GLOBAL == NULL) {
-        nob_log(ERROR, "impossible de créer la fenêtre! cause : %s\n", SDL_GetError());
-    return false;
-    }
-    
-    if(chargerImage("/info/etu/l2info/s2400564/Documents/Projet-2025/assets/img/SDL3.bmp", WINDOW_IMAGE_TEST)==true)
-        printf("\n| chargement de l'image réussi\n");
+    // if(chargerImage("assets/img/SDL3.bmp", WINDOW_IMAGE_TEST)==true)
+    //     printf("\n| chargement de l'image réussi\n");
 
-    //met l'image dans la surface WINDOW_SURFACE_GLOBAL
-    SDL_BlitSurface( WINDOW_IMAGE_TEST, NULL, WINDOW_SURFACE_GLOBAL, NULL);
+    //met l'image dans la surface WINDOW_SURFACE_CONTEXT
+    // SDL_BlitSurface(WINDOW_IMAGE_TEST, NULL, sdl_context.renderingSurface, NULL);
 
-    //booleen qui determine si la page doit continuer  s'afficher
-    bool quitterBool = false;
-    //structure pour observer les évenements via son attribut '.type'
+    bool quitterBool = false; //< booleen qui determine si la page doit continuer  s'afficher
     SDL_Event evenement;
+
+    float rgb = 24.0f/255.0f;
 
     while ( !quitterBool ){
 
-        //récupération des évenements
         SDL_PollEvent(&evenement);
-        //action en fonction de l'évenement courant
         switch (evenement.type){
             case SDL_EVENT_QUIT: quitterBool=true;
         }
-        SDL_BlitSurface( WINDOW_IMAGE_TEST, NULL, WINDOW_SURFACE_GLOBAL, NULL );
-        SDL_UpdateWindowSurface( WINDOW_GLOBAL );
+
+        SDL_ClearSurface(sdl_context.renderingSurface, rgb, rgb, rgb, 1.0f);
+        // SDL_BlitSurface(WINDOW_IMAGE_TEST, NULL, sdl_context.renderingSurface, NULL);
+        SDL_UpdateWindowSurface( sdl_context.window );
     }
 
     close_SDL();
 
     return 0;
+}
+
+bool init_all(void)
+{
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        return false;
+    }
+
+    sdl_context.window = SDL_CreateWindow("ULTRACOOL", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+    if (sdl_context.window == NULL) {
+        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        close_SDL();
+        return false;
+    }
+
+    sdl_context.renderingSurface = SDL_GetWindowSurface(sdl_context.window);
+    return true;
+}
+
+bool chargerImage(char *chemin, SDL_Surface *surface)
+{
+    surface = SDL_LoadBMP(chemin);
+
+    if (surface == NULL) {
+        nob_log(ERROR, "Impossible de charger l'image %s! cause: %s\n", chemin, SDL_GetError());
+        return false;
+    }
+    return true;
+}
+
+void close_SDL()
+{
+    SDL_DestroyWindow(sdl_context.window);
+
+    WINDOW_IMAGE_TEST = NULL;
+    sdl_context.window = NULL;
+    sdl_context.renderingSurface = NULL;
+
+    SDL_Quit();
 }
