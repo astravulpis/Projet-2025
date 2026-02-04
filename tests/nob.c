@@ -22,6 +22,8 @@ bool compile(const char* test_name)
     char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
     char *sdl_folder = VENDOR_FOLDER SDL_VERSION;
 
+    nob_log(INFO, "------ Testing: %s ------", test_name);
+
     // Compile the test
     nob_cc(&cmd);
     nob_cc_flags(&cmd);
@@ -69,17 +71,19 @@ bool run_test(const char* test_name, bool record)
 
         // Error output in git's diff style
         if (!sv_eq(sv_src, sv_dst)) {
-            nob_log(ERROR, "------ UNEXPECTED OUTPUT ------");
-            nob_log(ERROR, "<<<<<<< EXPECTED");
-            fprintf(stderr, SV_Fmt, SV_Arg(sv_dst));
-            nob_log(ERROR, "================");
-            fprintf(stderr, SV_Fmt, SV_Arg(sv_src));
-            nob_log(ERROR, ">>>>>>> ACTUAL");
+            nob_log(ERROR, "got an UNEXPECTED OUTPUT");
+            fprintf(stderr, "<<<<<<< EXPECTED\n");
+            fprintf(stderr, SV_Fmt "\n", SV_Arg(sv_dst));
+            fprintf(stderr, "================\n");
+            fprintf(stderr, SV_Fmt "\n", SV_Arg(sv_src));
+            fprintf(stderr, ">>>>>>> CURRENT\n");
             return_defer(false);
+        } else {
+            nob_log(INFO, "got the EXPECTED OUTPUT");
         }
     }
 
-    nob_log(INFO, "------ %s is finished ------\n", bin_path);
+    nob_log(INFO, "------ %s is finished ------\n", test_name);
 
 defer:
     free(cmd.items);
