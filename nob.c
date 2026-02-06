@@ -65,8 +65,7 @@ int main(int argc, char **argv)
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
         nob_cc(&cmd);
-        cmd_append(&cmd, "-Wall");
-        cmd_append(&cmd, "-Wextra");
+        nob_cc_flags(&cmd);
         if (*debug) cmd_append(&cmd, "-ggdb");
         nob_cc_output(&cmd, temp_sprintf("%smain",   BINARIES_FOLDER));
         nob_cc_inputs(&cmd, temp_sprintf("%smain.c", SRC_FOLDER));
