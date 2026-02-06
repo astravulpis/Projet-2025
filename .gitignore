@@ -5,3 +5,4 @@ Conduite.md
 *.tar.gz
 *.zip
 *.json
+doc/doxygen-conf
