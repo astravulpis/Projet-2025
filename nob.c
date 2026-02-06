@@ -64,17 +64,16 @@ int main(int argc, char **argv)
 
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
-        nob_cmd_append(&cmd, "cc");
-        nob_cmd_append(&cmd, "-Wall");
-        nob_cmd_append(&cmd, "-Wextra");
-        nob_cmd_append(&cmd, "-o", temp_sprintf("%smain", BINARIES_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("%smain.c",     SRC_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("-I%s/include", VENDOR_FOLDER "SDL3"));
-        nob_cmd_append(&cmd, temp_sprintf("-L%s/lib",     VENDOR_FOLDER "SDL3"));
-        nob_cmd_append(&cmd, "-lSDL3");
-        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", VENDOR_FOLDER "SDL3"));
-        nob_cmd_append(&cmd, "-lm");
-        if (*debug) nob_cmd_append(&cmd, "-ggdb");
+        nob_cc(&cmd);
+        cmd_append(&cmd, "-Wall");
+        cmd_append(&cmd, "-Wextra");
+        if (*debug) cmd_append(&cmd, "-ggdb");
+        nob_cc_output(&cmd, temp_sprintf("%smain",   BINARIES_FOLDER));
+        nob_cc_inputs(&cmd, temp_sprintf("%smain.c", SRC_FOLDER));
+        cmd_append(&cmd, temp_sprintf("-I%sinclude", VENDOR_FOLDER RAYLIB_FOLDER));
+        cmd_append(&cmd, temp_sprintf("-L%slib",     VENDOR_FOLDER RAYLIB_FOLDER));
+        cmd_append(&cmd, "-l:libraylib.a");
+        cmd_append(&cmd, "-lm");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 

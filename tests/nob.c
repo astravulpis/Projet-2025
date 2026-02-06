@@ -1,7 +1,7 @@
 #include "../shared.h"
 
 const char *test_targets[] = {
-    "load_sdl3"
+    "load_window"
 };
 
 bool delete_walk_entry(Walk_Entry entry)
@@ -20,21 +20,18 @@ bool compile(const char* test_name)
     Cmd cmd = {0};
     char *src_path = temp_sprintf("%s%s.c", TEST_FOLDER, test_name);
     char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
-    char *sdl_folder = VENDOR_FOLDER SDL_VERSION;
-
     nob_log(INFO, "------ Testing: %s ------", test_name);
 
     // Compile the test
     nob_cc(&cmd);
     nob_cc_flags(&cmd);
+    cmd_append(&cmd, "-ggdb");
     nob_cc_output(&cmd, bin_path);
     nob_cc_inputs(&cmd, src_path);
-    cmd_append(&cmd, temp_sprintf("-I%s/include", sdl_folder));
-    cmd_append(&cmd, temp_sprintf("-L%s/lib",     sdl_folder));
-    cmd_append(&cmd, "-l" SDL_VERSION);
-    cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", sdl_folder));
+    cmd_append(&cmd, temp_sprintf("-I%sinclude", VENDOR_FOLDER RAYLIB_FOLDER));
+    cmd_append(&cmd, temp_sprintf("-L%slib",     VENDOR_FOLDER RAYLIB_FOLDER));
+    cmd_append(&cmd, "-l:libraylib.a");
     cmd_append(&cmd, "-lm");
-    cmd_append(&cmd, "-ggdb");
     if (!nob_cmd_run(&cmd)) return_defer(1);
 
 defer:
@@ -83,7 +80,7 @@ bool run_test(const char* test_name, bool record)
         }
     }
 
-    nob_log(INFO, "------ %s is finished ------\n", test_name);
+    nob_log(INFO, "------ %s is finished ------", test_name);
 
 defer:
     free(cmd.items);
