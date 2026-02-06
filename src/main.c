@@ -3,206 +3,6 @@
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
-#if 0
-static struct sdl_context_s {
-    SDL_Window *window; //< SDL3 window context
-    SDL_Surface *bgSurface; //< SDL3 surface context
-    SDL_Renderer *renderer; //< SDL3 renderer context
-    SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
-} sdl_ct = {0};
-
-/**
- * fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
- */
-bool init_all(void);
-
-/**
- * @brief fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
- * Detruit la fenetre et le context d'SDL3
- */
-void close_SDL();
-
-/**
- * fonction qui initialise sdl_ct.bgSurface et sdl_ct.bgTexture
- * et qui rempli la surface d'une couleur renseignée en paramètre en code RGB
- * il est possible de spécifier l'alpha
- */
-void initBackgroundColor(int r, int g, int b, int aplha);
-
-/**
- * fonction qui modifie la couleur de l'arrière plan de sdl_ct.window
- * via sa surface et sa texture, également présents dans sdl_ct,
- * a utiliser uniquement si initBackgroundColor() a été utilisé avant
- * (pas encore de verifications implémentés)
- */
-void updateBackgroundColor(int r, int g, int b, int aplha);
-
-/**
- * fonction qui effectue le rendu de sdl_ct.bgTexture,
- * il est donc assez utile de faire un initBackgroundColor() avant ;D
- * si l'arrière plan n'est pas init, alors la fonction ne fait rien
- */
-void renderBackground();
-
-int main()
-{
-    init_all();
-
-    bool quitterBool = false; //< booleen qui determine si la page doit continuer  s'afficher
-    SDL_Event evenement;
-
-    float color = 0x18/255.0f;
-
-    initBackgroundColor(255, 255, 255, 255);
-    renderBackground();
-
-    //Rendu du logo de SDL
-    SDL_FRect * boxSDL = NULL;//les objets SDL_FRect contienent des coordonnées et des dimmensions
-    boxSDL=malloc(sizeof(SDL_FRect));
-    boxSDL->x=0;
-    boxSDL->y=0;
-    boxSDL->w=100;
-    boxSDL->h=100;
-
-    SDL_Surface *surfaceImgSDL;
-    SDL_Texture *textureImgSDL;
-
-    surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
-    textureImgSDL = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgSDL);
-
-    SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL,  boxSDL);
-    SDL_RenderPresent(sdl_ct.renderer);
-
-    //Rendu du logo du langage C
-    SDL_FRect * boxC = NULL;
-    boxC=malloc(sizeof(SDL_FRect));
-    boxC->x=200;
-    boxC->y=200;
-    boxC->w=100;
-    boxC->h=100;
-
-    SDL_Surface *surfaceImgC;
-    SDL_Texture *textureImgC;
-
-    surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
-    textureImgC = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgC);
-
-    SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL,  boxC);
-    SDL_RenderPresent(sdl_ct.renderer);
-    //----------------------------------
-
-    if (surfaceImgC==NULL)
-        printf("impossible charger l'image du logo C ...\n");
-    else
-        printf("image chargée logo C avec succès (mais qui est succès ?) ...\n");
-
-    if (surfaceImgSDL==NULL)
-        printf("impossible charger l'image du logo SDL ...\n");
-    else
-        printf("image chargée logo SDL avec succès (mais qui est succès ?) ...\n");
-
-    float xC=boxC->x;//pour ne pas perdre la coordonnée x originelle de l'image logo C
-    bool avancer=true;
-    float i=0;
-
-    while (!quitterBool){
-
-        //comportement du logo
-        if(i*(i/100)>254)
-            avancer=false;
-        else if(i<1)
-            avancer=true;
-        //execution du comportement
-        if (avancer) {
-            i+=0.1;
-            boxC->x=xC+i*(i/100);
-        }
-        else {
-            i-=0.1;
-            boxC->x=xC+i*(i/100);
-        }
-
-        //on récupère l'evenement en tête de file
-        SDL_PollEvent(&evenement);
-        switch (evenement.type){
-            case SDL_EVENT_QUIT: quitterBool=true;
-        }
-
-        SDL_ClearSurface(sdl_ct.bgSurface, color, color, color, 1.0f);
-        SDL_RenderClear(sdl_ct.renderer);
-
-        updateBackgroundColor( i*(i/100), i*(i/100), i, 255);
-        renderBackground();
-        SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL, boxC);
-        SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL, boxSDL);
-
-        SDL_RenderPresent(sdl_ct.renderer);
-    }
-
-    free(boxSDL);
-    free(boxC);
-
-    SDL_DestroySurface(surfaceImgC);
-    SDL_DestroySurface(surfaceImgSDL);
-
-    SDL_DestroyTexture(textureImgC);
-    SDL_DestroyTexture(textureImgSDL);
-
-    close_SDL();
-
-    return 0;
-}
-
-bool init_all(void)
-{
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
-        return false;
-    }
-
-    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(sdl_ct.window), &(sdl_ct.renderer));
-    if (sdl_ct.window == NULL) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
-        close_SDL();
-        return false;
-    }
-
-    sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
-    return true;
-}
-
-void close_SDL()
-{
-    SDL_DestroyWindow(sdl_ct.window);
-
-    sdl_ct.window = NULL;
-    sdl_ct.bgSurface = NULL;
-
-    SDL_Quit();
-}
-
-void initBackgroundColor(int r, int g, int b, int aplha){
-    sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
-
-    SDL_FillSurfaceRect( sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB( sdl_ct.bgSurface, r, g, b) );
-
-    sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
-}
-
-void updateBackgroundColor(int r, int g, int b, int aplha){
-    SDL_DestroySurface(sdl_ct.bgSurface);
-    SDL_DestroyTexture(sdl_ct.bgTexture);
-
-    SDL_FillSurfaceRect( sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB( sdl_ct.bgSurface, r, g, b) );
-
-    sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
-}
-
-void renderBackground(){
-    if (sdl_ct.bgTexture != NULL)
-        SDL_RenderTexture(sdl_ct.renderer, sdl_ct.bgTexture, NULL,  NULL);
-}
-#endif
 
 /**
  * @struct movementKey_s
@@ -237,8 +37,6 @@ static keymap keyLayout[] = {
 
 int main(int argc, char *argv[])
 {
-    int windowWidth  = 800;
-    int windowHeight = 600;
     float rot = 0.0f;
     Vector2 imgPos = {200, 200};
     float scale = 0.15f;
@@ -254,9 +52,9 @@ int main(int argc, char *argv[])
     }
 
 
-    InitWindow(windowWidth, windowHeight, "ULTRAC00L - Window Display");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ULTRAC00L - Window Display");
     SetTargetFPS(60);
-    Texture2D logoC = LoadTexture("./assets/img/C.bmp");
+    Texture2D logoC = LoadTexture("./assets/img/logoC.png");
 
     while (!WindowShouldClose()) {
         // Rotation
@@ -268,14 +66,14 @@ int main(int argc, char *argv[])
 
         // Vertical Movement
         if (IsKeyDown(activeLayout.down)) {
-            imgPos.y = (imgPos.y+logoC.height*scale >= windowHeight) ? windowHeight - logoC.height*scale : imgPos.y + movementSpeed;
+            imgPos.y = (imgPos.y+logoC.height*scale >= WINDOW_HEIGHT) ? WINDOW_HEIGHT - logoC.height*scale : imgPos.y + movementSpeed;
         } else if (IsKeyDown(activeLayout.up)) {
             imgPos.y = (imgPos.y <= 0) ? 0 : imgPos.y - movementSpeed;
         }
 
         // Horizontal Movement
         if (IsKeyDown(activeLayout.right)) {
-            imgPos.x = (imgPos.x+logoC.width*scale >= windowWidth) ? windowWidth - logoC.width*scale : imgPos.x + movementSpeed;
+            imgPos.x = (imgPos.x+logoC.width*scale >= WINDOW_WIDTH) ? WINDOW_WIDTH - logoC.width*scale : imgPos.x + movementSpeed;
         } else if (IsKeyDown(activeLayout.left)) {
             imgPos.x = (imgPos.x <= 0) ? 0 : imgPos.x - movementSpeed;
         }
