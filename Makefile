@@ -6,9 +6,8 @@ OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
 CXX := cc
 CXXFLAGS := -Wall -Wextra -ggdb
-INCLUDES := -Isrc -Ithirdparty/SDL3/include
-LIBS :=  -Lthirdparty/SDL3/ -lSDL3 -lm
-OPT := -Wl,-rpath,thirdparty/SDL3/lib
+INCLUDES := -Isrc -Ithirdparty/raylib-5.5
+LIBS :=  -Lthirdparty/raylib5.5/ -l:libraylib.a -lm
 
 all: $(BUILD_DIR)/$(OUTPUT)
 
