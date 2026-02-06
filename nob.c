@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2 (YOU NEED TO HAVE GF2 IN YOUR PATH)");
     bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
     bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
+    bool *azerty  = flag_bool("-azerty-layout", false, "runs the program using the azerty keyboard layout");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -77,12 +78,14 @@ int main(int argc, char **argv)
     }
 
     if (*debugui) {
-        nob_cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
+        cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
+        if (*azerty) cmd_append(&cmd, "-azertySchema");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     if (*run && !(*debugui)) {
-        nob_cmd_append(&cmd, "./" BINARIES_FOLDER "main");
+        cmd_append(&cmd, "./" BINARIES_FOLDER "main");
+        if (*azerty) cmd_append(&cmd, "-azertySchema");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
