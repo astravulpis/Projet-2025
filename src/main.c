@@ -205,5 +205,31 @@ void renderBackground(){
 #endif
 int main()
 {
+    int windowWidth  = 800;
+    int windowHeight = 600;
+
+    InitWindow(windowWidth, windowHeight, "ULTRAC00L - Window Display");
+
+    while (!WindowShouldClose()) {
+        BeginDrawing(); { // Note: Les `{` et `}` ne sont pas obligatoires. Elles ne sont que pour un formattage plus comprehensible
+                          //       de "qu'est ce qui se passe a cette endroit". Si elles vous genent, vous pouvez les enlever.
+            ClearBackground(GetColor(0x6495EDFF));
+        } EndDrawing();
+
+#if 0
+        // Une simple indentation peut aussi fonctionner.
+        BeginDrawing();
+            ClearBackground(GetColor(0x6495EDFF));
+        EndDrawing();
+#endif // 0
+
+#if 0
+        // Ou juste laisser le tout sur la meme colonne.
+        BeginDrawing();
+        ClearBackground(GetColor(0x6495EDFF));
+        EndDrawing();
+#endif // 0
+    }
+    CloseWindow();
     return 0;
 }
