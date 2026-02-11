@@ -20,7 +20,7 @@ bool compile(const char* test_name)
     Cmd cmd = {0};
     char *src_path = temp_sprintf("%s%s.c", TEST_FOLDER, test_name);
     char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
-    char *sdl_folder = VENDOR_FOLDER SDL_VERSION;
+    char *sdl_folder = VENDOR_FOLDER SDL_FOLDER;
 
     nob_log(INFO, "------ Testing: %s ------", test_name);
 
@@ -31,7 +31,7 @@ bool compile(const char* test_name)
     nob_cc_inputs(&cmd, src_path);
     cmd_append(&cmd, temp_sprintf("-I%s/include", sdl_folder));
     cmd_append(&cmd, temp_sprintf("-L%s/lib",     sdl_folder));
-    cmd_append(&cmd, "-l" SDL_VERSION);
+    cmd_append(&cmd, "-lSDL3");
     cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", sdl_folder));
     cmd_append(&cmd, "-lm");
     cmd_append(&cmd, "-ggdb");
