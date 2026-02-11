@@ -180,6 +180,14 @@ bool init_all(void)
         return false;
     }
 
+    sdl_ct.vsyncActivation=true;
+    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    if (SDL_SetRenderVSync(sdl_ct.renderer, sdl_ct.vsyncActivation) == false) {
+        SDL_Log( "Impossible d'initialiser VSync, erreur : %s\n", SDL_GetError() );
+        close_SDL();
+        return false;
+    }
+
     sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
     return true;
 }
