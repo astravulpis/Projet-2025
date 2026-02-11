@@ -1,8 +1,11 @@
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_scancode.h"
+#include "SDL3/SDL_keyboard.h"
 
 #include "../shared.h"
+
+#define MAX_KEY 20
 
 /**
  *  \file main.c
@@ -17,12 +20,15 @@ static struct sdl_context_s {
     SDL_Surface *bgSurface; //< SDL3 surface context
     SDL_Renderer *renderer; //< SDL3 renderer context
     SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
+    bool vsyncActivation;
 } sdl_ct = {0};
 
 /**
  * \brief fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
  */
 bool init_all(void);
+
+int gaucheDroite();
 
 /**
  * @brief fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
@@ -58,6 +64,10 @@ void renderBackground();
 int main()
 {
     init_all();
+
+    int direction;
+    float i=0;
+    Uint32 last = SDL_GetTicks();
 
     bool quitterBool = false; //< booleen qui determine si la page doit continuer  s'afficher
     SDL_Event evenement;
@@ -101,7 +111,7 @@ int main()
     SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL,  boxC);
     SDL_RenderPresent(sdl_ct.renderer);
     //----------------------------------
-
+    
     if (surfaceImgC==NULL)
         printf("impossible charger l'image du logo C ...\n");
     else
@@ -113,25 +123,22 @@ int main()
         printf("image chargée logo SDL avec succès (mais qui est succès ?) ...\n");
 
     float xC=boxC->x;//pour ne pas perdre la coordonnée x originelle de l'image logo C
-    bool avancer=true;
-    float i=0;
-
+    // bool avancer=true; plus besoin parce que je change de direction directement avec direction
+    
     while (!quitterBool){
 
-        //comportement du logo
-        if(i*(i/100)>254)
-            avancer=false;
-        else if(i<1)
-            avancer=true;
+        Uint32 now = SDL_GetTicks();
+        float deltaT = (now - last) / 1000.0f; // seconds since last frame
+        last = now;
+
+        // pump event pour que le clavier reste a jour avec les inputs
+        SDL_PumpEvents();
+
+        direction = gaucheDroite();
+        float speed = 200.0f;              // vitesse a changer peutetre
+
         //execution du comportement
-        if (avancer) {
-            i+=0.1;
-            boxC->x=xC+i*(i/100);
-        }
-        else {
-            i-=0.1;
-            boxC->x=xC+i*(i/100);
-        }
+        boxC->x += -direction * speed * deltaT;
 
         //on récupère l'evenement en tête de file
         SDL_PollEvent(&evenement);
@@ -148,6 +155,7 @@ int main()
         SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL, boxSDL);
 
         SDL_RenderPresent(sdl_ct.renderer);
+        
     }
 
     free(boxSDL);
@@ -173,10 +181,16 @@ bool init_all(void)
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
         return false;
     }
-
     SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(sdl_ct.window), &(sdl_ct.renderer));
     if (sdl_ct.window == NULL) {
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        close_SDL();
+        return false;
+    }
+    sdl_ct.vsyncActivation=true;
+    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    if (SDL_SetRenderVSync(sdl_ct.renderer, 1) == false) {
+        SDL_Log( "Impossible d'initialiser VSync, erreur : %s\n", SDL_GetError() );
         close_SDL();
         return false;
     }
@@ -231,62 +245,31 @@ void renderBackground(){
 
 
 /**
- * \brief On ecoute les touches W et S sur un clavier qwerty, si les 2 sont appuiye en 
- * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
- */
-int avantArriere()
-{
-    const bool *key_states = SDL_GetKeyboardState();
-    int direction = 0;
-
-    /*avant et arriere, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
-    if (key_states[SDL_SCANCODE_W]) {
-        direction += 1;  /* Touche W sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche W");
-    } 
-
-    if (key_states[SDL_SCANCODE_S]) {
-        direction += -1;  /* Toucher S sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche S");
-    }
-
-    return direction;  /* Pas la touche S ou W alors on ne bouge pas*/
-}
-
-/**
  * \brief On ecoute les touches A et D sur un clavier qwerty, si les 2 sont appuiye en 
  * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
  */
-int GaucheDroite()
-{
-    const bool *key_states = SDL_GetKeyboardState();
-    int direction = 0;
-
-    /* gauche et droite, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
-    if (key_states[SDL_SCANCODE_A]) {
-        direction += 1;  /* Touche A sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche A");
-    } 
-
-    if (key_states[SDL_SCANCODE_D]) {
-        direction += -1;  /* Toucher D sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche D");
-    }
-
-    return direction;  /* Pas la touche A ou D alors on ne bouge pas*/
-}
-
-void ecoute_clavier(){
-    /*ecoute les touches au clavier et affiche laquelle a ete appuiye (plus partie test) */
-    bool quiterBool = false;
-    while (!quiterBool) {
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            /* user has pressed a key? */
-            if (e.type == SDL_EVENT_KEY_DOWN) {
-                SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
+int gaucheDroite(){
+    int direction;
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+    /* user has pressed a key? */
+        if (e.type == SDL_EVENT_KEY_DOWN) {
+            SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
+            if (strcmp(SDL_GetKeyName(e.key.key), "A")==0){
+                direction +=1;
             }
-            if(e.type == SDL_EVENT_KEY_DOWN)
+            if (strcmp(SDL_GetKeyName(e.key.key), "D")==0){
+                direction +=-1;
+            }
+            if(strcmp(SDL_GetKeyName(e.key.key), "Escape")==0){
+                    exit(0);
+            }
         }
     }
+    return direction;
 }
+
+/** 
+ * \brief ecoute les touches au clavier et affiche laquelle a ete appuiye (plus partie test) 
+ * 
+*/
