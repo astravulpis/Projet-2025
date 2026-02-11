@@ -17,6 +17,7 @@ static struct sdl_context_s {
     SDL_Surface *bgSurface; //< SDL3 surface context
     SDL_Renderer *renderer; //< SDL3 renderer context
     SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
+    bool vsyncActivation;
 } sdl_ct = {0};
 
 /**
@@ -125,11 +126,11 @@ int main()
             avancer=true;
         //execution du comportement
         if (avancer) {
-            i+=0.1;
+            i+=1.5;
             boxC->x=xC+i*(i/100);
         }
         else {
-            i-=0.1;
+            i-=1.5;
             boxC->x=xC+i*(i/100);
         }
 
@@ -148,6 +149,7 @@ int main()
         SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL, boxSDL);
 
         SDL_RenderPresent(sdl_ct.renderer);
+        printf("\nPerformance Frequency (Pas le FPS, count per second) = %i\n", SDL_GetPerformanceFrequency());
     }
 
     free(boxSDL);
@@ -177,6 +179,14 @@ bool init_all(void)
     SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(sdl_ct.window), &(sdl_ct.renderer));
     if (sdl_ct.window == NULL) {
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        close_SDL();
+        return false;
+    }
+
+    sdl_ct.vsyncActivation=true;
+    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    if (SDL_SetRenderVSync(sdl_ct.renderer, 1) == false) {
+        SDL_Log( "Impossible d'initialiser VSync, erreur : %s\n", SDL_GetError() );
         close_SDL();
         return false;
     }
@@ -234,59 +244,60 @@ void renderBackground(){
  * \brief On ecoute les touches W et S sur un clavier qwerty, si les 2 sont appuiye en 
  * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
  */
-int avantArriere()
-{
-    const bool *key_states = SDL_GetKeyboardState();
-    int direction = 0;
-
-    /*avant et arriere, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
-    if (key_states[SDL_SCANCODE_W]) {
-        direction += 1;  /* Touche W sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche W");
-    } 
-
-    if (key_states[SDL_SCANCODE_S]) {
-        direction += -1;  /* Toucher S sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche S");
-    }
-
-    return direction;  /* Pas la touche S ou W alors on ne bouge pas*/
-}
+//int avantArriere()
+//{
+//    const bool *key_states = SDL_GetKeyboardState();
+//    int direction = 0;
+//
+//    /*avant et arriere, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
+//    if (key_states[SDL_SCANCODE_W]) {
+//        direction += 1;  /* Touche W sur un clavier qwerty */
+//        SDL_Log("Vous avez appuyez sur la touche W");
+//    } 
+//
+//    if (key_states[SDL_SCANCODE_S]) {
+//        direction += -1;  /* Toucher S sur un clavier qwerty */
+//        SDL_Log("Vous avez appuyez sur la touche S");
+//    }
+//
+//    return direction;  /* Pas la touche S ou W alors on ne bouge pas*/
+//}
 
 /**
  * \brief On ecoute les touches A et D sur un clavier qwerty, si les 2 sont appuiye en 
  * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
  */
-int GaucheDroite()
-{
-    const bool *key_states = SDL_GetKeyboardState();
-    int direction = 0;
 
-    /* gauche et droite, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
-    if (key_states[SDL_SCANCODE_A]) {
-        direction += 1;  /* Touche A sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche A");
-    } 
+//int GaucheDroite()
+//{
+//    const bool *key_states = SDL_GetKeyboardState();
+//    int direction = 0;
+//
+//    /* gauche et droite, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
+//    if (key_states[SDL_SCANCODE_A]) {
+//        direction += 1;  /* Touche A sur un clavier qwerty */
+//        SDL_Log("Vous avez appuyez sur la touche A");
+//    } 
+//
+//    if (key_states[SDL_SCANCODE_D]) {
+//        direction += -1;  /* Toucher D sur un clavier qwerty */
+//        SDL_Log("Vous avez appuyez sur la touche D");
+//    }
+//
+//    return direction;  /* Pas la touche A ou D alors on ne bouge pas*/
+//}
 
-    if (key_states[SDL_SCANCODE_D]) {
-        direction += -1;  /* Toucher D sur un clavier qwerty */
-        SDL_Log("Vous avez appuyez sur la touche D");
-    }
-
-    return direction;  /* Pas la touche A ou D alors on ne bouge pas*/
-}
-
-void ecoute_clavier(){
-    /*ecoute les touches au clavier et affiche laquelle a ete appuiye (plus partie test) */
-    bool quiterBool = false;
-    while (!quiterBool) {
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            /* user has pressed a key? */
-            if (e.type == SDL_EVENT_KEY_DOWN) {
-                SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
-            }
-            if(e.type == SDL_EVENT_KEY_DOWN)
-        }
-    }
-}
+//void ecoute_clavier(){
+//    /*ecoute les touches au clavier et affiche laquelle a ete appuiye (plus partie test) */
+//    bool quiterBool = false;
+//    while (!quiterBool) {
+//        SDL_Event e;
+//        while (SDL_PollEvent(&e)) {
+//            /* user has pressed a key? */
+//            if (e.type == SDL_EVENT_KEY_DOWN) {
+//                SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
+//            }
+//            if(e.type == SDL_EVENT_KEY_DOWN)
+//        }
+//    }
+//}
