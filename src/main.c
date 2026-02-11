@@ -3,11 +3,15 @@
 
 #include "../shared.h"
 
+/**
+ *
+ */
+
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
 static struct sdl_context_s {
-    SDL_Window *window; //< SDL3 window context
+    SDL_Window *window;     //< SDL3 window context
     SDL_Surface *bgSurface; //< SDL3 surface context
     SDL_Renderer *renderer; //< SDL3 renderer context
     SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
@@ -71,7 +75,7 @@ int main()
 
     surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
     textureImgSDL = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgSDL);
-    
+
     SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL,  boxSDL);
     SDL_RenderPresent(sdl_ct.renderer);
 
@@ -83,12 +87,12 @@ int main()
     boxC->w=100;
     boxC->h=100;
 
-    SDL_Surface *surfaceImgC; 
+    SDL_Surface *surfaceImgC;
     SDL_Texture *textureImgC;
 
     surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
     textureImgC = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgC);
-    
+
     SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL,  boxC);
     SDL_RenderPresent(sdl_ct.renderer);
     //----------------------------------
@@ -108,7 +112,7 @@ int main()
     float i=0;
 
     while (!quitterBool){
-        
+
         //comportement du logo
         if(i*(i/100)>254)
             avancer=false;
