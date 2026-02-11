@@ -1,5 +1,6 @@
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_surface.h"
+#include "SDL3/SDL_scancode.h"
 
 #include "../shared.h"
 
@@ -226,4 +227,66 @@ void updateBackgroundColor(int r, int g, int b, int aplha){
 void renderBackground(){
     if (sdl_ct.bgTexture != NULL)
         SDL_RenderTexture(sdl_ct.renderer, sdl_ct.bgTexture, NULL,  NULL);
+}
+
+
+/**
+ * \brief On ecoute les touches W et S sur un clavier qwerty, si les 2 sont appuiye en 
+ * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
+ */
+int avantArriere()
+{
+    const bool *key_states = SDL_GetKeyboardState();
+    int direction = 0;
+
+    /*avant et arriere, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
+    if (key_states[SDL_SCANCODE_W]) {
+        direction += 1;  /* Touche W sur un clavier qwerty */
+        SDL_Log("Vous avez appuyez sur la touche W");
+    } 
+
+    if (key_states[SDL_SCANCODE_S]) {
+        direction += -1;  /* Toucher S sur un clavier qwerty */
+        SDL_Log("Vous avez appuyez sur la touche S");
+    }
+
+    return direction;  /* Pas la touche S ou W alors on ne bouge pas*/
+}
+
+/**
+ * \brief On ecoute les touches A et D sur un clavier qwerty, si les 2 sont appuiye en 
+ * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
+ */
+int GaucheDroite()
+{
+    const bool *key_states = SDL_GetKeyboardState();
+    int direction = 0;
+
+    /* gauche et droite, les 2 peuvent ainsi s'anuler si on appuie sur les 2 en meme temps*/
+    if (key_states[SDL_SCANCODE_A]) {
+        direction += 1;  /* Touche A sur un clavier qwerty */
+        SDL_Log("Vous avez appuyez sur la touche A");
+    } 
+
+    if (key_states[SDL_SCANCODE_D]) {
+        direction += -1;  /* Toucher D sur un clavier qwerty */
+        SDL_Log("Vous avez appuyez sur la touche D");
+    }
+
+    return direction;  /* Pas la touche A ou D alors on ne bouge pas*/
+}
+
+void ecoute_clavier(){
+    /*ecoute les touches au clavier et affiche laquelle a ete appuiye (plus partie test) */
+    bool quiterBool = false;
+    while (!quiterBool) {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            /* user has pressed a key? */
+            if (e.type == SDL_EVENT_KEY_DOWN) {
+                SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
+            }
+            if(e.type == SDL_EVENT_KEY_DOWN)
+        }
+    }
 }
