@@ -10,28 +10,42 @@
 #define WINDOW_HEIGHT 600
 #define BREAKPOINT __asm("int3");
 
-typedef struct sdl_context_s {
-    SDL_Window *window;     //< SDL3 window context
-    SDL_Surface *bgSurface; //< SDL3 surface context
-    SDL_Renderer *renderer; //< SDL3 renderer context
-    SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
-    SDL_Event event;
-    bool vsyncActivation;   //< bool that allows the program to not hog the system's ressources (TEMPORARY SOLUTION)
-    bool quit;              //< booleen qui determine si la page doit continuer  s'afficher
-} sdl_ctx_t;
+/**
+ * @typedef struct sdl_ctx_t
+ * @brief shorter abreviation for @ref sdl_context_s
+ */
+typedef struct sdl_context_s sdl_ctx_t;
 
-sdl_ctx_t sdl_ct = {0};
+/**
+ * @struct sdl_context_s
+ * @brief Act as our sdl context with multiple variables used about everywhere
+ *
+ * It holds multiple variable for the rendering of the window, the surface of said window, the event that can be pulled and if the program is running or not.
+ */
+struct sdl_context_s {
+    SDL_Window *window;     //!< SDL window context
+    SDL_Renderer *renderer; //!< SDL renderer context
+    SDL_Surface *bgSurface; //!< SDL window's background surface (needs to be made into a struct sdl_RenderSurface or smth)
+    SDL_Texture *bgTexture; //!< SDL window's background texture (needs to be made into a struct sdl_RenderSurface or smth)
+    SDL_Event event;
+    bool vsyncActivation;   //!< bool that allows the program to not hog the system's ressources (TEMPORARY SOLUTION)
+    bool quit;              //!< bool to quit the main loop
+};
+
+sdl_ctx_t sdl_ctx = {0}; //!< Global sdl context variable
 
 /**
  * @fn init_all()
- * @brief fonction qui initialiste tout les sous modules de SDL3
+ * @brief Initializes the sdl context
+ * @param[out] result Returns `true` or `false` depending on if SDL failed to init its own context.
  */
 bool init_all();
 
 /**
  * @fn close_SDL()
- * @brief Detruit la fenetre et le context d'SDL3
- * Fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
+ * @brief Destroys the SDL window
+ *
+ * Helper function to deallocate and put all of the SDL context pointers to NULL.
  */
 void close_SDL();
 
@@ -43,7 +57,7 @@ void close_SDL();
  * @param[in] b blue color of the background
  * @param[in] alpha fadeness of the color
  *
- * Initialise sdl_ct.bgSurface et sdl_ct.bgTexture puis rempli la surface d'une couleur renseignée en paramètre en code RGB il est possible de spécifier l'alpha
+ * Init sdl context's backgroud surface and texture and fills them with the color given in RGBA format
  */
 void initBackgroundColor(int r, int g, int b, int aplha);
 
@@ -66,7 +80,7 @@ void updateBackgroundColor(int r, int g, int b, int aplha);
 void renderBackground();
 
 /**
- * @fn gaucheDroite()
+ * @fn gaucheDroite(struct sdl_context_s *ctx)
  * @brief Listens to keyboard inputs (specifically A and D)
  * @param[in] ctx SDL context
  * @param[out] direction Returns -1 or 1 whenever A or D are pressed respectively
@@ -86,7 +100,7 @@ int main()
     SDL_Surface *surfaceImgSDL;
     SDL_Texture *textureImgSDL;
 
-    sdl_ct.quit = false;
+    sdl_ctx.quit = false;
 
     initBackgroundColor(255, 255, 255, 255);
     renderBackground();
@@ -99,10 +113,10 @@ int main()
     boxSDL->h=100;
 
     surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
-    textureImgSDL = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgSDL);
+    textureImgSDL = SDL_CreateTextureFromSurface(sdl_ctx.renderer, surfaceImgSDL);
 
-    SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL,  boxSDL);
-    SDL_RenderPresent(sdl_ct.renderer);
+    SDL_RenderTexture(sdl_ctx.renderer, textureImgSDL, NULL,  boxSDL);
+    SDL_RenderPresent(sdl_ctx.renderer);
 
     //Rendu du logo du langage C
     SDL_FRect * boxC = NULL;
@@ -116,10 +130,10 @@ int main()
     SDL_Texture *textureImgC;
 
     surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
-    textureImgC = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgC);
+    textureImgC = SDL_CreateTextureFromSurface(sdl_ctx.renderer, surfaceImgC);
 
-    SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL,  boxC);
-    SDL_RenderPresent(sdl_ct.renderer);
+    SDL_RenderTexture(sdl_ctx.renderer, textureImgC, NULL,  boxC);
+    SDL_RenderPresent(sdl_ctx.renderer);
     //----------------------------------
 
     if (surfaceImgC==NULL)
@@ -138,35 +152,35 @@ int main()
     // ----------------------------------------------
     UNUSED(tempOriginBox);
 
-    while (!sdl_ct.quit){
+    while (!sdl_ctx.quit){
         Uint32 now = SDL_GetTicks();
         float deltaT = (now - last) / 1000.0f; // seconds since last frame
         last = now;
 
-        SDL_PollEvent(&sdl_ct.event);
-        if (sdl_ct.event.type == SDL_EVENT_QUIT){
-            sdl_ct.quit = true;
+        SDL_PollEvent(&sdl_ctx.event);
+        if (sdl_ctx.event.type == SDL_EVENT_QUIT){
+            sdl_ctx.quit = true;
         }
 
         // Updates the event queue and internal input device state
         SDL_PumpEvents();
 
-        direction = gaucheDroite(&sdl_ct);
+        direction = gaucheDroite(&sdl_ctx);
 
         // execution du comportement
         boxC->x += direction * speed * deltaT;
 
         //on récupère l'evenement en tête de file
 
-        SDL_ClearSurface(sdl_ct.bgSurface, color, color, color, 1.0f);
-        SDL_RenderClear(sdl_ct.renderer);
+        SDL_ClearSurface(sdl_ctx.bgSurface, color, color, color, 1.0f);
+        SDL_RenderClear(sdl_ctx.renderer);
 
         updateBackgroundColor( i*(i/100), i*(i/100), i, 255);
         renderBackground();
-        SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL, boxC);
-        SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL, boxSDL);
+        SDL_RenderTexture(sdl_ctx.renderer, textureImgC, NULL, boxC);
+        SDL_RenderTexture(sdl_ctx.renderer, textureImgSDL, NULL, boxSDL);
 
-        SDL_RenderPresent(sdl_ct.renderer);
+        SDL_RenderPresent(sdl_ctx.renderer);
 
     }
 
@@ -190,56 +204,56 @@ bool init_all(void)
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
         return false;
     }
-    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(sdl_ct.window), &(sdl_ct.renderer));
-    if (sdl_ct.window == NULL) {
+    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(sdl_ctx.window), &(sdl_ctx.renderer));
+    if (sdl_ctx.window == NULL) {
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
         close_SDL();
         return false;
     }
-    sdl_ct.vsyncActivation=true;
+    sdl_ctx.vsyncActivation=true;
     //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
-    if (SDL_SetRenderVSync(sdl_ct.renderer, 1) == false) {
+    if (SDL_SetRenderVSync(sdl_ctx.renderer, 1) == false) {
         SDL_Log( "Impossible d'initialiser VSync, erreur : %s\n", SDL_GetError() );
         close_SDL();
         return false;
     }
 
-    sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
+    sdl_ctx.bgSurface = SDL_GetWindowSurface(sdl_ctx.window);
     return true;
 }
 
 void close_SDL()
 {
-    SDL_DestroyWindow(sdl_ct.window);
+    SDL_DestroyWindow(sdl_ctx.window);
 
-    sdl_ct.window = NULL;
-    sdl_ct.bgSurface = NULL;
+    sdl_ctx.window = NULL;
+    sdl_ctx.bgSurface = NULL;
 
     SDL_Quit();
 }
 
 void initBackgroundColor(int r, int g, int b, int aplha)
 {
-    sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
+    sdl_ctx.bgSurface = SDL_GetWindowSurface(sdl_ctx.window);
 
-    SDL_FillSurfaceRect(sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ct.bgSurface, r, g, b));
+    SDL_FillSurfaceRect(sdl_ctx.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ctx.bgSurface, r, g, b));
 
-    sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
+    sdl_ctx.bgTexture = SDL_CreateTextureFromSurface(sdl_ctx.renderer, sdl_ctx.bgSurface);
 }
 
 void updateBackgroundColor(int r, int g, int b, int aplha)
 {
-    SDL_DestroySurface(sdl_ct.bgSurface);
-    SDL_DestroyTexture(sdl_ct.bgTexture);
+    SDL_DestroySurface(sdl_ctx.bgSurface);
+    SDL_DestroyTexture(sdl_ctx.bgTexture);
 
-    SDL_FillSurfaceRect(sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ct.bgSurface, r, g, b));
+    SDL_FillSurfaceRect(sdl_ctx.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ctx.bgSurface, r, g, b));
 
-    sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
+    sdl_ctx.bgTexture = SDL_CreateTextureFromSurface(sdl_ctx.renderer, sdl_ctx.bgSurface);
 }
 
 void renderBackground()
 {
-    if (sdl_ct.bgTexture != NULL) SDL_RenderTexture(sdl_ct.renderer, sdl_ct.bgTexture, NULL,  NULL);
+    if (sdl_ctx.bgTexture != NULL) SDL_RenderTexture(sdl_ctx.renderer, sdl_ctx.bgTexture, NULL,  NULL);
 }
 
 int gaucheDroite(struct sdl_context_s *ctx)
