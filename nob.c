@@ -1,5 +1,12 @@
 #include "shared.h"
 
+// #if !defined(_WIN32)
+// #  if defined(nob_cc)
+// #    undef nob_cc
+// #    define nob_cc(cmd) nob_cmd_append(cmd, "gcc")
+// #  endif
+// #endif
+
 void usage(FILE *stream)
 {
     fprintf(stream, "Usage: ./nob [OPTIONS]\n");
