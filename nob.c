@@ -74,14 +74,15 @@ int main(int argc, char **argv)
         nob_cmd_append(&cmd, "cc");
         nob_cmd_append(&cmd, "-Wall");
         nob_cmd_append(&cmd, "-Wextra");
+        if (*debug) nob_cmd_append(&cmd, "-g");
+        if (*debug) nob_cmd_append(&cmd, "-ggdb");
         nob_cmd_append(&cmd, "-o", temp_sprintf("%smain", BINARIES_FOLDER));
         nob_cmd_append(&cmd, temp_sprintf("%smain.c",     SRC_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("-I%s/include", VENDOR_FOLDER "SDL3"));
-        nob_cmd_append(&cmd, temp_sprintf("-L%s/lib",     VENDOR_FOLDER "SDL3"));
+        nob_cmd_append(&cmd, temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));
+        nob_cmd_append(&cmd, temp_sprintf("-L%slib",     VENDOR_FOLDER SDL_FOLDER));
         nob_cmd_append(&cmd, "-lSDL3");
-        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", VENDOR_FOLDER "SDL3"));
+        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%slib", VENDOR_FOLDER SDL_FOLDER));
         nob_cmd_append(&cmd, "-lm");
-        if (*debug) nob_cmd_append(&cmd, "-ggdb");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 

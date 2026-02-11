@@ -13,4 +13,4 @@
 #define TEST_FOLDER "tests/"
 #define SRC_FOLDER "src/"
 
-#define SDL_VERSION "SDL3"
+#define SDL_FOLDER "SDL3/"
