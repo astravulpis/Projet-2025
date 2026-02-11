@@ -1,6 +1,4 @@
 #include "SDL3/SDL.h"
-#include "SDL3/SDL_surface.h"
-
 #include "../shared.h"
 
 /**
@@ -16,6 +14,7 @@ static struct sdl_context_s {
     SDL_Surface *bgSurface; //< SDL3 surface context
     SDL_Renderer *renderer; //< SDL3 renderer context
     SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
+    bool vsyncActivation;
 } sdl_ct = {0};
 
 /**
@@ -124,11 +123,11 @@ int main()
             avancer=true;
         //execution du comportement
         if (avancer) {
-            i+=0.1;
+            i+=1.5;
             boxC->x=xC+i*(i/100);
         }
         else {
-            i-=0.1;
+            i-=1.5;
             boxC->x=xC+i*(i/100);
         }
 
