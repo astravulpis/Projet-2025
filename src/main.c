@@ -4,7 +4,8 @@
 #include "../shared.h"
 
 /**
- *
+ *  \file main.c
+ * \brief Utilisation de SDL pour s'occuper du rendu d'image
  */
 
 #define WINDOW_WIDTH 800
@@ -18,7 +19,7 @@ static struct sdl_context_s {
 } sdl_ct = {0};
 
 /**
- * fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
+ * \brief fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
  */
 bool init_all(void);
 
@@ -29,14 +30,14 @@ bool init_all(void);
 void close_SDL();
 
 /**
- * fonction qui initialise sdl_ct.bgSurface et sdl_ct.bgTexture
+ * \brief fonction qui initialise sdl_ct.bgSurface et sdl_ct.bgTexture
  * et qui rempli la surface d'une couleur renseignée en paramètre en code RGB
  * il est possible de spécifier l'alpha
  */
 void initBackgroundColor(int r, int g, int b, int aplha);
 
 /**
- * fonction qui modifie la couleur de l'arrière plan de sdl_ct.window
+ * \brief fonction qui modifie la couleur de l'arrière plan de sdl_ct.window
  * via sa surface et sa texture, également présents dans sdl_ct,
  * a utiliser uniquement si initBackgroundColor() a été utilisé avant
  * (pas encore de verifications implémentés)
@@ -44,12 +45,15 @@ void initBackgroundColor(int r, int g, int b, int aplha);
 void updateBackgroundColor(int r, int g, int b, int aplha);
 
 /**
- * fonction qui effectue le rendu de sdl_ct.bgTexture,
+ * \brief fonction qui effectue le rendu de sdl_ct.bgTexture,
  * il est donc assez utile de faire un initBackgroundColor() avant ;D
  * si l'arrière plan n'est pas init, alors la fonction ne fait rien
  */
 void renderBackground();
 
+/**
+ * \brief fonction main, on vient d'abord init_all(), puis on a les appels aux fonctions initBackgroundColor() et renderBackground  
+ */
 int main()
 {
     init_all();
@@ -159,6 +163,9 @@ int main()
     return 0;
 }
 
+/**
+ * \brief initialise SDL, return true quand tout c'est bien passe et false sinon
+ */
 bool init_all(void)
 {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
@@ -177,6 +184,9 @@ bool init_all(void)
     return true;
 }
 
+/**
+ * \brief cette fonction vient detruire la fenetre et mettre les pointeurs window et bgSurface a NULL pour eviter les pointeurs fous
+ */
 void close_SDL()
 {
     SDL_DestroyWindow(sdl_ct.window);
@@ -187,6 +197,9 @@ void close_SDL()
     SDL_Quit();
 }
 
+/**
+ * \brief cette fonction vient initialiser le background, pour l'instant avec une surface solide
+ */
 void initBackgroundColor(int r, int g, int b, int aplha){
     sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
 
@@ -195,6 +208,9 @@ void initBackgroundColor(int r, int g, int b, int aplha){
     sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
 }
 
+/**
+ * \brief fonction de mise a jour de l'arriere plan
+ */
 void updateBackgroundColor(int r, int g, int b, int aplha){
     SDL_DestroySurface(sdl_ct.bgSurface);
     SDL_DestroyTexture(sdl_ct.bgTexture);
@@ -204,6 +220,9 @@ void updateBackgroundColor(int r, int g, int b, int aplha){
     sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
 }
 
+/**
+ * \brief cette fonction vient render le background, a condition que la bgTexture ne soit pas NULL
+ */
 void renderBackground(){
     if (sdl_ct.bgTexture != NULL)
         SDL_RenderTexture(sdl_ct.renderer, sdl_ct.bgTexture, NULL,  NULL);
