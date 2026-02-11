@@ -1,4 +1,12 @@
 # ULTRAC00L
+## Auteurs du projet
+ - [Liam BERGE](https://github.com/LiamB72)
+ - [François ROSSIGNOL](https://github.com/Lampadaire-py) 
+ - [Guillaume REEVES](https://github.com/Greeves0) <br/>
+<a href = "https://github.com/LiamB72/Projet-2025/graphs/contributors">
+    <img src = "https://contrib.rocks/image?repo=LiamB72/Projet-2025"/>
+</a>
+
 ## Présentation
 Projet de deuxième année de licence informatique, a l’Université du Mans.  
 Codé en langage C, Jeu 2D, inspiré de FPS 3D, notamment [ULTRAKILL](https://store.steampowered.com/app/1229490/ULTRAKILL/).  
