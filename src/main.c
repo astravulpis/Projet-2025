@@ -1,92 +1,102 @@
 #include "SDL3/SDL.h"
-#include "SDL3/SDL_surface.h"
-#include "SDL3/SDL_scancode.h"
-#include "SDL3/SDL_keyboard.h"
-
 #include "../shared.h"
 
-#define MAX_KEY 20
-
 /**
- *  \file main.c
- * \brief Utilisation de SDL pour s'occuper du rendu d'image
+ * @file main.c
+ * @brief File where every actions to run the game are being executed at.
  */
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
+#define BREAKPOINT __asm("int3");
 
-static struct sdl_context_s {
+typedef struct sdl_context_s {
     SDL_Window *window;     //< SDL3 window context
     SDL_Surface *bgSurface; //< SDL3 surface context
     SDL_Renderer *renderer; //< SDL3 renderer context
     SDL_Texture *bgTexture; //< SDL3 surface renderer texture context (je crois que chaque objet doit avoir sa surface et sa texture donc peut être que bgTexture et renderinSurface doivent dégager)
-    bool vsyncActivation;
-} sdl_ct = {0};
+    SDL_Event event;
+    bool vsyncActivation;   //< bool that allows the program to not hog the system's ressources (TEMPORARY SOLUTION)
+    bool quit;              //< booleen qui determine si la page doit continuer  s'afficher
+} sdl_ctx_t;
+
+sdl_ctx_t sdl_ct = {0};
 
 /**
- * \brief fonction qui initialiste tout les sous modules de SDL3 qui vont être utilisés
+ * @fn init_all()
+ * @brief fonction qui initialiste tout les sous modules de SDL3
  */
-bool init_all(void);
-
-int gaucheDroite();
+bool init_all();
 
 /**
- * @brief fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
- * Detruit la fenetre et le context d'SDL3
+ * @fn close_SDL()
+ * @brief Detruit la fenetre et le context d'SDL3
+ * Fonction qui effectue toutes les désallocation et mise a NULL des pointeurs SDL3
  */
 void close_SDL();
 
 /**
- * \brief fonction qui initialise sdl_ct.bgSurface et sdl_ct.bgTexture
- * et qui rempli la surface d'une couleur renseignée en paramètre en code RGB
- * il est possible de spécifier l'alpha
+ * @fn initBackgroundColor(int r, int g, int b, int aplha)
+ * @brief helper function to initialise the background
+ * @param[in] r red color of the background
+ * @param[in] g green color of the background
+ * @param[in] b blue color of the background
+ * @param[in] alpha fadeness of the color
+ *
+ * Initialise sdl_ct.bgSurface et sdl_ct.bgTexture puis rempli la surface d'une couleur renseignée en paramètre en code RGB il est possible de spécifier l'alpha
  */
 void initBackgroundColor(int r, int g, int b, int aplha);
 
 /**
- * \brief fonction qui modifie la couleur de l'arrière plan de sdl_ct.window
- * via sa surface et sa texture, également présents dans sdl_ct,
- * a utiliser uniquement si initBackgroundColor() a été utilisé avant
- * (pas encore de verifications implémentés)
+ * @fn updateBackgroundColor(int r, int g, int b, int aplha)
+ * @brief helper function to modify the color of the background
+ * @param[in] r red color of the background
+ * @param[in] g green color of the background
+ * @param[in] b blue color of the background
+ * @param[in] alpha fadeness of the color
+ *
+ * Modifies the surface and the texture of the sdl context's window
  */
 void updateBackgroundColor(int r, int g, int b, int aplha);
 
 /**
- * \brief fonction qui effectue le rendu de sdl_ct.bgTexture,
- * il est donc assez utile de faire un initBackgroundColor() avant ;D
- * si l'arrière plan n'est pas init, alors la fonction ne fait rien
+ * @fn renderBackground()
+ * @brief Renders the background texture if not NULL (?)
  */
 void renderBackground();
 
 /**
- * \brief fonction main, on vient d'abord init_all(), puis on a les appels aux fonctions initBackgroundColor() et renderBackground  
+ * @fn gaucheDroite()
+ * @brief Listens to keyboard inputs (specifically A and D)
+ * @param[in] ctx SDL context
+ * @param[out] direction Returns -1 or 1 whenever A or D are pressed respectively
  */
+int gaucheDroite(struct sdl_context_s *ctx);
+
 int main()
 {
     init_all();
 
-    int direction;
+    int direction = 0;
+    float speed = 200.0f;
     float i=0;
-    Uint32 last = SDL_GetTicks();
-
-    bool quitterBool = false; //< booleen qui determine si la page doit continuer  s'afficher
-    SDL_Event evenement;
-
     float color = 0x18/255.0f;
+    Uint32 last = SDL_GetTicks();
+    SDL_FRect * boxSDL = NULL;//les objets SDL_FRect contienent des coordonnées et des dimmensions
+    SDL_Surface *surfaceImgSDL;
+    SDL_Texture *textureImgSDL;
+
+    sdl_ct.quit = false;
 
     initBackgroundColor(255, 255, 255, 255);
     renderBackground();
 
     //Rendu du logo de SDL
-    SDL_FRect * boxSDL = NULL;//les objets SDL_FRect contienent des coordonnées et des dimmensions
     boxSDL=malloc(sizeof(SDL_FRect));
     boxSDL->x=0;
     boxSDL->y=0;
     boxSDL->w=100;
     boxSDL->h=100;
-
-    SDL_Surface *surfaceImgSDL;
-    SDL_Texture *textureImgSDL;
 
     surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
     textureImgSDL = SDL_CreateTextureFromSurface(sdl_ct.renderer, surfaceImgSDL);
@@ -111,7 +121,7 @@ int main()
     SDL_RenderTexture(sdl_ct.renderer, textureImgC, NULL,  boxC);
     SDL_RenderPresent(sdl_ct.renderer);
     //----------------------------------
-    
+
     if (surfaceImgC==NULL)
         printf("impossible charger l'image du logo C ...\n");
     else
@@ -122,29 +132,31 @@ int main()
     else
         printf("image chargée logo SDL avec succès (mais qui est succès ?) ...\n");
 
-    float xC=boxC->x;//pour ne pas perdre la coordonnée x originelle de l'image logo C
-    // bool avancer=true; plus besoin parce que je change de direction directement avec direction
-    
-    while (!quitterBool){
+    float tempOriginBox = boxC->x;      //pour ne pas perdre la coordonnée x originelle de l'image logo C
+    // ----------------------------------------------
+    // * REMOVE THIS BELOW TO USE THE `tempOriginBox`
+    // ----------------------------------------------
+    UNUSED(tempOriginBox);
 
+    while (!sdl_ct.quit){
         Uint32 now = SDL_GetTicks();
         float deltaT = (now - last) / 1000.0f; // seconds since last frame
         last = now;
 
-        // pump event pour que le clavier reste a jour avec les inputs
+        SDL_PollEvent(&sdl_ct.event);
+        if (sdl_ct.event.type == SDL_EVENT_QUIT){
+            sdl_ct.quit = true;
+        }
+
+        // Updates the event queue and internal input device state
         SDL_PumpEvents();
 
-        direction = gaucheDroite();
-        float speed = 200.0f;              // vitesse a changer peutetre
+        direction = gaucheDroite(&sdl_ct);
 
-        //execution du comportement
-        boxC->x += -direction * speed * deltaT;
+        // execution du comportement
+        boxC->x += direction * speed * deltaT;
 
         //on récupère l'evenement en tête de file
-        SDL_PollEvent(&evenement);
-        switch (evenement.type){
-            case SDL_EVENT_QUIT: quitterBool=true;
-        }
 
         SDL_ClearSurface(sdl_ct.bgSurface, color, color, color, 1.0f);
         SDL_RenderClear(sdl_ct.renderer);
@@ -155,7 +167,7 @@ int main()
         SDL_RenderTexture(sdl_ct.renderer, textureImgSDL, NULL, boxSDL);
 
         SDL_RenderPresent(sdl_ct.renderer);
-        
+
     }
 
     free(boxSDL);
@@ -172,9 +184,6 @@ int main()
     return 0;
 }
 
-/**
- * \brief initialise SDL, return true quand tout c'est bien passe et false sinon
- */
 bool init_all(void)
 {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
@@ -199,9 +208,6 @@ bool init_all(void)
     return true;
 }
 
-/**
- * \brief cette fonction vient detruire la fenetre et mettre les pointeurs window et bgSurface a NULL pour eviter les pointeurs fous
- */
 void close_SDL()
 {
     SDL_DestroyWindow(sdl_ct.window);
@@ -212,64 +218,48 @@ void close_SDL()
     SDL_Quit();
 }
 
-/**
- * \brief cette fonction vient initialiser le background, pour l'instant avec une surface solide
- */
-void initBackgroundColor(int r, int g, int b, int aplha){
+void initBackgroundColor(int r, int g, int b, int aplha)
+{
     sdl_ct.bgSurface = SDL_GetWindowSurface(sdl_ct.window);
 
-    SDL_FillSurfaceRect( sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB( sdl_ct.bgSurface, r, g, b) );
+    SDL_FillSurfaceRect(sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ct.bgSurface, r, g, b));
 
     sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
 }
 
-/**
- * \brief fonction de mise a jour de l'arriere plan
- */
-void updateBackgroundColor(int r, int g, int b, int aplha){
+void updateBackgroundColor(int r, int g, int b, int aplha)
+{
     SDL_DestroySurface(sdl_ct.bgSurface);
     SDL_DestroyTexture(sdl_ct.bgTexture);
 
-    SDL_FillSurfaceRect( sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB( sdl_ct.bgSurface, r, g, b) );
+    SDL_FillSurfaceRect(sdl_ct.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ct.bgSurface, r, g, b));
 
     sdl_ct.bgTexture = SDL_CreateTextureFromSurface(sdl_ct.renderer, sdl_ct.bgSurface);
 }
 
-/**
- * \brief cette fonction vient render le background, a condition que la bgTexture ne soit pas NULL
- */
-void renderBackground(){
-    if (sdl_ct.bgTexture != NULL)
-        SDL_RenderTexture(sdl_ct.renderer, sdl_ct.bgTexture, NULL,  NULL);
+void renderBackground()
+{
+    if (sdl_ct.bgTexture != NULL) SDL_RenderTexture(sdl_ct.renderer, sdl_ct.bgTexture, NULL,  NULL);
 }
 
-
-/**
- * \brief On ecoute les touches A et D sur un clavier qwerty, si les 2 sont appuiye en 
- * meme temps alors elles s'annullent et on ne bouge pas, return 1 ou -1 sinon
- */
-int gaucheDroite(){
-    int direction;
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-    /* user has pressed a key? */
-        if (e.type == SDL_EVENT_KEY_DOWN) {
-            SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
-            if (strcmp(SDL_GetKeyName(e.key.key), "A")==0){
-                direction +=1;
-            }
-            if (strcmp(SDL_GetKeyName(e.key.key), "D")==0){
-                direction +=-1;
-            }
-            if(strcmp(SDL_GetKeyName(e.key.key), "Escape")==0){
-                    exit(0);
-            }
+int gaucheDroite(struct sdl_context_s *ctx)
+{
+    SDL_Event e = ctx->event;
+    if (e.type == SDL_EVENT_KEY_DOWN) {
+        SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
+        switch (e.key.scancode) {
+            case SDL_SCANCODE_A:
+                return -1;
+                break;
+            case SDL_SCANCODE_D:
+                return 1;
+                break;
+            case SDL_SCANCODE_Q:
+                ctx->quit = true;
+                break;
+            default:
+                break;
         }
     }
-    return direction;
+    return 0;
 }
-
-/** 
- * \brief ecoute les touches au clavier et affiche laquelle a ete appuiye (plus partie test) 
- * 
-*/
