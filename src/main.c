@@ -108,7 +108,7 @@ int main()
     float i=0;
     float color = 0x18/255.0f;
     Uint32 last = SDL_GetTicks();
-    SDL_FRect * boxSDL = NULL;//les objets SDL_FRect contienent des coordonnées et des dimmensions
+    SDL_FRect * boxSDL = NULL; //les objets SDL_FRect contienent des coordonnées et des dimmensions (used for the hitboxes)
     SDL_Surface *surfaceImgSDL;
     SDL_Texture *textureImgSDL;
 
