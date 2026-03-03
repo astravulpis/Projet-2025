@@ -80,12 +80,24 @@ void updateBackgroundColor(int r, int g, int b, int aplha);
 void renderBackground();
 
 /**
- * @fn gaucheDroite(struct sdl_context_s *ctx)
+ * @fn basic_movement(struct sdl_context_s *ctx)
  * @brief Listens to keyboard inputs (specifically A and D)
  * @param[in] ctx SDL context
  * @param[out] direction Returns -1 or 1 whenever A or D are pressed respectively
  */
-int gaucheDroite(struct sdl_context_s *ctx);
+int basic_movement(struct sdl_context_s *ctx);
+
+/**
+ * @fn hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
+ * @brief takes the location of the image we are moving then compares it to the corners of the screen
+ * @param[in] r our sld rectangle
+ * @param[in] minX left side of screen
+ * @param[in] minY top side of screen
+ * @param[in] maxX right side of screen
+ * @param[in] maxY bottom side of screen
+ */
+void hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
+
 
 int main()
 {
@@ -111,6 +123,8 @@ int main()
     boxSDL->y=0;
     boxSDL->w=100;
     boxSDL->h=100;
+
+    SDL_Event evenement;
 
     surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
     textureImgSDL = SDL_CreateTextureFromSurface(sdl_ctx.renderer, surfaceImgSDL);
@@ -157,18 +171,33 @@ int main()
         float deltaT = (now - last) / 1000.0f; // seconds since last frame
         last = now;
 
-        SDL_PollEvent(&sdl_ctx.event);
-        if (sdl_ctx.event.type == SDL_EVENT_QUIT){
-            sdl_ctx.quit = true;
+        while(SDL_PollEvent(&sdl_ctx.event)==SDL_EVENT_QUIT){
+            sdl_ctx.quit= true;
         }
 
         // Updates the event queue and internal input device state
         SDL_PumpEvents();
 
-        direction = gaucheDroite(&sdl_ctx);
+        direction = basic_movement(&sdl_ctx);
 
         // execution du comportement
-        boxC->x += direction * speed * deltaT;
+        switch (direction){
+            case 'A':
+                boxC->x -= speed*deltaT;
+                break;
+            case 'S':
+                boxC->y += speed*deltaT;
+                break;
+            case 'D':
+                boxC->x += speed*deltaT;
+                break;
+            case 'W':
+                boxC->y -= speed*deltaT;
+                break;
+        }
+
+        //call hit_box_test pour verifier que boxC ne sort pas de l'image avec la prochaine boucle
+        hit_box_test(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         //on récupère l'evenement en tête de file
 
@@ -256,17 +285,23 @@ void renderBackground()
     if (sdl_ctx.bgTexture != NULL) SDL_RenderTexture(sdl_ctx.renderer, sdl_ctx.bgTexture, NULL,  NULL);
 }
 
-int gaucheDroite(struct sdl_context_s *ctx)
+int basic_movement(struct sdl_context_s *ctx)
 {
     SDL_Event e = ctx->event;
     if (e.type == SDL_EVENT_KEY_DOWN) {
         SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
         switch (e.key.scancode) {
             case SDL_SCANCODE_A:
-                return -1;
+                return 'A';
                 break;
             case SDL_SCANCODE_D:
-                return 1;
+                return 'D';
+                break;
+            case SDL_SCANCODE_W:
+                return 'W';
+                break;
+            case SDL_SCANCODE_S:
+                return 'S';
                 break;
             case SDL_SCANCODE_Q:
                 ctx->quit = true;
@@ -277,3 +312,12 @@ int gaucheDroite(struct sdl_context_s *ctx)
     }
     return 0;
 }
+
+    //keep rectangle in the given bounds by window height and window width
+void hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY) {
+        if (r == NULL) return;
+        if (r->x < minX) r->x = minX;
+        if (r->y < minY) r->y = minY;
+        if (r->x + r->w > maxX) r->x = maxX - r->w;
+        if (r->y + r->h > maxY) r->y = maxY - r->h;
+    }
