@@ -7,6 +7,26 @@
 // #  endif
 // #endif
 
+
+typedef struct submodules {
+    const char **items;
+    size_t count;
+    size_t capacity;
+} submodules;
+
+#define da_get(da, idx) (da)->items[i]
+#define compile_command(cmd, input_path, output_path, linking, ...) __compile_command((cmd), (input_path), (output_path), (linking), (submodules *){__VA_ARGS__})
+#define add_sdl_libraries(cmd) \
+    do { \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER)); \
+        cmd_append((cmd), temp_sprintf("-L%slib",     VENDOR_FOLDER SDL_FOLDER)); \
+        cmd_append((cmd), "-lSDL3"); \
+        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib", VENDOR_FOLDER SDL_FOLDER)); \
+        cmd_append((cmd), "-lm"); \
+    } while (0)
+
+bool debug;
+
 void usage(FILE *stream)
 {
     fprintf(stream, "Usage: ./nob [OPTIONS]\n");
@@ -14,17 +34,63 @@ void usage(FILE *stream)
     flag_print_options(stream);
 }
 
+void __compile_command(Cmd *cmd, const char *input_path, const char *output_path, bool linking, submodules *modules)
+{
+    nob_cmd_append(cmd, "cc");
+    nob_cmd_append(cmd, "-Wall");
+    nob_cmd_append(cmd, "-Wextra");
+    if (debug) nob_cmd_append(cmd, "-g");
+    if (debug) nob_cmd_append(cmd, "-ggdb");
+    nob_cmd_append(cmd, "-o", output_path);
+    if (!linking) nob_cmd_append(cmd, "-c", input_path);
+    else {
+        nob_cmd_append(cmd, input_path);
+        if (modules->count) {
+            for (size_t i = 0; i < modules->count; ++i) {
+                char *output = nob_temp_sprintf("%s%s.o", BUILD_FOLDER, da_get(modules, i));
+                nob_cmd_append(cmd, output);
+            }
+        }
+        add_sdl_libraries(cmd);
+    }
+}
+
+bool compile_submodules(submodules *modules)
+{
+    Nob_Cmd cmd = {0};
+    bool result = true;
+
+    size_t mark = temp_save();
+    for (size_t i = 0; i < modules->count; ++i) {
+        nob_temp_rewind(mark);
+        char *input = nob_temp_sprintf("%s%s.c", SRC_FOLDER, da_get(modules, i));
+        char *output = nob_temp_sprintf("%s%s.o", BUILD_FOLDER, da_get(modules, i));
+        printf("-------------\n");
+        printf("Input path: %s\nOutput path: %s\n", input, output);
+        if (nob_needs_rebuild1(output, input) || debug) {
+            compile_command(&cmd, input, output, false); // No linking yet
+            if (!cmd_run(&cmd)) return_defer(false);
+        }
+        printf("-------------\n");
+    }
+
+defer:
+    free(cmd.items);
+    return result;
+}
+
 int main(int argc, char **argv)
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
     Nob_Cmd cmd = {0};
+    submodules modules = {0};
     int result = 0;
     size_t mark = nob_temp_save();
 
+    flag_bool_var(&debug, "-debug", false, "run in debug mode");
     bool *help    = flag_bool("-help", false, "Print this help");
     bool *clean   = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
     bool *run     = flag_bool("-run", false, "run the program");
-    bool *debug   = flag_bool("-debug", false, "run in debug mode");
     bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2 (YOU NEED TO HAVE GF2 IN YOUR PATH)");
     bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
     bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
@@ -35,7 +101,7 @@ int main(int argc, char **argv)
         return_defer(1);
     }
 
-    if (*debugui) *debug = true;
+    if (*debugui) debug = true;
 
     if (*help) {
         usage(stdout);
@@ -69,20 +135,14 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    // Add more submodules here
+    da_append(&modules, "event");
+    da_append(&modules, "sdl_helpers");
+    if (!compile_submodules(&modules)) return_defer(1);
+
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
-        nob_cmd_append(&cmd, "cc");
-        nob_cmd_append(&cmd, "-Wall");
-        nob_cmd_append(&cmd, "-Wextra");
-        if (*debug) nob_cmd_append(&cmd, "-g");
-        if (*debug) nob_cmd_append(&cmd, "-ggdb");
-        nob_cmd_append(&cmd, "-o", temp_sprintf("%smain", BINARIES_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("%smain.c",     SRC_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));
-        nob_cmd_append(&cmd, temp_sprintf("-L%slib",     VENDOR_FOLDER SDL_FOLDER));
-        nob_cmd_append(&cmd, "-lSDL3");
-        nob_cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%slib", VENDOR_FOLDER SDL_FOLDER));
-        nob_cmd_append(&cmd, "-lm");
+        compile_command(&cmd, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true, &modules);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
