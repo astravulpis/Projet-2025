@@ -94,8 +94,10 @@ int main()
         SDL_RenderClear(sdl_ctx->renderer);
 
         renderBackground(sdl_ctx);
-        renduImage(sdl_ctx, SDL_Logo, boxSDL->x, boxSDL->y, boxSDL->w, boxSDL->h);
-        renduImage(sdl_ctx, C_Logo, boxC->x, boxC->y, boxC->w, boxC->h);
+        // renduImage(sdl_ctx, SDL_Logo, boxSDL->x, boxSDL->y, boxSDL->w, boxSDL->h);
+        // renduImage(sdl_ctx, C_Logo, boxC->x, boxC->y, boxC->w, boxC->h);
+        renduImage(sdl_ctx, SDL_Logo, boxSDL);
+        renduImage(sdl_ctx, C_Logo, boxC);
 
         if (!SDL_RenderPresent(sdl_ctx->renderer)) {
             nob_log(ERROR, "%s:%d: Failed to render the renderer's buffer. See error: %s", __FILE__, __LINE__, SDL_GetError());
