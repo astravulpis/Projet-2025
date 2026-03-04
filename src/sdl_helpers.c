@@ -1,5 +1,4 @@
 #include "sdl_helpers.h"
-#include "SDL3/SDL_rect.h"
 #include "common.h"
 #include <stdlib.h>
 
@@ -110,18 +109,33 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
     //chargement de l'image dans une surface, si cela échoue on retourne directement NULL
     //format pris en charge BMP, PNG,
 
-    char extension[10] = {0}; // Initialisation du tableau a zero
+    char extension[10];
     sscanf(chemin, "%*[^.]%s", extension);
     nob_log(INFO, "Extension : %s", extension);
 
-    SDL_Texture *textureImg = NULL;
+    SDL_Surface *surfaceImg = NULL; //la surface dans laquelle on va charger l'image, que l'on va mettre sous forme de Texture
+    const char *basePath = SDL_GetBasePath();
+    char *fullPath = malloc(sizeof(basePath) + sizeof(chemin) + 1);
+    if (!fullPath) {
+        nob_log(ERROR, "%s:%d: full path failed to get allocated. Buy more ram.", __FILE__, __LINE__);
+        return NULL;
+    }
+    sprintf(fullPath, "%s%s", SDL_GetBasePath(), chemin);
+    printf("%s\n", fullPath);
 
     //Appel de la fonction adapté a l'extension de l'image
     if (strcmp(".bmp", extension) == 0){
-        textureImg = SDL_CreateTextureFromSurface(sdl_ctx->renderer, SDL_LoadBMP(chemin));
+        surfaceImg = SDL_LoadBMP(fullPath);
     } else if (strcmp(".png", extension) == 0){
-        textureImg = SDL_CreateTextureFromSurface(sdl_ctx->renderer, SDL_LoadPNG(chemin));
+        surfaceImg = SDL_LoadPNG(fullPath);
     }
+
+    if (surfaceImg == NULL)
+        return NULL;
+
+    SDL_Texture *textureImg = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImg);
+    SDL_DestroySurface(surfaceImg); //surfaceImg ne sert plus a rien
+    free(fullPath);
 
     return textureImg;
 }
