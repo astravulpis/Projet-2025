@@ -118,6 +118,8 @@ int main(int argc, char **argv)
     if (!(*clean)) minimal_log_level = WARNING;
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
     if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
+    if (!nob_mkdir_if_not_exists(BINARIES_FOLDER "assets/")) return_defer(1);
+    if (!copy_directory_recursively("./assets/img", "./build/bin/assets/img")) return_defer(1);
     minimal_log_level = INFO;
 
     // IMPORTANT: `Tests` cannot be run with other commands.
