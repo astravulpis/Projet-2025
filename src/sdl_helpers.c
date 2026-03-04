@@ -29,6 +29,12 @@ sdl_ctx_t *init_all(void)
     }
 
     ctx->quit = false;
+    ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!ctx->bgRect) {
+        nob_log(ERROR, "%s:%d: Failed creating the window's background rectangle surface", __FILE__, __LINE__);
+        close_SDL(ctx);
+        return NULL;
+    }
 
     return ctx;
 }
@@ -43,6 +49,8 @@ void close_SDL(sdl_ctx_t *sdl_ctx)
         sdl_ctx->renderer = NULL;
 
         clearContextSurface(sdl_ctx);
+        free(sdl_ctx->bgRect);
+        sdl_ctx->bgRect = NULL;
     }
 
     // Freeing a NULL is fine
@@ -99,13 +107,10 @@ void clearContextSurface(sdl_ctx_t *sdl_ctx)
     sdl_ctx->bgTexture = NULL;
 }
 
-void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, float x, float y, float w, float h)
+void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect)
 {
-    if (!textureImg)
-        return ;
-
-    SDL_FRect box = {x, y, w, h};
-    SDL_RenderTexture(sdl_ctx->renderer, textureImg, NULL, &box);
+    assert(textureImg != NULL);
+    SDL_RenderTexture(sdl_ctx->renderer, textureImg, NULL, rect);
 }
 
 SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
@@ -114,20 +119,11 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
     //format pris en charge BMP, PNG,
 
     char extension[10];
-    // char *fullPath = NULL;
-    // const char *basePath = SDL_GetBasePath();
     SDL_Surface *surfaceImg = NULL;
 
     sscanf(chemin, "%*[^.]%s", extension);
     nob_log(INFO, "Extension : %s", extension);
 
-    // fullPath = malloc(sizeof(basePath) + sizeof(chemin) + 1);
-    // if (!fullPath) {
-    //     nob_log(ERROR, "%s:%d: full path failed to get allocated. Buy more ram.", __FILE__, __LINE__);
-    //     return NULL;
-    // }
-    // sprintf(fullPath, "%s%s", SDL_GetBasePath(), chemin);
-    // printf("%s\n", fullPath);
 
     //Appel de la fonction adapté a l'extension de l'image
     if (strcmp(".bmp", extension) == 0){
@@ -141,8 +137,6 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
 
     SDL_Texture *textureImg = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImg);
     SDL_DestroySurface(surfaceImg); //surfaceImg ne sert plus a rien
-    // free(fullPath);
-    // fullPath = NULL;
 
     return textureImg;
 }
@@ -155,5 +149,7 @@ void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
 
 void renderBackground(sdl_ctx_t *sdl_ctx)
 {
-    renduImage(sdl_ctx, sdl_ctx->bgTexture, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (sdl_ctx->bgTexture != NULL) {
+        renduImage(sdl_ctx, sdl_ctx->bgTexture, sdl_ctx->bgRect);
+    }
 }
