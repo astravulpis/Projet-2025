@@ -3,6 +3,7 @@
 
 #include "SDL3/SDL.h"
 #include "common.h"
+#include <assert.h>
 
 /**
  * @fn init_all()
@@ -51,5 +52,9 @@ void updateBackgroundColor(sdl_ctx_t *sdl_ctx, int r, int g, int b);
  */
 void renderBackground(sdl_ctx_t *sdl_ctx);
 
+SDL_FRect *createRect(float x, float y, float width, float height);
+bool enableVsync(sdl_ctx_t *sdl_ctx);
+bool disableVsync(sdl_ctx_t *sdl_ctx);
+void clearContextSurface(sdl_ctx_t *sdl_ctx);
 
 #endif //SDL_HELPER_H_

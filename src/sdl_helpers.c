@@ -1,28 +1,28 @@
 #include "sdl_helpers.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_surface.h"
 #include "common.h"
 #include <stdlib.h>
 
 sdl_ctx_t *init_all(void)
 {
     sdl_ctx_t *ctx = NULL;
+    SDL_WindowFlags windowFlags = 0x0; // Pour ajouter des flags, utiliser le `OR` binaire, soit `|`. e.g: SDL_[FLAG1] | SDL_[FLAG2] | SDL_[FLAG3]
+
     ctx = malloc(sizeof(sdl_ctx_t));
     if (!ctx) return NULL;
+
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
         return NULL;
     }
-    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(ctx->window), &(ctx->renderer));
-    if (ctx->window == NULL) {
+
+    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags, &(ctx->window), &(ctx->renderer));
+    if (!ctx->window) {
         nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
         close_SDL(ctx);
         return NULL;
     }
-    ctx->vsyncActivation=true;
-    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
-    if (SDL_SetRenderVSync(ctx->renderer, 1) == false) {
-        SDL_Log( "Impossible d'initialiser VSync, erreur : %s\n", SDL_GetError() );
+
+    if (!enableVsync(ctx)) {
         close_SDL(ctx);
         return NULL;
     }
@@ -60,9 +60,7 @@ void initBackgroundColor(sdl_ctx_t *sdl_ctx, int r, int g, int b)
 
 void updateBackgroundColor(sdl_ctx_t *sdl_ctx, int r, int g, int b)
 {
-    SDL_DestroySurface(sdl_ctx->bgSurface);
-    SDL_DestroyTexture(sdl_ctx->bgTexture);
-
+    clearContextSurface(sdl_ctx);
     SDL_FillSurfaceRect(sdl_ctx->bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ctx->bgSurface, r, g, b));
 
     sdl_ctx->bgTexture = SDL_CreateTextureFromSurface(sdl_ctx->renderer, sdl_ctx->bgSurface);
@@ -73,3 +71,53 @@ void renderBackground(sdl_ctx_t *sdl_ctx)
     if (sdl_ctx->bgTexture != NULL) SDL_RenderTexture(sdl_ctx->renderer, sdl_ctx->bgTexture, NULL,  NULL);
 }
 
+SDL_FRect *createRect(float x, float y, float width, float height)
+{
+    assert(width != 0 || height != 0);
+    SDL_FRect *res = NULL;
+    if ((res = malloc(sizeof(SDL_FRect))) == NULL) {
+        nob_log(ERROR, "failed to create a rect. Please buy more ram.");
+        return NULL;
+    }
+
+    res->x = x;
+    res->y = y;
+    res->w = width;
+    res->h = height;
+
+    return res;
+}
+
+bool enableVsync(sdl_ctx_t *sdl_ctx)
+{
+    bool res = true;
+    sdl_ctx->vsyncActivation = true;
+    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    if (!SDL_SetRenderVSync(sdl_ctx->renderer, 1)) {
+        nob_log(ERROR, "Impossible d'activer la VSync. Voir: %s", SDL_GetError());
+        res = false;
+    }
+
+    return res;
+}
+
+bool disableVsync(sdl_ctx_t *sdl_ctx)
+{
+    bool res = true;
+    sdl_ctx->vsyncActivation = false;
+    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    if (!SDL_SetRenderVSync(sdl_ctx->renderer, 0)) {
+        nob_log(ERROR, "Impossible de desactiver la VSync, Voir: %s", SDL_GetError());
+        res = false;
+    }
+
+    return res;
+}
+
+void clearContextSurface(sdl_ctx_t *sdl_ctx)
+{
+    SDL_DestroySurface(sdl_ctx->bgSurface);
+    SDL_DestroyTexture(sdl_ctx->bgTexture);
+    sdl_ctx->bgSurface = NULL;
+    sdl_ctx->bgTexture = NULL;
+}

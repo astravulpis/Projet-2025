@@ -1,4 +1,3 @@
-#include "SDL3/SDL_events.h"
 #include "common.h"
 #include "../shared.h"
 #include "event.h"
@@ -20,7 +19,6 @@ int main()
     float i=0;
     float color = 0x18/255.0f;
     Uint32 last = SDL_GetTicks();
-    SDL_FRect * boxSDL = NULL;//les objets SDL_FRect contienent des coordonnées et des dimmensions
     SDL_Surface *surfaceImgSDL;
     SDL_Texture *textureImgSDL;
 
@@ -30,11 +28,7 @@ int main()
     renderBackground(sdl_ctx);
 
     //Rendu du logo de SDL
-    boxSDL=malloc(sizeof(SDL_FRect));
-    boxSDL->x=0;
-    boxSDL->y=0;
-    boxSDL->w=100;
-    boxSDL->h=100;
+    SDL_FRect *boxSDL = createRect(0.0f, 0.0f, 100.0f, 100.0f);
 
     surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
     textureImgSDL = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImgSDL);
@@ -43,18 +37,10 @@ int main()
     SDL_RenderPresent(sdl_ctx->renderer);
 
     //Rendu du logo du langage C
-    SDL_FRect * boxC = NULL;
-    boxC=malloc(sizeof(SDL_FRect));
-    boxC->x=200;
-    boxC->y=200;
-    boxC->w=100;
-    boxC->h=100;
+    SDL_FRect * boxC = createRect(200.0f, 200.f, 100.0f, 100.f);
 
-    SDL_Surface *surfaceImgC;
-    SDL_Texture *textureImgC;
-
-    surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
-    textureImgC = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImgC);
+    SDL_Surface *surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
+    SDL_Texture *textureImgC = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImgC);;
 
     SDL_RenderTexture(sdl_ctx->renderer, textureImgC, NULL,  boxC);
     SDL_RenderPresent(sdl_ctx->renderer);
@@ -83,28 +69,28 @@ int main()
 
         while(SDL_PollEvent(&sdl_ctx->event)) {
             switch (sdl_ctx->event.type) {
-                case SDL_EVENT_QUIT:
-                    sdl_ctx->quit = true;
+            case SDL_EVENT_QUIT:
+                sdl_ctx->quit = true;
+                break;
+            case SDL_EVENT_KEY_DOWN:
+                basic_keyboard_events(sdl_ctx);
+                direction = basic_movements(sdl_ctx);
+                switch (direction){
+                case 'A':
+                    boxC->x -= speed*deltaT;
                     break;
-                case SDL_EVENT_KEY_DOWN:
-                    basic_keyboard_events(sdl_ctx);
-                    direction = basic_movements(sdl_ctx);
-                    switch (direction){
-                        case 'A':
-                            boxC->x -= speed*deltaT;
-                            break;
-                        case 'S':
-                            boxC->y += speed*deltaT;
-                            break;
-                        case 'D':
-                            boxC->x += speed*deltaT;
-                            break;
-                        case 'W':
-                            boxC->y -= speed*deltaT;
-                            break;
-                    }
-                default:
+                case 'S':
+                    boxC->y += speed*deltaT;
                     break;
+                case 'D':
+                    boxC->x += speed*deltaT;
+                    break;
+                case 'W':
+                    boxC->y -= speed*deltaT;
+                    break;
+                }
+            default:
+                break;
             }
         }
 
