@@ -1,3 +1,4 @@
+#include "SDL3/SDL_render.h"
 #include "SDL3/SDL_timer.h"
 #include "common.h"
 #include "../shared.h"
@@ -13,7 +14,7 @@ int main()
 {
     int direction = 0;
     float speed = 200.0f;
-    float color = 0x18/255.0f;
+    // float color = 0x18/255.0f;
 
     sdl_ctx_t *sdl_ctx = init_all();
     if (sdl_ctx == NULL) {
@@ -25,21 +26,21 @@ int main()
     float deltaT = 0;
     int frameCount = 0;
     float fps = 0;
-    loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp"); // Chemins absolue depuis la racine du projet.
+    // loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp"); // Chemins absolue depuis la racine du projet.
                                                        // Cela se justifie car le programme est tournee depuis `nob` qui est a la racine elle-meme.
-    if (!sdl_ctx->bgTexture) {
-        nob_log(ERROR, "%s:%d: Failed to background image", __FILE__, __LINE__);
-        return 1;
-    }
+    // if (!sdl_ctx->bgTexture) {
+    //     nob_log(ERROR, "%s:%d: Failed to background image", __FILE__, __LINE__);
+    //     return 1;
+    // }
 
-    SDL_Texture *SDL_Logo = chargerImage(sdl_ctx, "./assets/img/SDL3.bmp");
+    SDL_Texture *SDL_Logo = chargerImage(sdl_ctx, "assets/img/SDL3.bmp");
     SDL_FRect *boxSDL = createRect(0.0f, 0.0f, 32.0f, 32.0f);
     if (!SDL_Logo) {
         nob_log(ERROR, "%s:%d: Failed to load SDL image", __FILE__, __LINE__);
         return 1;
     }
 
-    SDL_Texture *C_Logo = chargerImage(sdl_ctx, "./assets/img/C.bmp");
+    SDL_Texture *C_Logo = chargerImage(sdl_ctx, "assets/img/C.bmp");
     SDL_FRect *boxC = createRect(350.0f, 200.0f, 100.0f, 100.0f);
     if (!C_Logo) {
         nob_log(ERROR, "%s:%d: Failed to load C logo image", __FILE__, __LINE__);
@@ -90,7 +91,7 @@ int main()
 
         //on récupère l'evenement en tête de file
 
-        SDL_SetRenderDrawColorFloat(sdl_ctx->renderer, color, color, color, 1.0f);
+        // SDL_SetRenderDrawColorFloat(sdl_ctx->renderer, color, color, color, 1.0f);
         SDL_RenderClear(sdl_ctx->renderer);
 
         renderBackground(sdl_ctx);
@@ -101,7 +102,11 @@ int main()
 
     }
 
+    SDL_DestroyTexture(SDL_Logo);
+    SDL_DestroyTexture(C_Logo);
     free(boxC);
+    free(boxSDL);
+
     close_SDL(sdl_ctx);
     return 0;
 }

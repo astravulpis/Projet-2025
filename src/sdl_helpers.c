@@ -1,6 +1,8 @@
 #include "sdl_helpers.h"
+#include "SDL3/SDL_rect.h"
 #include "common.h"
 #include <stdlib.h>
+#include <unistd.h>
 
 sdl_ctx_t *init_all(void)
 {
@@ -11,22 +13,30 @@ sdl_ctx_t *init_all(void)
     if (!ctx) return NULL;
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        nob_log(ERROR, "%s:%d: SDL failed to initialize. See: %s", __FILE__, __LINE__, SDL_GetError());
         return NULL;
     }
 
     SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags, &(ctx->window), &(ctx->renderer));
     if (!ctx->window) {
-        nob_log(ERROR, "SDL failed to create window and renderer. See: %s", SDL_GetError());
+        nob_log(ERROR, "%s:%d: SDL failed to create window and renderer. See: %s", __FILE__, __LINE__, SDL_GetError());
         close_SDL(ctx);
         return NULL;
     }
 
     if (!enableVsync(ctx)) {
+        nob_log(ERROR, "%s:%d: SDL failed to create window and renderer. See error backtrace above", __FILE__, __LINE__);
         close_SDL(ctx);
         return NULL;
     }
+
     ctx->quit = false;
+    ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!ctx->bgRect) {
+        nob_log(ERROR, "%s:%d: Failed creating the window's background rectangle surface", __FILE__, __LINE__);
+        close_SDL(ctx);
+        return NULL;
+    }
 
     return ctx;
 }
@@ -39,7 +49,10 @@ void close_SDL(sdl_ctx_t *sdl_ctx)
 
         sdl_ctx->window = NULL;
         sdl_ctx->renderer = NULL;
+
         clearContextSurface(sdl_ctx);
+        free(sdl_ctx->bgRect);
+        sdl_ctx->bgRect = NULL;
     }
 
     // Freeing a NULL is fine
@@ -70,7 +83,7 @@ bool enableVsync(sdl_ctx_t *sdl_ctx)
     sdl_ctx->vsyncActivation = true;
     //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
     if (!SDL_SetRenderVSync(sdl_ctx->renderer, 1)) {
-        nob_log(ERROR, "Impossible d'activer la VSync. Voir: %s", SDL_GetError());
+        nob_log(ERROR, "%s:%d: Impossible d'activer la VSync. Voir: %s", __FILE__, __LINE__, SDL_GetError());
         res = false;
     }
 
@@ -83,7 +96,7 @@ bool disableVsync(sdl_ctx_t *sdl_ctx)
     sdl_ctx->vsyncActivation = false;
     //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
     if (!SDL_SetRenderVSync(sdl_ctx->renderer, 0)) {
-        nob_log(ERROR, "Impossible de desactiver la VSync, Voir: %s", SDL_GetError());
+        nob_log(ERROR, "%s:%d: Impossible de desactiver la VSync. Voir: %s", __FILE__, __LINE__, SDL_GetError());
         res = false;
     }
 
@@ -98,9 +111,7 @@ void clearContextSurface(sdl_ctx_t *sdl_ctx)
 
 void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect)
 {
-    if (textureImg == NULL)
-        return; // Au cas ou la texture ne correponde a rien
-
+    assert(textureImg != NULL);
     SDL_RenderTexture(sdl_ctx->renderer, textureImg, NULL, rect);
 }
 
@@ -110,12 +121,14 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
     //format pris en charge BMP, PNG,
 
     char extension[10];
+    char *fullPath = NULL;
+    const char *basePath = SDL_GetBasePath();
+    SDL_Surface *surfaceImg = NULL;
+
     sscanf(chemin, "%*[^.]%s", extension);
     nob_log(INFO, "Extension : %s", extension);
 
-    SDL_Surface *surfaceImg = NULL; //la surface dans laquelle on va charger l'image, que l'on va mettre sous forme de Texture
-    const char *basePath = SDL_GetBasePath();
-    char *fullPath = malloc(sizeof(basePath) + sizeof(chemin) + 1);
+    fullPath = malloc(sizeof(basePath) + sizeof(chemin) + 1);
     if (!fullPath) {
         nob_log(ERROR, "%s:%d: full path failed to get allocated. Buy more ram.", __FILE__, __LINE__);
         return NULL;
@@ -136,6 +149,7 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
     SDL_Texture *textureImg = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImg);
     SDL_DestroySurface(surfaceImg); //surfaceImg ne sert plus a rien
     free(fullPath);
+    fullPath = NULL;
 
     return textureImg;
 }
@@ -148,6 +162,7 @@ void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
 
 void renderBackground(sdl_ctx_t *sdl_ctx)
 {
-    assert(sdl_ctx->bgTexture != NULL);
-    renduImage(sdl_ctx, sdl_ctx->bgTexture, NULL);
+    if (sdl_ctx->bgTexture != NULL) {
+        renduImage(sdl_ctx, sdl_ctx->bgTexture, sdl_ctx->bgRect);
+    }
 }
