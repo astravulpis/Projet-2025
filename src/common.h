@@ -29,7 +29,6 @@ struct sdl_context_s {
     SDL_Window   *window;           //!< SDL3 window context
     SDL_Renderer *renderer;         //!< SDL3 renderer context
     SDL_Texture  *bgTexture;        //!< SDL3 surface renderer texture context
-    SDL_FRect    *bgRect;           //!< SDL3 surface renderer rectangle
     SDL_Event     event;            //!< Structure commune au contexte SDL.
     bool          vsyncActivation;  //!< boolean qui permet de prevenir si l'application est en VSync.
     bool          quit;             //!< Boolean permettant d'indiquer la fin d'arret du programme
