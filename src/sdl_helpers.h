@@ -32,7 +32,7 @@ void renderBackground(sdl_ctx_t *sdl_ctx);
  * @fn renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, float x, float y, float width, float height)
  * @brief Fait le rendu d'une SDL_Texture au coordonnées x, y.
  */
-void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect);
+void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, float x, float y, float w, float h);
 
 /**
  * \fn SDL_Texture *chargerImage(char *chemin)

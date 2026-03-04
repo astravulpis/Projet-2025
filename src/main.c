@@ -1,5 +1,3 @@
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_timer.h"
 #include "common.h"
 #include "../shared.h"
 #include "event.h"
@@ -47,6 +45,7 @@ int main()
         return 1;
     }
 
+    printf("\n");
 
     while (!sdl_ctx->quit){
         while(SDL_PollEvent(&sdl_ctx->event)) {
@@ -81,7 +80,7 @@ int main()
         Uint32 now = SDL_GetTicks();
         deltaT = (now - last) / 1000.0f; // seconds since last frame
         if (now - frameCount >= 1000) {
-            nob_log(INFO, "\x1b[1FFPS : %.2f\n", fps);
+            printf("\x1b[1FFPS : %.2f\n", fps);
             frameCount = 0;
             last = now;
         }
@@ -95,11 +94,12 @@ int main()
         SDL_RenderClear(sdl_ctx->renderer);
 
         renderBackground(sdl_ctx);
-        renduImage(sdl_ctx, SDL_Logo, boxSDL);
-        renduImage(sdl_ctx, C_Logo, boxC);
+        renduImage(sdl_ctx, SDL_Logo, boxSDL->x, boxSDL->y, boxSDL->w, boxSDL->h);
+        renduImage(sdl_ctx, C_Logo, boxC->x, boxC->y, boxC->w, boxC->h);
 
-        SDL_RenderPresent(sdl_ctx->renderer);
-
+        if (!SDL_RenderPresent(sdl_ctx->renderer)) {
+            nob_log(ERROR, "%s:%d: Failed to render the renderer's buffer. See error: %s", __FILE__, __LINE__, SDL_GetError());
+        }
     }
 
     SDL_DestroyTexture(SDL_Logo);
