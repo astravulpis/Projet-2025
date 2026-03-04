@@ -22,35 +22,31 @@ sdl_ctx_t *init_all(void);
 void close_SDL(sdl_ctx_t *sdl_ctx);
 
 /**
- * @fn initBackgroundColor(int r, int g, int b)
- * @brief helper function to initialise the background
- * @param[in] sdl_ctx Our SDL context
- * @param[in] r red color of the background
- * @param[in] g green color of the background
- * @param[in] b blue color of the background
- *
- * Init sdl context's backgroud surface and texture and fills them with the color given in RGBA format
- */
-void initBackgroundColor(sdl_ctx_t *sdl_ctx, int r, int g, int b);
-
-/**
- * @fn updateBackgroundColor(int r, int g, int b)
- * @brief helper function to modify the color of the background
- * @param[in] sdl_ctx Our SDL context
- * @param[in] r red color of the background
- * @param[in] g green color of the background
- * @param[in] b blue color of the background
- *
- * Modifies the surface and the texture of the sdl context's window
- */
-void updateBackgroundColor(sdl_ctx_t *sdl_ctx, int r, int g, int b);
-
-/**
- * @fn renderBackground()
+ * @fn renderBackground(sdl_ctx_t *sdl_ctx);
  * @param[in] sdl_ctx Our SDL context
  * @brief Renders the background texture if not NULL (?)
  */
 void renderBackground(sdl_ctx_t *sdl_ctx);
+
+/**
+ * @fn renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, float x, float y, float width, float height)
+ * @brief Fait le rendu d'une SDL_Texture au coordonnées x, y.
+ */
+void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect);
+
+/**
+ * \fn SDL_Texture *chargerImage(char *chemin)
+ * \return retourne un pointeur de type SDL_Texture
+ * \brief charge une image, l'alloue en mémoire, et retourne son pointeur en mémoire
+ */
+SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin);
+
+/**
+ * \fn void chargerImageBg(char *chemin)
+ * \return ne retourne rien, il faut vérifier dans le contexte SDL si la Texture est a NULL ou pas
+ * \brief cette fonction effectue un appel a chargerIamge(), et affecte le retour au contxet SDL, la bgTexture, bgSurface a été détruit car il ne sert plus a rien
+ */
+void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin);
 
 SDL_FRect *createRect(float x, float y, float width, float height);
 bool enableVsync(sdl_ctx_t *sdl_ctx);
