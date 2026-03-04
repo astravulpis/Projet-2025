@@ -26,13 +26,12 @@ typedef struct sdl_context_s sdl_ctx_t;
  * It holds multiple variable for the rendering of the window, the surface of said window, the event that can be pulled and if the program is running or not.
  */
 struct sdl_context_s {
-    SDL_Window *window;     //!< SDL window context
-    SDL_Renderer *renderer; //!< SDL renderer context
-    SDL_Surface *bgSurface; //!< SDL window's background surface (needs to be made into a struct sdl_RenderSurface or smth)
-    SDL_Texture *bgTexture; //!< SDL window's background texture (needs to be made into a struct sdl_RenderSurface or smth)
-    SDL_Event event;
-    bool vsyncActivation;   //!< bool that allows the program to not hog the system's ressources (TEMPORARY SOLUTION)
-    bool quit;              //!< bool to quit the main loop
+    SDL_Window   *window;           //!< SDL3 window context
+    SDL_Renderer *renderer;         //!< SDL3 renderer context
+    SDL_Texture  *bgTexture;        //!< SDL3 surface renderer texture context
+    SDL_Event     event;            //!< Structure commune au contexte SDL.
+    bool          vsyncActivation;  //!< boolean qui permet de prevenir si l'application est en VSync.
+    bool          quit;             //!< Boolean permettant d'indiquer la fin d'arret du programme
 };
 
 #endif //COMMON_H_

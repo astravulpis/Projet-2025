@@ -1,3 +1,4 @@
+#include "SDL3/SDL_timer.h"
 #include "common.h"
 #include "../shared.h"
 #include "event.h"
@@ -10,63 +11,43 @@
 
 int main()
 {
-    sdl_ctx_t *sdl_ctx = init_all();
-    if (sdl_ctx == NULL)
-        exit(1);
-
     int direction = 0;
     float speed = 200.0f;
-    float i=0;
     float color = 0x18/255.0f;
+
+    sdl_ctx_t *sdl_ctx = init_all();
+    if (sdl_ctx == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to initialize context. See error backtrace above.", __FILE__, __LINE__);
+        exit(1);
+    }
+
     Uint32 last = SDL_GetTicks();
-    SDL_Surface *surfaceImgSDL;
-    SDL_Texture *textureImgSDL;
+    float deltaT = 0;
+    int frameCount = 0;
+    float fps = 0;
+    loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp"); // Chemins absolue depuis la racine du projet.
+                                                       // Cela se justifie car le programme est tournee depuis `nob` qui est a la racine elle-meme.
+    if (!sdl_ctx->bgTexture) {
+        nob_log(ERROR, "%s:%d: Failed to background image", __FILE__, __LINE__);
+        return 1;
+    }
 
-    sdl_ctx->quit = false;
+    SDL_Texture *SDL_Logo = chargerImage(sdl_ctx, "./assets/img/SDL3.bmp");
+    SDL_FRect *boxSDL = createRect(0.0f, 0.0f, 32.0f, 32.0f);
+    if (!SDL_Logo) {
+        nob_log(ERROR, "%s:%d: Failed to load SDL image", __FILE__, __LINE__);
+        return 1;
+    }
 
-    initBackgroundColor(sdl_ctx, 255, 255, 255);
-    renderBackground(sdl_ctx);
+    SDL_Texture *C_Logo = chargerImage(sdl_ctx, "./assets/img/C.bmp");
+    SDL_FRect *boxC = createRect(350.0f, 200.0f, 100.0f, 100.0f);
+    if (!C_Logo) {
+        nob_log(ERROR, "%s:%d: Failed to load C logo image", __FILE__, __LINE__);
+        return 1;
+    }
 
-    //Rendu du logo de SDL
-    SDL_FRect *boxSDL = createRect(0.0f, 0.0f, 100.0f, 100.0f);
-
-    surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
-    textureImgSDL = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImgSDL);
-
-    SDL_RenderTexture(sdl_ctx->renderer, textureImgSDL, NULL,  boxSDL);
-    SDL_RenderPresent(sdl_ctx->renderer);
-
-    //Rendu du logo du langage C
-    SDL_FRect * boxC = createRect(200.0f, 200.f, 100.0f, 100.f);
-
-    SDL_Surface *surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
-    SDL_Texture *textureImgC = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImgC);;
-
-    SDL_RenderTexture(sdl_ctx->renderer, textureImgC, NULL,  boxC);
-    SDL_RenderPresent(sdl_ctx->renderer);
-    //----------------------------------
-
-    if (surfaceImgC==NULL)
-        printf("impossible charger l'image du logo C ...\n");
-    else
-        printf("image chargée logo C avec succès (mais qui est succès ?) ...\n");
-
-    if (surfaceImgSDL==NULL)
-        printf("impossible charger l'image du logo SDL ...\n");
-    else
-        printf("image chargée logo SDL avec succès (mais qui est succès ?) ...\n");
-
-    float tempOriginBox = boxC->x; //pour ne pas perdre la coordonnée x originelle de l'image logo C
-    // ----------------------------------------------
-    // * REMOVE THIS BELOW TO USE THE `tempOriginBox`
-    // ----------------------------------------------
-    UNUSED(tempOriginBox);
 
     while (!sdl_ctx->quit){
-        Uint32 now = SDL_GetTicks();
-        float deltaT = (now - last) / 1000.0f; // seconds since last frame
-        last = now;
-
         while(SDL_PollEvent(&sdl_ctx->event)) {
             switch (sdl_ctx->event.type) {
             case SDL_EVENT_QUIT:
@@ -94,36 +75,33 @@ int main()
             }
         }
 
-        // Updates the event queue and internal input device state
-        SDL_PumpEvents();
+        frameCount++;
+
+        Uint32 now = SDL_GetTicks();
+        deltaT = (now - last) / 1000.0f; // seconds since last frame
+        if (now - frameCount >= 1000) {
+            nob_log(INFO, "\x1b[1FFPS : %.2f\n", fps);
+            frameCount = 0;
+            last = now;
+        }
 
         //call hit_box_test pour verifier que boxC ne sort pas de l'image avec la prochaine boucle
         keep_player_inbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         //on récupère l'evenement en tête de file
 
-        SDL_ClearSurface(sdl_ctx->bgSurface, color, color, color, 1.0f);
+        SDL_SetRenderDrawColorFloat(sdl_ctx->renderer, color, color, color, 1.0f);
         SDL_RenderClear(sdl_ctx->renderer);
 
-        updateBackgroundColor(sdl_ctx, i*(i/100), i*(i/100), i);
         renderBackground(sdl_ctx);
-        SDL_RenderTexture(sdl_ctx->renderer, textureImgC, NULL, boxC);
-        SDL_RenderTexture(sdl_ctx->renderer, textureImgSDL, NULL, boxSDL);
+        renduImage(sdl_ctx, SDL_Logo, boxSDL);
+        renduImage(sdl_ctx, C_Logo, boxC);
 
         SDL_RenderPresent(sdl_ctx->renderer);
 
     }
 
-    free(boxSDL);
     free(boxC);
-
-    SDL_DestroySurface(surfaceImgC);
-    SDL_DestroySurface(surfaceImgSDL);
-
-    SDL_DestroyTexture(textureImgC);
-    SDL_DestroyTexture(textureImgSDL);
-
     close_SDL(sdl_ctx);
-
     return 0;
 }
