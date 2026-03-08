@@ -1,7 +1,7 @@
 #include "../shared.h"
 
 const char *test_targets[] = {
-    "load_sdl3"
+    "load_sdl3",
 };
 
 bool delete_walk_entry(Walk_Entry entry)
@@ -14,7 +14,7 @@ bool delete_directory_recursively(const char *dir_path)
     return walk_dir(dir_path, delete_walk_entry, .post_order = true);
 }
 
-bool compile(const char* test_name)
+bool compile(const char *test_name)
 {
     bool result = true;
     Cmd cmd = {0};
@@ -30,7 +30,7 @@ bool compile(const char* test_name)
     nob_cc_output(&cmd, bin_path);
     nob_cc_inputs(&cmd, src_path);
     cmd_append(&cmd, temp_sprintf("-I%s/include", sdl_folder));
-    cmd_append(&cmd, temp_sprintf("-L%s/lib",     sdl_folder));
+    cmd_append(&cmd, temp_sprintf("-L%s/lib", sdl_folder));
     cmd_append(&cmd, "-lSDL3");
     cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", sdl_folder));
     cmd_append(&cmd, "-lm");
@@ -42,7 +42,7 @@ defer:
     return result;
 }
 
-bool run_test(const char* test_name, bool record)
+bool run_test(const char *test_name, bool record)
 {
     bool result = true;
 
@@ -53,9 +53,9 @@ bool run_test(const char* test_name, bool record)
     String_View sv_src = {0};
     String_View sv_dst = {0};
 
-    char *bin_path    = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
+    char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
     char *bin_output_path = temp_sprintf("%s%s.txt", BUILD_FOLDER TEST_FOLDER, test_name);
-    char *test_output_path  = temp_sprintf("%s%s.txt", TEST_FOLDER, test_name);
+    char *test_output_path = temp_sprintf("%s%s.txt", TEST_FOLDER, test_name);
 
     cmd_append(&cmd, temp_sprintf("./%s", bin_path));
     if (!cmd_run(&cmd, .stdout_path = bin_output_path)) return_defer(false);
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     Nob_Cmd cmd = {0};
     int result = 0;
     bool record = false;
-    char *prgName = shift(argv, argc); UNUSED(prgName);
+    UNUSED(shift(argv, argc));
     size_t arrSize = ARRAY_LEN(test_targets);
     size_t mark = nob_temp_save();
     // const char *curr_cwd = nob_get_current_dir_temp();
@@ -117,7 +117,6 @@ int main(int argc, char *argv[])
 
     if (!mkdir_if_not_exists(BUILD_FOLDER TEST_FOLDER)) return_defer(1);
     minimal_log_level = INFO;
-
 
     // set_current_dir(curr_cwd);
     for (size_t idx = 0; idx < arrSize; ++idx) {

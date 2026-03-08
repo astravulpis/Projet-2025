@@ -1,5 +1,5 @@
-#include "common.h"
 #include "../shared.h"
+#include "common.h"
 #include "event.h"
 #include "sdl_helpers.h"
 
@@ -25,7 +25,8 @@ int main()
     int frameCount = 0;
     float fps = 0;
     // loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp"); // Chemins absolue depuis la racine du projet.
-                                                       // Cela se justifie car le programme est tournee depuis `nob` qui est a la racine elle-meme.
+                                                          // Cela se justifie car le programme est tournee
+                                                          // depuis `nob` qui est a la racine elle-meme.
     // if (!sdl_ctx->bgTexture) {
     //     nob_log(ERROR, "%s:%d: Failed to background image", __FILE__, __LINE__);
     //     return 1;
@@ -47,8 +48,8 @@ int main()
 
     printf("\n");
 
-    while (!sdl_ctx->quit){
-        while(SDL_PollEvent(&sdl_ctx->event)) {
+    while (!sdl_ctx->quit) {
+        while (SDL_PollEvent(&sdl_ctx->event)) {
             switch (sdl_ctx->event.type) {
             case SDL_EVENT_QUIT:
                 sdl_ctx->quit = true;
@@ -56,18 +57,18 @@ int main()
             case SDL_EVENT_KEY_DOWN:
                 basic_keyboard_events(sdl_ctx);
                 direction = basic_movements(sdl_ctx);
-                switch (direction){
+                switch (direction) {
                 case 'A':
-                    boxC->x -= speed*deltaT;
+                    boxC->x -= speed * deltaT;
                     break;
                 case 'S':
-                    boxC->y += speed*deltaT;
+                    boxC->y += speed * deltaT;
                     break;
                 case 'D':
-                    boxC->x += speed*deltaT;
+                    boxC->x += speed * deltaT;
                     break;
                 case 'W':
-                    boxC->y -= speed*deltaT;
+                    boxC->y -= speed * deltaT;
                     break;
                 }
             default:
@@ -85,10 +86,10 @@ int main()
             last = now;
         }
 
-        //call hit_box_test pour verifier que boxC ne sort pas de l'image avec la prochaine boucle
+        // call hit_box_test pour verifier que boxC ne sort pas de l'image avec la prochaine boucle
         keep_player_inbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        //on récupère l'evenement en tête de file
+        // on récupère l'evenement en tête de file
 
         // SDL_SetRenderDrawColorFloat(sdl_ctx->renderer, color, color, color, 1.0f);
         SDL_RenderClear(sdl_ctx->renderer);

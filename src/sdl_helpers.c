@@ -5,7 +5,8 @@
 sdl_ctx_t *init_all(void)
 {
     sdl_ctx_t *ctx = NULL;
-    SDL_WindowFlags windowFlags = 0x0; // Pour ajouter des flags, utiliser le `OR` binaire, soit `|`. e.g: SDL_[FLAG1] | SDL_[FLAG2] | SDL_[FLAG3]
+    SDL_WindowFlags windowFlags = 0x0; // Pour ajouter des flags, utiliser le `OR` binaire, soit `|`. e.g:
+                                       // SDL_[FLAG1] | SDL_[FLAG2] | SDL_[FLAG3]
 
     ctx = malloc(sizeof(sdl_ctx_t));
     if (!ctx) return NULL;
@@ -63,7 +64,7 @@ SDL_FRect *createRect(float x, float y, float width, float height)
 {
     SDL_FRect *res = NULL;
     if ((res = malloc(sizeof(SDL_FRect))) == NULL) {
-        nob_log(ERROR, "failed to create a rect. Please buy more ram.");
+        nob_log(ERROR, "%s:%d: failed to create a rect. Please buy more ram", __FILE__, __LINE__);
         return NULL;
     }
 
@@ -79,7 +80,7 @@ bool enableVsync(sdl_ctx_t *sdl_ctx)
 {
     bool res = true;
     sdl_ctx->vsyncActivation = true;
-    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    // Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
     if (!SDL_SetRenderVSync(sdl_ctx->renderer, 1)) {
         nob_log(ERROR, "%s:%d: Impossible d'activer la VSync. Voir: %s", __FILE__, __LINE__, SDL_GetError());
         res = false;
@@ -92,7 +93,7 @@ bool disableVsync(sdl_ctx_t *sdl_ctx)
 {
     bool res = true;
     sdl_ctx->vsyncActivation = false;
-    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
+    // Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
     if (!SDL_SetRenderVSync(sdl_ctx->renderer, 0)) {
         nob_log(ERROR, "%s:%d: Impossible de desactiver la VSync. Voir: %s", __FILE__, __LINE__, SDL_GetError());
         res = false;
@@ -115,32 +116,29 @@ void renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect)
 
 SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin)
 {
-    //chargement de l'image dans une surface, si cela échoue on retourne directement NULL
-    //format pris en charge BMP, PNG,
+    // chargement de l'image dans une surface, si cela échoue on retourne directement NULL
+    // format pris en charge BMP, PNG,
 
     char extension[10];
     SDL_Surface *surfaceImg = NULL;
 
     sscanf(chemin, "%*[^.]%s", extension);
-    nob_log(INFO, "Extension : %s", extension);
+    // nob_log(INFO, "Extension : %s", extension);
 
-
-    //Appel de la fonction adapté a l'extension de l'image
-    if (strcmp(".bmp", extension) == 0){
+    // Appel de la fonction adapté a l'extension de l'image
+    if (strcmp(".bmp", extension) == 0) {
         surfaceImg = SDL_LoadBMP(chemin);
-    } else if (strcmp(".png", extension) == 0){
+    } else if (strcmp(".png", extension) == 0) {
         surfaceImg = SDL_LoadPNG(chemin);
     }
 
-    if (surfaceImg == NULL)
-        return NULL;
+    if (surfaceImg == NULL) return NULL;
 
     SDL_Texture *textureImg = SDL_CreateTextureFromSurface(sdl_ctx->renderer, surfaceImg);
-    SDL_DestroySurface(surfaceImg); //surfaceImg ne sert plus a rien
+    SDL_DestroySurface(surfaceImg);
 
     return textureImg;
 }
-
 
 void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
 {
