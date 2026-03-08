@@ -1,6 +1,6 @@
-#include "../thirdparty/SDL3/include/SDL3/SDL_init.h"
-#include "../thirdparty/SDL3/include/SDL3/SDL_error.h"
 #include "../shared.h"
+#include "../thirdparty/SDL3/include/SDL3/SDL_error.h"
+#include "../thirdparty/SDL3/include/SDL3/SDL_init.h"
 
 int main(void)
 {
@@ -14,8 +14,7 @@ int main(void)
     printf("everything is working fine");
 
 defer:
-    if (result)
-        printf("everything is not working fine");
+    if (result) printf("everything is not working fine");
     SDL_Quit();
     return result;
 }

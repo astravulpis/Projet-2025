@@ -7,7 +7,6 @@
 // #  endif
 // #endif
 
-
 typedef struct submodules {
     const char **items;
     size_t count;
@@ -15,14 +14,15 @@ typedef struct submodules {
 } submodules;
 
 #define da_get(da, idx) (da)->items[i]
-#define compile_command(cmd, input_path, output_path, linking, ...) __compile_command((cmd), (input_path), (output_path), (linking), (submodules *){__VA_ARGS__})
-#define add_sdl_libraries(cmd) \
-    do { \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER)); \
-        cmd_append((cmd), temp_sprintf("-L%slib",     VENDOR_FOLDER SDL_FOLDER)); \
-        cmd_append((cmd), "-lSDL3"); \
+#define compile_command(cmd, input_path, output_path, linking, ...)                               \
+    __compile_command((cmd), (input_path), (output_path), (linking), (submodules *){__VA_ARGS__})
+#define add_sdl_libraries(cmd)                                                         \
+    do {                                                                               \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));      \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));          \
+        cmd_append((cmd), "-lSDL3");                                                   \
         cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib", VENDOR_FOLDER SDL_FOLDER)); \
-        cmd_append((cmd), "-lm"); \
+        cmd_append((cmd), "-lm");                                                      \
     } while (0)
 
 bool debug;
@@ -34,7 +34,8 @@ void usage(FILE *stream)
     flag_print_options(stream);
 }
 
-void __compile_command(Cmd *cmd, const char *input_path, const char *output_path, bool linking, submodules *modules)
+void __compile_command(Cmd *cmd, const char *input_path, const char *output_path, bool linking,
+                       submodules *modules)
 {
     nob_cmd_append(cmd, "cc");
     nob_cmd_append(cmd, "-Wall");
@@ -87,12 +88,12 @@ int main(int argc, char **argv)
     int result = 0;
     size_t mark = nob_temp_save();
 
-    flag_bool_var(&debug, "-debug", false, "run in debug mode");
-    bool *help    = flag_bool("-help", false, "Print this help");
-    bool *clean   = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run     = flag_bool("-run", false, "run the program");
-    bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2 (YOU NEED TO HAVE GF2 IN YOUR PATH)");
-    bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
+    flag_bool_var(&debug,     "-debug",    false, "run in debug mode");
+    bool *help    = flag_bool("-help",     false, "Print this help");
+    bool *clean   = flag_bool("-clean",    false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run     = flag_bool("-run",      false, "run the program");
+    bool *debugui = flag_bool("-debugui",  false, "run in debug mode using gf2");
+    bool *tests   = flag_bool("-tests",    false, "builds and run the tests, works as a standalone");
     bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
 
     if (!flag_parse(argc, argv)) {
@@ -132,7 +133,8 @@ int main(int argc, char **argv)
         }
 
         if (*rec) nob_cmd_append(&cmd, "./nob", "-record");
-        else nob_cmd_append(&cmd, "./nob");
+        else
+            nob_cmd_append(&cmd, "./nob");
         if (!nob_cmd_run(&cmd)) return_defer(1);
         return 0;
     }
