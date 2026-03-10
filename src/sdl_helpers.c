@@ -68,6 +68,9 @@ SDL_FRect *createRect(float x, float y, float width, float height)
         return NULL;
     }
 
+    if (width <= 0) width = 1;
+    if (height <= 0) height = 1;
+
     res->x = x;
     res->y = y;
     res->w = width;

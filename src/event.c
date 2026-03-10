@@ -17,16 +17,12 @@ int basic_movements(sdl_ctx_t *sdl_ctx)
         switch (e.key.scancode) {
         case SDL_SCANCODE_A:
             return 'A';
-            break;
         case SDL_SCANCODE_D:
             return 'D';
-            break;
         case SDL_SCANCODE_W:
             return 'W';
-            break;
         case SDL_SCANCODE_S:
             return 'S';
-            break;
         default:
             break;
         }
