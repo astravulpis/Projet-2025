@@ -2,6 +2,7 @@
 
 const char *test_targets[] = {
     "load_sdl3",
+    "is_Player_inbounds",
 };
 
 bool delete_walk_entry(Walk_Entry entry)
@@ -22,17 +23,18 @@ bool compile(const char *test_name)
     char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
     char *sdl_folder = VENDOR_FOLDER SDL_FOLDER;
 
-    nob_log(INFO, "------ Testing: %s ------", test_name);
+    nob_log(INFO, "------ Testing: `%s` ------", test_name);
 
     // Compile the test
     nob_cc(&cmd);
     nob_cc_flags(&cmd);
     nob_cc_output(&cmd, bin_path);
     nob_cc_inputs(&cmd, src_path);
-    cmd_append(&cmd, temp_sprintf("-I%s/include", sdl_folder));
-    cmd_append(&cmd, temp_sprintf("-L%s/lib", sdl_folder));
+    cmd_append(&cmd, LIBPATH);
+    cmd_append(&cmd, temp_sprintf("-I%sinclude", sdl_folder));
+    cmd_append(&cmd, temp_sprintf("-L%slib", sdl_folder));
     cmd_append(&cmd, "-lSDL3");
-    cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s/lib", sdl_folder));
+    cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%slib", sdl_folder));
     cmd_append(&cmd, "-lm");
     cmd_append(&cmd, "-ggdb");
     if (!nob_cmd_run(&cmd)) return_defer(1);
@@ -58,7 +60,7 @@ bool run_test(const char *test_name, bool record)
     char *test_output_path = temp_sprintf("%s%s.txt", TEST_FOLDER, test_name);
 
     cmd_append(&cmd, temp_sprintf("./%s", bin_path));
-    if (!cmd_run(&cmd, .stdout_path = bin_output_path)) return_defer(false);
+    cmd_run(&cmd, .stdout_path = bin_output_path, .stderr_path = bin_output_path);
 
     if (record) {
         copy_file(bin_output_path, test_output_path);
@@ -71,19 +73,19 @@ bool run_test(const char *test_name, bool record)
 
         // Error output in git's diff style
         if (!sv_eq(sv_src, sv_dst)) {
-            nob_log(ERROR, "got an UNEXPECTED OUTPUT");
+            nob_log(ERROR, "got an \x1b[31mUNEXPECTED OUTPUT\x1b[0m");
             fprintf(stderr, "<<<<<<< EXPECTED\n");
-            fprintf(stderr, SV_Fmt "\n", SV_Arg(sv_dst));
+            fprintf(stderr, SV_Fmt, SV_Arg(sv_dst));
             fprintf(stderr, "================\n");
-            fprintf(stderr, SV_Fmt "\n", SV_Arg(sv_src));
+            fprintf(stderr, SV_Fmt, SV_Arg(sv_src));
             fprintf(stderr, ">>>>>>> CURRENT\n");
             return_defer(false);
         } else {
-            nob_log(INFO, "got the EXPECTED OUTPUT");
+            nob_log(INFO, "got the \x1b[32mEXPECTED OUTPUT\x1b[0m");
         }
     }
 
-    nob_log(INFO, "------ %s is finished ------\n", test_name);
+    nob_log(INFO, "------ `%s` is finished ------\n", test_name);
 
 defer:
     free(cmd.items);
@@ -101,7 +103,6 @@ int main(int argc, char *argv[])
     UNUSED(shift(argv, argc));
     size_t arrSize = ARRAY_LEN(test_targets);
     size_t mark = nob_temp_save();
-    // const char *curr_cwd = nob_get_current_dir_temp();
 
     if (argc > 0) {
         char *flag = shift(argv, argc);

@@ -14,3 +14,5 @@
 #define SRC_FOLDER "src/"
 
 #define SDL_FOLDER "SDL3/"
+
+#define LIBPATH BUILD_FOLDER "libModules.a"

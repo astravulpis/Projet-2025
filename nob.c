@@ -1,9 +1,10 @@
 #include "shared.h"
+#include <string.h>
 
 // #if !defined(_WIN32)
 // #  if defined(nob_cc)
 // #    undef nob_cc
-// #    define nob_cc(cmd) nob_cmd_append(cmd, "gcc")
+// #    define nob_cc(cmd) cmd_append(cmd, "gcc")
 // #  endif
 // #endif
 
@@ -14,8 +15,6 @@ typedef struct submodules {
 } submodules;
 
 #define da_get(da, idx) (da)->items[i]
-#define compile_command(cmd, input_path, output_path, linking, ...)                               \
-    __compile_command((cmd), (input_path), (output_path), (linking), (submodules *){__VA_ARGS__})
 #define add_sdl_libraries(cmd)                                                         \
     do {                                                                               \
         cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));      \
@@ -34,24 +33,18 @@ void usage(FILE *stream)
     flag_print_options(stream);
 }
 
-void __compile_command(Cmd *cmd, const char *input_path, const char *output_path, bool linking,
-                       submodules *modules)
+void compile_command(Cmd *cmd, const char *input_path, const char *output_path, bool linking)
 {
-    nob_cmd_append(cmd, "cc");
-    nob_cmd_append(cmd, "-Wall");
-    nob_cmd_append(cmd, "-Wextra");
-    if (debug) nob_cmd_append(cmd, "-g");
-    if (debug) nob_cmd_append(cmd, "-ggdb");
-    nob_cmd_append(cmd, "-o", output_path);
-    if (!linking) nob_cmd_append(cmd, "-c", input_path);
+    cmd_append(cmd, "cc");
+    cmd_append(cmd, "-Wall");
+    cmd_append(cmd, "-Wextra");
+    if (debug) cmd_append(cmd, "-g");
+    if (debug) cmd_append(cmd, "-ggdb");
+    cmd_append(cmd, "-o", output_path);
+    if (!linking) cmd_append(cmd, "-c", input_path);
     else {
-        nob_cmd_append(cmd, input_path);
-        if (modules->count) {
-            for (size_t i = 0; i < modules->count; ++i) {
-                char *output = nob_temp_sprintf("%s%s.o", BUILD_FOLDER, da_get(modules, i));
-                nob_cmd_append(cmd, output);
-            }
-        }
+        cmd_append(cmd, input_path);
+        cmd_append(cmd, LIBPATH);
         add_sdl_libraries(cmd);
     }
 }
@@ -111,7 +104,7 @@ int main(int argc, char **argv)
 
     if (*clean) {
         if (file_exists(BUILD_FOLDER)) {
-            nob_cmd_append(&cmd, "rm", "-rf", BUILD_FOLDER);
+            cmd_append(&cmd, "rm", "-rf", BUILD_FOLDER);
             if (!nob_cmd_run(&cmd)) return_defer(1);
         }
     }
@@ -128,13 +121,13 @@ int main(int argc, char **argv)
         set_current_dir("./tests/");
         nob_log(INFO, "CMD: cd ./tests/");
         if (nob_needs_rebuild1("nob", "nob.c")) {
-            nob_cmd_append(&cmd, "cc", "-x", "c", "-o", "nob", "nob.c");
+            cmd_append(&cmd, "cc", "-x", "c", "-o", "nob", "nob.c");
             if (!nob_cmd_run(&cmd)) return_defer(1);
         }
 
-        if (*rec) nob_cmd_append(&cmd, "./nob", "-record");
+        if (*rec) cmd_append(&cmd, "./nob", "-record");
         else
-            nob_cmd_append(&cmd, "./nob");
+            cmd_append(&cmd, "./nob");
         if (!nob_cmd_run(&cmd)) return_defer(1);
         return 0;
     }
@@ -144,19 +137,27 @@ int main(int argc, char **argv)
     da_append(&modules, "sdl_helpers");
     if (!compile_submodules(&modules)) return_defer(1);
 
+
+    cmd_append(&cmd, "ar", "rcs");
+    cmd_append(&cmd, LIBPATH);
+    da_foreach(const char *, it, &modules) {
+        cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
+    }
+    if (!cmd_run(&cmd)) return_defer(1);
+
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
-        compile_command(&cmd, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true, &modules);
+        compile_command(&cmd, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     if (*debugui) {
-        nob_cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
+        cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     if (*run && !(*debugui)) {
-        nob_cmd_append(&cmd, "./" BINARIES_FOLDER "main");
+        cmd_append(&cmd, "./" BINARIES_FOLDER "main");
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
