@@ -74,4 +74,11 @@ bool disableVsync(sdl_ctx_t *sdl_ctx);
  */
 void clearContextSurface(sdl_ctx_t *sdl_ctx);
 
+/**
+ * @fn loadFont(char *path, float size, int fontStyle, int outline)
+ */
+TTF_Font *loadFont(char *path, float size, int fontStyle, int outline);
+
+void print_Sdl_Text(sdl_ctx_t *sdl_ctx, char *text, TTF_Font *font, SDL_Color fontColor, SDL_FRect *drawingBox);
+
 #endif //SDL_HELPER_H_
