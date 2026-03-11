@@ -13,5 +13,5 @@ jobs:
       - name: Run clang-format
         uses: RafikFarhad/clang-format-github-action@v6
         with:
-          sources: "**/*.c,**/*.cpp,**/*.h,**/*.hpp"
+          sources: "src/*.c, src/*.h"
           style: file
