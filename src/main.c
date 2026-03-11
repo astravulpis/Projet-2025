@@ -24,9 +24,9 @@ int main()
     float deltaT = 0;
     int frameCount = 0;
     float fps = 0;
-    // loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp"); // Chemins absolue depuis la racine du projet.
-                                                          // Cela se justifie car le programme est tournee
-                                                          // depuis `nob` qui est a la racine elle-meme.
+    // Chemins absolue depuis la racine du projet. Cela se justifie
+    // car le programme est tournee depuis `nob` qui est a la racine elle-meme.
+    // loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp");
     // if (!sdl_ctx->bgTexture) {
     //     nob_log(ERROR, "%s:%d: Failed to background image", __FILE__, __LINE__);
     //     return 1;
