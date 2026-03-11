@@ -10,7 +10,7 @@ void keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float
     if (r->y + r->h > maxY) r->y = maxY - r->h; // Up
 }
 
-int basic_movements(sdl_ctx_t *sdl_ctx)
+char basic_movements(sdl_ctx_t *sdl_ctx, SDL_FRect *player)
 {
     SDL_Event e = sdl_ctx->event;
     if (e.type == SDL_EVENT_KEY_DOWN) {
@@ -27,7 +27,7 @@ int basic_movements(sdl_ctx_t *sdl_ctx)
             break;
         }
     }
-    return 0;
+    return '\0';
 }
 
 void basic_keyboard_events(sdl_ctx_t *sdl_ctx)

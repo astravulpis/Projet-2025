@@ -1,7 +1,6 @@
 #ifndef SDL_HELPER_H_
 #define SDL_HELPER_H_
 
-#include "SDL3/SDL.h"
 #include "common.h"
 #include <assert.h>
 
@@ -48,9 +47,31 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin);
  */
 void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin);
 
+/**
+ * @fn createRect(float x, float y, float width, float height)
+ * @return rect pointer sur un SDL_Frect allouer en memoire
+ * @brief Alloue de la memoire pour un SDL_FRect en associant sa position et sa taille
+ */
 SDL_FRect *createRect(float x, float y, float width, float height);
+
+/**
+ * @fn enableVsync(sdl_ctx_t *sdl_ctx)
+ * @return true if was successful, false otherwise
+ * @brief Active la vsync
+ */
 bool enableVsync(sdl_ctx_t *sdl_ctx);
+
+/**
+ * @fn disableVsync(sdl_ctx_t *sdl_ctx)
+ * @return true if was successful, false otherwise
+ * @brief Active la vsync
+ */
 bool disableVsync(sdl_ctx_t *sdl_ctx);
+
+/**
+ * @fn clearContextSurface(sdl_ctx_t *sdl_ctx)
+ * @brief Vide le buffer de surface du context SDL
+ */
 void clearContextSurface(sdl_ctx_t *sdl_ctx);
 
 #endif //SDL_HELPER_H_
