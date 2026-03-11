@@ -1,5 +1,6 @@
 #include "SDL3/SDL.h"
 #include "../shared.h"
+#include <math.h>
 
 /**
  * @file main.c
@@ -80,12 +81,13 @@ void updateBackgroundColor(int r, int g, int b, int aplha);
 void renderBackground();
 
 /**
- * @fn basic_movement(struct sdl_context_s *ctx)
- * @brief Listens to keyboard inputs (specifically A and D)
+ * @fn basic_movement(struct sdl_context_s *ctx, float *dx, float *dy)
+ * @brief Checks keyboard state for multiple inputs to allow diagonal movement
  * @param[in] ctx SDL context
- * @param[out] direction Returns -1 or 1 whenever A or D are pressed respectively
+ * @param[out] dx Pointer to x movement delta (-1, 0, or 1)
+ * @param[out] dy Pointer to y movement delta (-1, 0, or 1)
  */
-int basic_movement(struct sdl_context_s *ctx);
+void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy);
 
 /**
  * @fn hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
@@ -103,7 +105,6 @@ int main()
 {
     init_all();
 
-    int direction = 0;
     float speed = 200.0f;
     float i=0;
     float color = 0x18/255.0f;
@@ -123,6 +124,8 @@ int main()
     boxSDL->y=0;
     boxSDL->w=100;
     boxSDL->h=100;
+
+    float dx, dy;
 
     SDL_Event evenement;
 
@@ -178,24 +181,19 @@ int main()
         // Updates the event queue and internal input device state
         SDL_PumpEvents();
 
-        direction = basic_movement(&sdl_ctx);
+        dx = 0.0f;
+        dy = 0.0f;
+        basic_movement(&sdl_ctx, &dx, &dy); //calls basic_movement with the adress of the image we are moving, it's X and Y coordinates
 
-        // execution du comportement
-        switch (direction){
-            case 'A':
-                boxC->x -= speed*deltaT;
-                break;
-            case 'S':
-                boxC->y += speed*deltaT;
-                break;
-            case 'D':
-                boxC->x += speed*deltaT;
-                break;
-            case 'W':
-                boxC->y -= speed*deltaT;
-                break;
+        if (dx!=0 && dy!=0){//check for diagonal movement
+            boxC->x += dx * speed * deltaT / sqrt(2);
+            boxC->y += dy * speed * deltaT / sqrt(2);
         }
-
+        else{
+        // Apply movement without diagonal
+        boxC->x += dx * speed * deltaT;
+        boxC->y += dy * speed * deltaT;
+        }
         //call hit_box_test pour verifier que boxC ne sort pas de l'image avec la prochaine boucle
         hit_box_test(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -285,32 +283,29 @@ void renderBackground()
     if (sdl_ctx.bgTexture != NULL) SDL_RenderTexture(sdl_ctx.renderer, sdl_ctx.bgTexture, NULL,  NULL);
 }
 
-int basic_movement(struct sdl_context_s *ctx)
+void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy)
 {
-    SDL_Event e = ctx->event;
-    if (e.type == SDL_EVENT_KEY_DOWN) {
-        SDL_Log("Wow, you just pressed the %s key!", SDL_GetKeyName(e.key.key));
-        switch (e.key.scancode) {
-            case SDL_SCANCODE_A:
-                return 'A';
-                break;
-            case SDL_SCANCODE_D:
-                return 'D';
-                break;
-            case SDL_SCANCODE_W:
-                return 'W';
-                break;
-            case SDL_SCANCODE_S:
-                return 'S';
-                break;
-            case SDL_SCANCODE_Q:
-                ctx->quit = true;
-                break;
-            default:
-                break;
-        }
+    const bool *keyboard_state = SDL_GetKeyboardState(NULL);
+    *dx = 0.0f;
+    *dy = 0.0f;
+    // looks for left and right
+    if (keyboard_state[SDL_SCANCODE_A]) {
+        *dx -= 1.0f;
     }
-    return 0;
+    if (keyboard_state[SDL_SCANCODE_D]) {
+        *dx += 1.0f;
+    }
+    // looks for up and down
+    if (keyboard_state[SDL_SCANCODE_W]) {
+        *dy -= 1.0f;
+    }
+    if (keyboard_state[SDL_SCANCODE_S]) {
+        *dy += 1.0f;
+    }
+    // checks the exit (Q for now since why not?)
+    if (keyboard_state[SDL_SCANCODE_Q]) {
+        ctx->quit = true;
+    }
 }
 
     //keep rectangle in the given bounds by window height and window width
