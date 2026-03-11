@@ -23,6 +23,9 @@ typedef struct submodules {
         cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                      \
         cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                          \
         cmd_append((cmd), "-lSDL3_image");                                                                               \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_ttf/"));                                        \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_ttf/"));                                            \
+        cmd_append((cmd), "-lSDL3_ttf");                                                                               \ 
         cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/")); \
         cmd_append((cmd), "-lm");                                                                                        \
     } while (0)
