@@ -2,9 +2,9 @@ name: compile and run
 
 on:
   push:
-    branches : [ "main", "master", "github-actions" ]
+    branches : [ "main" ]
   pull_request:
-    branches : [ "main", "master" ]
+    branches : [ "main" ]
 
 jobs:
   build:

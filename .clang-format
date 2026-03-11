@@ -1,0 +1,22 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 128
+AllowShortIfStatementsOnASingleLine: OnlyFirstIf
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: None
+AllowShortLoopsOnASingleLine: true
+BinPackArguments: true
+MaxEmptyLinesToKeep: 1
+AlignAfterOpenBracket: Align
+SpaceBeforeParens: ControlStatements
+AlwaysBreakAfterReturnType: Automatic
+BreakBeforeBraces: Linux
+PenaltyReturnTypeOnItsOwnLine: 1
+AlignConsecutiveMacros:
+  Enabled: false
+AlignEscapedNewlines: LeftWithLastLine
+PointerAlignment: Right
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
