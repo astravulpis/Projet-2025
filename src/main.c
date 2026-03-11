@@ -1,318 +1,112 @@
-#include "SDL3/SDL.h"
 #include "../shared.h"
+#include "common.h"
+#include "event.h"
+#include "sdl_helpers.h"
 #include <math.h>
 
 /**
  * @file main.c
  * @brief File where every actions to run the game are being executed at.
  */
-
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-#define BREAKPOINT __asm("int3");
-
-/**
- * @typedef struct sdl_ctx_t
- * @brief shorter abreviation for @ref sdl_context_s
- */
-typedef struct sdl_context_s sdl_ctx_t;
-
-/**
- * @struct sdl_context_s
- * @brief Act as our sdl context with multiple variables used about everywhere
- *
- * It holds multiple variable for the rendering of the window, the surface of said window, the event that can be pulled and if the program is running or not.
- */
-struct sdl_context_s {
-    SDL_Window *window;     //!< SDL window context
-    SDL_Renderer *renderer; //!< SDL renderer context
-    SDL_Surface *bgSurface; //!< SDL window's background surface (needs to be made into a struct sdl_RenderSurface or smth)
-    SDL_Texture *bgTexture; //!< SDL window's background texture (needs to be made into a struct sdl_RenderSurface or smth)
-    SDL_Event event;
-    bool vsyncActivation;   //!< bool that allows the program to not hog the system's ressources (TEMPORARY SOLUTION)
-    bool quit;              //!< bool to quit the main loop
-};
-
-sdl_ctx_t sdl_ctx = {0}; //!< Global sdl context variable
-
-/**
- * @fn init_all()
- * @brief Initializes the sdl context
- * @param[out] result Returns `true` or `false` depending on if SDL failed to init its own context.
- */
-bool init_all();
-
-/**
- * @fn close_SDL()
- * @brief Destroys the SDL window
- *
- * Helper function to deallocate and put all of the SDL context pointers to NULL.
- */
-void close_SDL();
-
-/**
- * @fn initBackgroundColor(int r, int g, int b, int aplha)
- * @brief helper function to initialise the background
- * @param[in] r red color of the background
- * @param[in] g green color of the background
- * @param[in] b blue color of the background
- * @param[in] alpha fadeness of the color
- *
- * Init sdl context's backgroud surface and texture and fills them with the color given in RGBA format
- */
-void initBackgroundColor(int r, int g, int b, int aplha);
-
-/**
- * @fn updateBackgroundColor(int r, int g, int b, int aplha)
- * @brief helper function to modify the color of the background
- * @param[in] r red color of the background
- * @param[in] g green color of the background
- * @param[in] b blue color of the background
- * @param[in] alpha fadeness of the color
- *
- * Modifies the surface and the texture of the sdl context's window
- */
-void updateBackgroundColor(int r, int g, int b, int aplha);
-
-/**
- * @fn renderBackground()
- * @brief Renders the background texture if not NULL (?)
- */
-void renderBackground();
-
-/**
- * @fn basic_movement(struct sdl_context_s *ctx, float *dx, float *dy)
- * @brief Checks keyboard state for multiple inputs to allow diagonal movement
- * @param[in] ctx SDL context
- * @param[out] dx Pointer to x movement delta (-1, 0, or 1)
- * @param[out] dy Pointer to y movement delta (-1, 0, or 1)
- */
-void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy);
-
-/**
- * @fn hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
- * @brief takes the location of the image we are moving then compares it to the corners of the screen
- * @param[in] r our sld rectangle
- * @param[in] minX left side of screen
- * @param[in] minY top side of screen
- * @param[in] maxX right side of screen
- * @param[in] maxY bottom side of screen
- */
-void hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
-
-
 int main()
 {
-    init_all();
-
     float speed = 200.0f;
-    float i=0;
-    float color = 0x18/255.0f;
-    Uint32 last = SDL_GetTicks();
-    SDL_FRect * boxSDL = NULL; //les objets SDL_FRect contienent des coordonnées et des dimmensions (used for the hitboxes)
-    SDL_Surface *surfaceImgSDL;
-    SDL_Texture *textureImgSDL;
-
-    sdl_ctx.quit = false;
-
-    initBackgroundColor(255, 255, 255, 255);
-    renderBackground();
-
-    //Rendu du logo de SDL
-    boxSDL=malloc(sizeof(SDL_FRect));
-    boxSDL->x=0;
-    boxSDL->y=0;
-    boxSDL->w=100;
-    boxSDL->h=100;
-
     float dx, dy;
+    // float color = 0x18/255.0f;
 
-    SDL_Event evenement;
+    sdl_ctx_t *sdl_ctx = init_all();
+    if (sdl_ctx == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to initialize context. See error backtrace above.", __FILE__, __LINE__);
+        exit(1);
+    }
 
-    surfaceImgSDL = SDL_LoadBMP("assets/img/SDL3.bmp");
-    textureImgSDL = SDL_CreateTextureFromSurface(sdl_ctx.renderer, surfaceImgSDL);
+    Uint32 last = SDL_GetTicks();
+    float deltaT = 0;
+    int frameCount = 0;
+    float fps = 0;
+    // Chemins absolue depuis la racine du projet. Cela se justifie
+    // car le programme est tournee depuis `nob` qui est a la racine elle-meme.
+    // loadBackgroundImage(sdl_ctx, "assets/img/bg.bmp");
+    // if (!sdl_ctx->bgTexture) {
+    //     nob_log(ERROR, "%s:%d: Failed to background image", __FILE__, __LINE__);
+    //     return 1;
+    // }
 
-    SDL_RenderTexture(sdl_ctx.renderer, textureImgSDL, NULL,  boxSDL);
-    SDL_RenderPresent(sdl_ctx.renderer);
+    SDL_Texture *SDL_Logo = chargerImage(sdl_ctx, "assets/img/SDL3.bmp");
+    SDL_FRect *boxSDL = createRect(0.0f, 0.0f, 32.0f, 32.0f);
+    if (!SDL_Logo) {
+        nob_log(ERROR, "%s:%d: Failed to load SDL image", __FILE__, __LINE__);
+        return 1;
+    }
 
-    //Rendu du logo du langage C
-    SDL_FRect * boxC = NULL;
-    boxC=malloc(sizeof(SDL_FRect));
-    boxC->x=200;
-    boxC->y=200;
-    boxC->w=100;
-    boxC->h=100;
+    SDL_Texture *C_Logo = chargerImage(sdl_ctx, "assets/img/C.bmp");
+    SDL_FRect *boxC = createRect(350.0f, 200.0f, 100.0f, 100.0f);
+    if (!C_Logo) {
+        nob_log(ERROR, "%s:%d: Failed to load C logo image", __FILE__, __LINE__);
+        return 1;
+    }
 
-    SDL_Surface *surfaceImgC;
-    SDL_Texture *textureImgC;
+    printf("\n");
 
-    surfaceImgC = SDL_LoadBMP("assets/img/C.bmp");
-    textureImgC = SDL_CreateTextureFromSurface(sdl_ctx.renderer, surfaceImgC);
-
-    SDL_RenderTexture(sdl_ctx.renderer, textureImgC, NULL,  boxC);
-    SDL_RenderPresent(sdl_ctx.renderer);
-    //----------------------------------
-
-    if (surfaceImgC==NULL)
-        printf("impossible charger l'image du logo C ...\n");
-    else
-        printf("image chargée logo C avec succès (mais qui est succès ?) ...\n");
-
-    if (surfaceImgSDL==NULL)
-        printf("impossible charger l'image du logo SDL ...\n");
-    else
-        printf("image chargée logo SDL avec succès (mais qui est succès ?) ...\n");
-
-    float tempOriginBox = boxC->x;      //pour ne pas perdre la coordonnée x originelle de l'image logo C
-    // ----------------------------------------------
-    // * REMOVE THIS BELOW TO USE THE `tempOriginBox`
-    // ----------------------------------------------
-    UNUSED(tempOriginBox);
-
-    while (!sdl_ctx.quit){
+    // Updates the event queue and internal input device state
+    while (!sdl_ctx->quit) {
         Uint32 now = SDL_GetTicks();
-        float deltaT = (now - last) / 1000.0f; // seconds since last frame
-        last = now;
-
-        while(SDL_PollEvent(&sdl_ctx.event)==SDL_EVENT_QUIT){
-            sdl_ctx.quit= true;
+        deltaT = (now - last) / 1000.0f; // seconds since last frame
+        if (now - frameCount >= 1000) {
+            printf("\x1b[1FFPS : %.2f\n", fps);
+            frameCount = 0;
+            last = now;
         }
 
-        // Updates the event queue and internal input device state
+        while (SDL_PollEvent(&sdl_ctx->event)) {
+            switch (sdl_ctx->event.type) {
+            case SDL_EVENT_QUIT:
+                sdl_ctx->quit = true;
+                break;
+            }
+        }
+
         SDL_PumpEvents();
 
         dx = 0.0f;
         dy = 0.0f;
-        basic_movement(&sdl_ctx, &dx, &dy); //calls basic_movement with the adress of the image we are moving, it's X and Y coordinates
+        // calls basic_movement with the adress of the image we are moving, it's X and Y coordinates
+        basic_movement(sdl_ctx, &dx, &dy);
 
-        if (dx!=0 && dy!=0){//check for diagonal movement
+        if (dx != 0 && dy != 0) { // check for diagonal movement
             boxC->x += dx * speed * deltaT / sqrt(2);
             boxC->y += dy * speed * deltaT / sqrt(2);
+        } else {
+            // Apply movement without diagonal
+            boxC->x += dx * speed * deltaT;
+            boxC->y += dy * speed * deltaT;
         }
-        else{
-        // Apply movement without diagonal
-        boxC->x += dx * speed * deltaT;
-        boxC->y += dy * speed * deltaT;
+        frameCount++;
+
+
+        keep_player_inbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+        // on récupère l'evenement en tête de file
+
+        // SDL_SetRenderDrawColorFloat(sdl_ctx->renderer, color, color, color, 1.0f);
+        SDL_RenderClear(sdl_ctx->renderer);
+
+        renderBackground(sdl_ctx);
+        // renduImage(sdl_ctx, SDL_Logo, boxSDL->x, boxSDL->y, boxSDL->w, boxSDL->h);
+        // renduImage(sdl_ctx, C_Logo, boxC->x, boxC->y, boxC->w, boxC->h);
+        renduImage(sdl_ctx, SDL_Logo, boxSDL);
+        renduImage(sdl_ctx, C_Logo, boxC);
+
+        if (!SDL_RenderPresent(sdl_ctx->renderer)) {
+            nob_log(ERROR, "%s:%d: Failed to render the renderer's buffer. See error: %s", __FILE__, __LINE__, SDL_GetError());
         }
-        //call hit_box_test pour verifier que boxC ne sort pas de l'image avec la prochaine boucle
-        hit_box_test(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        //on récupère l'evenement en tête de file
-
-        SDL_ClearSurface(sdl_ctx.bgSurface, color, color, color, 1.0f);
-        SDL_RenderClear(sdl_ctx.renderer);
-
-        updateBackgroundColor( i*(i/100), i*(i/100), i, 255);
-        renderBackground();
-        SDL_RenderTexture(sdl_ctx.renderer, textureImgC, NULL, boxC);
-        SDL_RenderTexture(sdl_ctx.renderer, textureImgSDL, NULL, boxSDL);
-
-        SDL_RenderPresent(sdl_ctx.renderer);
-
     }
 
-    free(boxSDL);
+    SDL_DestroyTexture(SDL_Logo);
+    SDL_DestroyTexture(C_Logo);
     free(boxC);
+    free(boxSDL);
 
-    SDL_DestroySurface(surfaceImgC);
-    SDL_DestroySurface(surfaceImgSDL);
-
-    SDL_DestroyTexture(textureImgC);
-    SDL_DestroyTexture(textureImgSDL);
-
-    close_SDL();
-
+    close_SDL(sdl_ctx);
     return 0;
 }
-
-bool init_all(void)
-{
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
-        return false;
-    }
-    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &(sdl_ctx.window), &(sdl_ctx.renderer));
-    if (sdl_ctx.window == NULL) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
-        close_SDL();
-        return false;
-    }
-    sdl_ctx.vsyncActivation=true;
-    //Activation du Vsync pour avoir un contrôle du framerate et éviter une surcharge du pc
-    if (SDL_SetRenderVSync(sdl_ctx.renderer, 1) == false) {
-        SDL_Log( "Impossible d'initialiser VSync, erreur : %s\n", SDL_GetError() );
-        close_SDL();
-        return false;
-    }
-
-    sdl_ctx.bgSurface = SDL_GetWindowSurface(sdl_ctx.window);
-    return true;
-}
-
-void close_SDL()
-{
-    SDL_DestroyWindow(sdl_ctx.window);
-
-    sdl_ctx.window = NULL;
-    sdl_ctx.bgSurface = NULL;
-
-    SDL_Quit();
-}
-
-void initBackgroundColor(int r, int g, int b, int aplha)
-{
-    sdl_ctx.bgSurface = SDL_GetWindowSurface(sdl_ctx.window);
-
-    SDL_FillSurfaceRect(sdl_ctx.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ctx.bgSurface, r, g, b));
-
-    sdl_ctx.bgTexture = SDL_CreateTextureFromSurface(sdl_ctx.renderer, sdl_ctx.bgSurface);
-}
-
-void updateBackgroundColor(int r, int g, int b, int aplha)
-{
-    SDL_DestroySurface(sdl_ctx.bgSurface);
-    SDL_DestroyTexture(sdl_ctx.bgTexture);
-
-    SDL_FillSurfaceRect(sdl_ctx.bgSurface, NULL, SDL_MapSurfaceRGB(sdl_ctx.bgSurface, r, g, b));
-
-    sdl_ctx.bgTexture = SDL_CreateTextureFromSurface(sdl_ctx.renderer, sdl_ctx.bgSurface);
-}
-
-void renderBackground()
-{
-    if (sdl_ctx.bgTexture != NULL) SDL_RenderTexture(sdl_ctx.renderer, sdl_ctx.bgTexture, NULL,  NULL);
-}
-
-void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy)
-{
-    const bool *keyboard_state = SDL_GetKeyboardState(NULL);
-    *dx = 0.0f;
-    *dy = 0.0f;
-    // looks for left and right
-    if (keyboard_state[SDL_SCANCODE_A]) {
-        *dx -= 1.0f;
-    }
-    if (keyboard_state[SDL_SCANCODE_D]) {
-        *dx += 1.0f;
-    }
-    // looks for up and down
-    if (keyboard_state[SDL_SCANCODE_W]) {
-        *dy -= 1.0f;
-    }
-    if (keyboard_state[SDL_SCANCODE_S]) {
-        *dy += 1.0f;
-    }
-    // checks the exit (Q for now since why not?)
-    if (keyboard_state[SDL_SCANCODE_Q]) {
-        ctx->quit = true;
-    }
-}
-
-    //keep rectangle in the given bounds by window height and window width
-void hit_box_test(SDL_FRect *r, float minX, float minY, float maxX, float maxY) {
-        if (r == NULL) return;
-        if (r->x < minX) r->x = minX;
-        if (r->y < minY) r->y = minY;
-        if (r->x + r->w > maxX) r->x = maxX - r->w;
-        if (r->y + r->h > maxY) r->y = maxY - r->h;
-    }
