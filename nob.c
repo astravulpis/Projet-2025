@@ -45,8 +45,8 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
     else {
         cmd_append(cmd, input_path);
         cmd_append(cmd, LIBPATH);
-        add_sdl_libraries(cmd);
     }
+    add_sdl_libraries(cmd);
 }
 
 bool compile_submodules(submodules *modules)
