@@ -37,6 +37,13 @@ sdl_ctx_t *init_all(void)
         return NULL;
     }
 
+    //initialisation de la prise en charge des fonts
+    if (!TTF_Init()){
+        nob_log(ERROR, "%s:%d: Failed to initialize SDL_ttf", __FILE__, __LINE__);
+        close_SDL(ctx);
+        return NULL;
+    }
+
     return ctx;
 }
 
@@ -153,4 +160,49 @@ void renderBackground(sdl_ctx_t *sdl_ctx)
     if (sdl_ctx->bgTexture != NULL) {
         renduImage(sdl_ctx, sdl_ctx->bgTexture, sdl_ctx->bgRect);
     }
+}
+
+//void printTextSdl(sdl_ctx_t *sdl_ctx, char *text, ...){
+//    
+//}
+
+TTF_Font *loadFont(char *path, float size, int fontStyle, int outline) {
+    /* Voicic les différents style d'écriture de police
+    TTF_STYLE_NORMAL (is zero)
+    TTF_STYLE_BOLD
+    TTF_STYLE_ITALIC
+    TTF_STYLE_UNDERLINE
+    TTF_STYLE_STRIKETHROUGH
+    */
+
+    TTF_Font *font = TTF_OpenFont(path, size);
+    if (font == NULL ) return NULL;
+
+    // paramétrage de la la police a l'aide de fontsyle et outline
+    // ne retourne rien
+    TTF_SetFontStyle(font, fontStyle);
+
+    if (!TTF_SetFontOutline(font, outline)){
+        nob_log(ERROR, "%s:%d: Failed to set font outline", __FILE__, __LINE__);
+        TTF_CloseFont(font);
+        return NULL;
+    }
+
+    // ne retourne rien
+    TTF_SetFontHinting(font, TTF_HINTING_NORMAL);
+
+    return font;
+}
+
+void print_Sdl_Text(sdl_ctx_t *sdl_ctx, char *text, TTF_Font *font, SDL_Color fontColor, SDL_FRect *drawingBox) {
+    SDL_Surface *textSurface = TTF_RenderText_Blended_Wrapped(font, text, 0, fontColor, 0);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(sdl_ctx->renderer, textSurface);
+    
+    //empếche l'application de crash, dans le cas ou c'est NULL
+    if (textTexture == NULL) return;
+    
+    SDL_RenderTexture(sdl_ctx->renderer, textTexture, NULL, drawingBox);
+    
+    SDL_DestroySurface(textSurface);
+    SDL_DestroyTexture(textTexture);
 }
