@@ -15,13 +15,16 @@ typedef struct submodules {
 } submodules;
 
 #define da_get(da, idx) (da)->items[i]
-#define add_sdl_libraries(cmd)                                                         \
-    do {                                                                               \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));      \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));          \
-        cmd_append((cmd), "-lSDL3");                                                   \
-        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib", VENDOR_FOLDER SDL_FOLDER)); \
-        cmd_append((cmd), "-lm");                                                      \
+#define add_sdl_libraries(cmd)                                                                                           \
+    do {                                                                                                                 \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                        \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                            \
+        cmd_append((cmd), "-lSDL3");                                                                                     \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                      \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                          \
+        cmd_append((cmd), "-lSDL3_image");                                                                               \
+        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/")); \
+        cmd_append((cmd), "-lm");                                                                                        \
     } while (0)
 
 bool debug;
