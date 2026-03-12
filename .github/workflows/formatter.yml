@@ -1,7 +1,7 @@
 name: Clang Format Checker
 on:
   push:
-    branches : [ "main", "auto-formatter" ]
+    branches : [ "main" ]
   pull_request:
     branches : [ "main" ]
 
@@ -13,5 +13,5 @@ jobs:
       - name: Run clang-format
         uses: RafikFarhad/clang-format-github-action@v6
         with:
-          sources: "src/*.c, src/*.h"
+          sources: "src/*.c, src/*.h, tests/*.c"
           style: file
