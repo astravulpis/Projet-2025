@@ -46,6 +46,8 @@ int main()
         return 1;
     }
 
+    SDL_FRect *boxDummy = createRect(400.0f, 400.0f, 50.0f, 50.0f);
+
     printf("\n");
 
     // Updates the event queue and internal input device state
@@ -71,7 +73,7 @@ int main()
         dx = 0.0f;
         dy = 0.0f;
         // calls basic_movement with the adress of the image we are moving, it's X and Y coordinates
-        basic_movement(sdl_ctx, &dx, &dy);
+        basic_movement(sdl_ctx, &dx, &dy, boxC, boxDummy);
 
         if (dx != 0 && dy != 0) { // check for diagonal movement
             boxC->x += dx * speed * deltaT / sqrt(2);
@@ -83,7 +85,7 @@ int main()
         }
         frameCount++;
 
-
+        resolve_overlap(boxC,boxDummy);
         keep_player_inbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // on récupère l'evenement en tête de file
@@ -96,6 +98,7 @@ int main()
         // renduImage(sdl_ctx, C_Logo, boxC->x, boxC->y, boxC->w, boxC->h);
         renduImage(sdl_ctx, SDL_Logo, boxSDL);
         renduImage(sdl_ctx, C_Logo, boxC);
+        renduImage(sdl_ctx, C_Logo, boxDummy);
 
         if (!SDL_RenderPresent(sdl_ctx->renderer)) {
             nob_log(ERROR, "%s:%d: Failed to render the renderer's buffer. See error: %s", __FILE__, __LINE__, SDL_GetError());
