@@ -15,13 +15,16 @@ typedef struct submodules {
 } submodules;
 
 #define da_get(da, idx) (da)->items[i]
-#define add_sdl_libraries(cmd)                                                         \
-    do {                                                                               \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));      \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));          \
-        cmd_append((cmd), "-lSDL3");                                                   \
-        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib", VENDOR_FOLDER SDL_FOLDER)); \
-        cmd_append((cmd), "-lm");                                                      \
+#define add_sdl_libraries(cmd)                                                                                           \
+    do {                                                                                                                 \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                        \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                            \
+        cmd_append((cmd), "-lSDL3");                                                                                     \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                      \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                          \
+        cmd_append((cmd), "-lSDL3_image");                                                                               \
+        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/")); \
+        cmd_append((cmd), "-lm");                                                                                        \
     } while (0)
 
 bool debug;
@@ -81,13 +84,13 @@ int main(int argc, char **argv)
     int result = 0;
     size_t mark = nob_temp_save();
 
-    flag_bool_var(&debug,     "-debug",    false, "run in debug mode");
-    bool *help    = flag_bool("-help",     false, "Print this help");
-    bool *clean   = flag_bool("-clean",    false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run     = flag_bool("-run",      false, "run the program");
-    bool *debugui = flag_bool("-debugui",  false, "run in debug mode using gf2");
-    bool *tests   = flag_bool("-tests",    false, "builds and run the tests, works as a standalone");
-    bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
+    flag_bool_var(&debug, "-debug", false, "run in debug mode");
+    bool *help = flag_bool("-help", false, "Print this help");
+    bool *clean = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run = flag_bool("-run", false, "run the program");
+    bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2");
+    bool *tests = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
+    bool *rec = flag_bool("-test-rec", false, "builds, run, record the output of tests");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -114,8 +117,21 @@ int main(int argc, char **argv)
     if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
     // if (!nob_mkdir_if_not_exists(BINARIES_FOLDER "assets/")) return_defer(1);
     // if (!copy_directory_recursively("./assets/img", "./build/bin/assets/img")) return_defer(1);
-    minimal_log_level = INFO;
 
+    // Add more submodules here
+    da_append(&modules, "event");
+    da_append(&modules, "sdl_helpers");
+    if (!compile_submodules(&modules)) return_defer(1);
+
+    cmd_append(&cmd, "ar", "rcs");
+    cmd_append(&cmd, LIBPATH);
+    da_foreach(const char *, it, &modules)
+    {
+        cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
+    }
+    if (!cmd_run(&cmd)) return_defer(1);
+
+    minimal_log_level = INFO;
     // IMPORTANT: `Tests` cannot be run with other commands.
     if (*tests || *rec) {
         set_current_dir("./tests/");
@@ -131,19 +147,6 @@ int main(int argc, char **argv)
         if (!nob_cmd_run(&cmd)) return_defer(1);
         return 0;
     }
-
-    // Add more submodules here
-    da_append(&modules, "event");
-    da_append(&modules, "sdl_helpers");
-    if (!compile_submodules(&modules)) return_defer(1);
-
-
-    cmd_append(&cmd, "ar", "rcs");
-    cmd_append(&cmd, LIBPATH);
-    da_foreach(const char *, it, &modules) {
-        cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
-    }
-    if (!cmd_run(&cmd)) return_defer(1);
 
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
