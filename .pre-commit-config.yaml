@@ -3,4 +3,4 @@ repos:
     rev: '88c364bab316f4b6b18f6c298133bbbf32d7cd15'
     hooks:
       - id: clang-format
-        files: ^src/.*\.(c|h)$
+        files: ^(src|tests)/.*\.(c|h)$
