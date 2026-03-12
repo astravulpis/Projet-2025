@@ -83,7 +83,6 @@ int main()
         }
         frameCount++;
 
-
         keep_player_inbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // on récupère l'evenement en tête de file
