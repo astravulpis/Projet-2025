@@ -22,7 +22,7 @@ void keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float
  * @param[in] ctx SDL context
  * @param[out] direction Returns the character pressed
  */
-void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy);
+void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy, SDL_FRect *a, SDL_FRect *b);
 
 /**
  * @fn basic_keyboard_events(struct sdl_context_s *ctx)
@@ -30,5 +30,7 @@ void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy);
  * @param[in] ctx SDL context
  */
 void basic_keyboard_events(sdl_ctx_t *sdl_ctx);
+
+void resolve_overlap(SDL_FRect *a, SDL_FRect *b);
 
 #endif //EVENT_H_
