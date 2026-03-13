@@ -15,19 +15,20 @@ typedef struct submodules {
 } submodules;
 
 #define da_get(da, idx) (da)->items[i]
-#define add_sdl_libraries(cmd)                                                                                           \
-    do {                                                                                                                 \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                        \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                            \
-        cmd_append((cmd), "-lSDL3");                                                                                     \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                      \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                          \
-        cmd_append((cmd), "-lSDL3_image");                                                                               \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_ttf/"));                                        \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_ttf/"));                                            \
-        cmd_append((cmd), "-lSDL3_ttf");                                                                               \ 
-        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/", VENDOR_FOLDER "SDL_ttf/")); \
-        cmd_append((cmd), "-lm");                                                                                        \
+#define add_sdl_libraries(cmd)                                                                                               \
+    do {                                                                                                                     \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                            \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                                \
+        cmd_append((cmd), "-lSDL3");                                                                                         \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                          \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                              \
+        cmd_append((cmd), "-lSDL3_image");                                                                                   \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_ttf/"));                                            \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_ttf/"));                                                \
+        cmd_append((cmd), "-lSDL3_ttf");                                                                                     \
+        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/", \
+                                       VENDOR_FOLDER "SDL_ttf/"));                                                           \
+        cmd_append((cmd), "-lm");                                                                                            \
     } while (0)
 
 bool debug;
@@ -44,6 +45,7 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
     cmd_append(cmd, "cc");
     cmd_append(cmd, "-Wall");
     cmd_append(cmd, "-Wextra");
+    cmd_append(cmd, "-fsanitize=address");
     if (debug) cmd_append(cmd, "-g");
     if (debug) cmd_append(cmd, "-ggdb");
     cmd_append(cmd, "-o", output_path);
@@ -88,12 +90,12 @@ int main(int argc, char **argv)
     size_t mark = nob_temp_save();
 
     flag_bool_var(&debug, "-debug", false, "run in debug mode");
-    bool *help = flag_bool("-help", false, "Print this help");
-    bool *clean = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run = flag_bool("-run", false, "run the program");
+    bool *help    = flag_bool("-help", false, "Print this help");
+    bool *clean   = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run     = flag_bool("-run", false, "run the program");
     bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2");
-    bool *tests = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
-    bool *rec = flag_bool("-test-rec", false, "builds, run, record the output of tests");
+    bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
+    bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
