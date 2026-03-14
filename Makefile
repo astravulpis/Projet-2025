@@ -1,27 +1,39 @@
-OUTPUT := main
-SRC_DIR := src
+OUTPUT    := main
+SRC_DIR   := src
 BUILD_DIR := build
-SRCS := $(shell find $(SRC_DIR) -name '*.c')
-OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
+# Matching your nob.c "VENDOR_FOLDER" logic
+VENDOR    := thirdparty
 
-CXX := cc
-CXXFLAGS := -Wall -Wextra -ggdb
-INCLUDES := -Isrc -Ithirdparty/SDL3/include
-LIBS :=  -Lthirdparty/SDL3/ -lSDL3 -lm
-OPT := -Wl,-rpath,thirdparty/SDL3/lib
+CC        := gcc
+CFLAGS    := -Wall -Wextra -g -ggdb -fsanitize=address
+
+# You must include the VENDOR folder itself to find "nob.h"
+INCLUDES  := -Isrc \
+             -I$(VENDOR) \
+             -I$(VENDOR)/SDL3/include \
+             -I$(VENDOR)/SDL_Image/include \
+             -I$(VENDOR)/SDL_ttf/include
+
+# Matching your nob.c add_sdl_libraries() logic
+LDFLAGS   := -L$(VENDOR)/SDL3/lib \
+             -L$(VENDOR)/SDL_Image/lib \
+             -L$(VENDOR)/SDL_ttf/lib
+LIBS      := -lSDL3 -lSDL3_image -lSDL3_ttf -lm
+RPATH     := -Wl,-rpath,$(VENDOR)/SDL3/lib:$(VENDOR)/SDL_Image/lib:$(VENDOR)/SDL_ttf/lib
+
+SRC       := event.c sdl_helpers.c
+OBJS      := $(SRC:%.c=$(BUILD_DIR)/%.o)
 
 all: $(BUILD_DIR)/$(OUTPUT)
 
-# Compile the executable
-$(BUILD_DIR)/$(OUTPUT): $(OBJS) | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS) $(OPT)
+# Link the final binary (includes main.c and the objects)
+$(BUILD_DIR)/$(OUTPUT): $(SRC_DIR)/main.c $(OBJS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LDFLAGS) $(LIBS) $(RPATH)
 
-# Compile each c file
+# Compile submodules (event.o, sdl_helpers.o)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Create build directory (not needed for subdirs, see above mkdir -p)
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
@@ -32,4 +44,3 @@ run: all
 	./$(BUILD_DIR)/$(OUTPUT)
 
 .PHONY: all run clean
-
