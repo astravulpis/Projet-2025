@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     KeyboardKey lastDirection = KEY_NULL;
     float stunnedTimer = 0.0f;
     bool onGround = false;
+    bool slammingDown = false;
 
     bool *azertyActive = flag_bool("azertySchema", false, "Use the azerty layout schema");
     keymap activeLayout = keyLayout[LAYOUT_QWERTY];
@@ -72,6 +73,7 @@ int main(int argc, char *argv[])
             onGround = true;
             imgPos.y = WINDOW_HEIGHT - logoC.height * scale;
             vel.y = 0;
+            slammingDown = false;
         } else {
             onGround = false;
             stunnedTimer = 0.025;
@@ -83,12 +85,14 @@ int main(int argc, char *argv[])
 
         vel.y += gravity * GetFrameTime();
         imgPos.y += vel.y;
+        if (slammingDown) {
+            imgPos.y -= jumpForce * 1.45f;
+        }
 
         // Vertical Movement
         if (IsKeyDown(activeLayout.down)) {
             if (!onGround) {
-                imgPos.y = (imgPos.y + logoC.height * scale >= WINDOW_HEIGHT) ? WINDOW_HEIGHT - logoC.height * scale
-                                                                              : imgPos.y - jumpForce * 1.45f;
+                slammingDown = true;
             } else {
                 if (stunnedTimer <= 0.0f) {
                     if (lastDirection == KEY_NULL || lastDirection == activeLayout.right) {
