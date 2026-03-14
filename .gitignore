@@ -6,3 +6,4 @@ Conduite.md
 *.zip
 *.json
 doc/doxygen-conf
+/doc/doxygen-docs/html

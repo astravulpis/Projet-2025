@@ -14,3 +14,4 @@
 #define SRC_FOLDER "src/"
 
 #define RAYLIB_FOLDER "raylib-5.5/"
+#define LIBPATH BUILD_FOLDER "libModules.a"
