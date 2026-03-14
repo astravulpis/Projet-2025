@@ -45,7 +45,7 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
     cmd_append(cmd, "cc");
     cmd_append(cmd, "-Wall");
     cmd_append(cmd, "-Wextra");
-    cmd_append(cmd, "-fsanitize=address");
+    if (debug) cmd_append(cmd, "-fsanitize=address");
     if (debug) cmd_append(cmd, "-g");
     if (debug) cmd_append(cmd, "-ggdb");
     cmd_append(cmd, "-o", output_path);

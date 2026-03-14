@@ -43,7 +43,8 @@ SDL_Texture *chargerImage(sdl_ctx_t *sdl_ctx, char *chemin);
 /**
  * \fn void chargerImageBg(char *chemin)
  * \return ne retourne rien, il faut vérifier dans le contexte SDL si la Texture est a NULL ou pas
- * \brief cette fonction effectue un appel a chargerIamge(), et affecte le retour au contxet SDL, la bgTexture, bgSurface a été détruit car il ne sert plus a rien
+ * \brief cette fonction effectue un appel a chargerIamge(), et affecte le retour au contxet SDL, la bgTexture, bgSurface a été
+ * détruit car il ne sert plus a rien
  */
 void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin);
 
@@ -81,4 +82,4 @@ TTF_Font *loadFont(char *path, float size, int fontStyle, int outline);
 
 void print_Sdl_Text(sdl_ctx_t *sdl_ctx, char *text, TTF_Font *font, SDL_Color fontColor, SDL_FRect *drawingBox);
 
-#endif //SDL_HELPER_H_
+#endif // SDL_HELPER_H_
