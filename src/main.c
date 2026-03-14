@@ -118,7 +118,7 @@ int main()
             boxC->y += dy * speed * deltaT;
         }
 
-        resolve_overlap(boxC,boxDummy);
+        resolve_overlap(boxC, boxDummy);
         keep_player_inbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // on récupère l'evenement en tête de file
@@ -152,6 +152,7 @@ int main()
     free(boxSDL);
     free(boxDisplayFps);
     free(boxMouseCoord);
+    free(boxDummy);
 
     TTF_CloseFont(poppins_12pt);
 

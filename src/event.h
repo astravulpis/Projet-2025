@@ -33,4 +33,4 @@ void basic_keyboard_events(sdl_ctx_t *sdl_ctx);
 
 void resolve_overlap(SDL_FRect *a, SDL_FRect *b);
 
-#endif //EVENT_H_
+#endif // EVENT_H_
