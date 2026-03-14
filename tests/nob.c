@@ -5,6 +5,22 @@ const char *test_targets[] = {
     "is_Player_inbounds",
 };
 
+#define add_sdl_libraries(cmd)                                                                                               \
+    do {                                                                                                                     \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                            \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                                \
+        cmd_append((cmd), "-lSDL3");                                                                                         \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                          \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                              \
+        cmd_append((cmd), "-lSDL3_image");                                                                                   \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_ttf/"));                                            \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_ttf/"));                                                \
+        cmd_append((cmd), "-lSDL3_ttf");                                                                                     \
+        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/", \
+                                       VENDOR_FOLDER "SDL_ttf/"));                                                           \
+        cmd_append((cmd), "-lm");                                                                                            \
+    } while (0)
+
 bool delete_walk_entry(Walk_Entry entry)
 {
     return delete_file(entry.path);
@@ -21,7 +37,6 @@ bool compile(const char *test_name)
     Cmd cmd = {0};
     char *src_path = temp_sprintf("%s%s.c", TEST_FOLDER, test_name);
     char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
-    char *sdl_folder = VENDOR_FOLDER SDL_FOLDER;
 
     nob_log(INFO, "------ Testing: `%s` ------", test_name);
 
@@ -31,10 +46,7 @@ bool compile(const char *test_name)
     nob_cc_output(&cmd, bin_path);
     nob_cc_inputs(&cmd, src_path);
     cmd_append(&cmd, LIBPATH);
-    cmd_append(&cmd, temp_sprintf("-I%sinclude", sdl_folder));
-    cmd_append(&cmd, temp_sprintf("-L%slib", sdl_folder));
-    cmd_append(&cmd, "-lSDL3");
-    cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%slib", sdl_folder));
+    add_sdl_libraries(&cmd);
     cmd_append(&cmd, "-lm");
     cmd_append(&cmd, "-ggdb");
     if (!nob_cmd_run(&cmd)) return_defer(1);
