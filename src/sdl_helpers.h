@@ -4,18 +4,52 @@
 #include "common.h"
 
 /**
- * @fn renduImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, float x, float y, float width, float height)
- * @brief Fait le rendu d'une SDL_Texture au coordonnées x, y.
+ * @fn renderImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect)
+ * @param[in] sdl_ctx Our sdl context
+ * @param[in] textureImg The texture that gets rendered
+ * @param[in] rect The rectangle that houses the texture
+ * @brief Renders a texture on a rect
  */
 void renderImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect);
 
 /**
  * @fn createRect(float x, float y, float width, float height)
- * @return rect pointer sur un SDL_Frect allouer en memoire
- * @brief Alloue de la memoire pour un SDL_FRect en associant sa position et sa taille
+ * @param[in] x Position x
+ * @param[in] y Position y
+ * @param[in] width Width of the rect
+ * @param[in] height Height of the rect
+ * @return rect A pointer to a SDL_FRect allocated on the heap
+ * @brief allocate memory for a SDL_FRect of size width*height at position {x, y}
  */
 SDL_FRect *createRect(float x, float y, float width, float height);
 
-bool renderText(sdl_ctx_t *sdl_ctx, char *text, TTF_Font *font, SDL_Color fontColor, SDL_FRect *renderingRect);
+/**
+ * @fn createRect_Ex(SDL_FRect rect)
+ * @param[in] rect A temporary/example rect to copy over into heap
+ * @return rect A pointer to a SDL_FRect allocated on the heap
+ * @brief allocate memory for a SDL_FRect
+ */
+SDL_FRect *createRect_Ex(SDL_FRect rect);
+
+/**
+ * @fn renderText(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, float x_pos, float y_pos)
+ * @brief Render text on the screen
+ * @param[in] sdl_ctx Our sdl context
+ * @param[in] text The text to be rendered
+ * @param[in] color The color of the text rendered
+ * @param[in] x_pos The x-offset from the left of the window
+ * @param[in] y_pos The y-offset from the top of the window
+ */
+bool renderText(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, float x_pos, float y_pos);
+
+/**
+ * @fn renderText_Ex(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, V2f position);
+ * @brief Render text on the screen
+ * @param[in] sdl_ctx Our sdl context
+ * @param[in] text The text to be rendered
+ * @param[in] color The color of the text rendered
+ * @param[in] position The position of where the text should be at
+ */
+bool renderText_Ex(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, V2f position);
 
 #endif // SDL_HELPER_H_

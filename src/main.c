@@ -1,5 +1,6 @@
 #include "../shared.h"
 #include "SDL3_image/SDL_image.h"
+#include "SDL3_ttf/SDL_ttf.h"
 #include "common.h"
 #include "event.h"
 #include "sdl_ctx.h"
@@ -14,7 +15,7 @@ bool createImageRect();
 
 int main()
 {
-    float speed = 200.0f;
+    float speed = 500.0f;
     float dx, dy;
 
     sdl_ctx_t *sdl_ctx = NULL;
@@ -23,19 +24,12 @@ int main()
     Uint32 last = SDL_GetTicks();
     float deltaT = 0;
 
-    // Couleur de la police
-    SDL_FRect *boxDisplayFps = createRect(WINDOW_WIDTH / 2.0f - 256.0f, WINDOW_WIDTH / 2.0f, 300.0f, 128.0f);
-    SDL_FRect *boxMouseCoord = createRect(WINDOW_WIDTH / 2.0f - 256.0f, WINDOW_WIDTH / 2.0f + 110.0f, 300.0f, 64.0f);
+    size_t pixelWidth = 0;
+    TTF_MeasureString(sdl_ctx->font, temp_sprintf("x = %d.0, y = %d.0", WINDOW_WIDTH, WINDOW_HEIGHT), 0, 0, NULL, &pixelWidth);
+    V2f boxFps = {10.0f, 10.0f};
+    V2f boxMouse = {10.0f, 48.0f};
     SDL_FRect *boxDummy = createRect(400.0f, 400.0f, 50.0f, 50.0f);
-    SDL_FRect *boxSDL = createRect(0.0f, 0.0f, 32.0f, 32.0f);
     SDL_FRect *boxC = createRect(350.0f, 200.0f, 100.0f, 100.0f);
-
-
-    SDL_Texture *SDL_Logo = IMG_LoadTexture(sdl_ctx->renderer, "assets/img/SDL3.bmp");
-    if (!SDL_Logo) {
-        nob_log(ERROR, "%s:%d: Failed to load SDL image", __FILE__, __LINE__);
-        return 1;
-    }
 
     SDL_Texture *C_Logo = IMG_LoadTexture(sdl_ctx->renderer, "assets/img/C.bmp");
     if (!C_Logo) {
@@ -43,29 +37,23 @@ int main()
         return 1;
     }
 
-
-    // pointeur pour recevoir les coordonnées de la souris
     float mouse_X = 0;
     float mouse_Y = 0;
 
-    // temps pour calculer le FPS
     Uint32 frameStart = 0;
     int frameCounter = 0;
-    int frameRate = 0; // sert pour l'afichage, pour ne voir que le réel fps, pas pour voir frameCounter qui s'inécrémente et
-                       // qui ne veut pas dire grand chose si il est afficher a chaque tour de while
-
-    char *fpsDisplay = NULL;
-    char *mouseCoordDisplay = NULL;
+    int frameRate = 0;
 
     size_t mark = temp_save();
+
     // Updates the event queue and internal input device state
     while (!sdl_ctx->quit) {
         temp_rewind(mark);
         Uint32 now = SDL_GetTicks();
         deltaT = (now - last) / 1000.0f; // seconds since last frame
+        last = now;
 
         if (now - frameStart >= 1000) {
-            // printf("\x1b[1FFPS : %d\n", frameCounter);
             frameRate = frameCounter;
             frameCounter = 0;
             frameStart = now;
@@ -83,52 +71,39 @@ int main()
 
         dx = 0.0f;
         dy = 0.0f;
-        // calls basic_movement with the adress of the image we are moving, it's X and Y coordinates
-        basicMovementEvents(sdl_ctx, &dx, &dy, boxC, boxDummy);
 
-        if (dx != 0 && dy != 0) { // check for diagonal movement
+        // calls basic_movement with the adress of the image we are moving, it's X and Y coordinates
+        basicMovementEvents(sdl_ctx, &dx, &dy);
+
+        if (dx != 0 && dy != 0) {
             boxC->x += dx * speed * deltaT / sqrt(2);
             boxC->y += dy * speed * deltaT / sqrt(2);
         } else {
-            // Apply movement without diagonal
             boxC->x += dx * speed * deltaT;
             boxC->y += dy * speed * deltaT;
         }
 
-        resolveOverlap(boxC, boxDummy);
+        // resolveOverlap(boxC, boxDummy);
         keepPlayerInbound(boxC, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        // on récupère l'evenement en tête de file
-        // SDL_SetRenderDrawColorFloat(sdl_ctx->renderer, color, color, color, 1.0f);
         SDL_RenderClear(sdl_ctx->renderer);
 
         renderBackground(sdl_ctx);
 
-        renderImage(sdl_ctx, SDL_Logo, boxSDL);
         renderImage(sdl_ctx, C_Logo, boxC);
         renderImage(sdl_ctx, C_Logo, boxDummy);
 
-        fpsDisplay = temp_sprintf("fps : %i", frameRate);
-        renderText(sdl_ctx, fpsDisplay, sdl_ctx->font, WHITE, boxDisplayFps);
+        renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, boxFps);
 
         SDL_GetMouseState(&mouse_X, &mouse_Y);
-        // x = 1920.0, y = 1080.0\0
-        //                       ^ 22 chars
-        mouseCoordDisplay = temp_sprintf("x = %.1f, y = %.1f", mouse_X, mouse_Y);
-        renderText(sdl_ctx, mouseCoordDisplay, sdl_ctx->font, WHITE, boxMouseCoord);
+        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, boxMouse);
 
-        if (!SDL_RenderPresent(sdl_ctx->renderer)) {
-            nob_log(ERROR, "%s:%d: Failed to render the renderer's buffer. See error: %s", __FILE__, __LINE__, SDL_GetError());
-        }
+        SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }
 
-    SDL_DestroyTexture(SDL_Logo);
     SDL_DestroyTexture(C_Logo);
     free(boxC);
-    free(boxSDL);
-    free(boxDisplayFps);
-    free(boxMouseCoord);
     free(boxDummy);
 
     closeCtx(&sdl_ctx);

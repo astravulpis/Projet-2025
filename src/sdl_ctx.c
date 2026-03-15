@@ -26,7 +26,8 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags, &(sdl_ctx->window), &(sdl_ctx->renderer));
+    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags, &(sdl_ctx->window),
+                                &(sdl_ctx->renderer));
     if (!sdl_ctx->window) {
         nob_log(ERROR, "%s:%d: SDL failed to create window and renderer. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
@@ -50,8 +51,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return false;
     }
 
-
-    sdl_ctx->font = loadFont("./assets/font/Poppins/Poppins-Black.ttf", 150.0f, TTF_STYLE_NORMAL, 0);
+    sdl_ctx->font = loadFont("./assets/font/VCR_OSD_MONO_1.001.ttf", 24.0f, TTF_STYLE_NORMAL, 0);
     if (sdl_ctx->font == NULL) {
         nob_log(ERROR, "%s:%d: Failed to load font. See error: %s", __FILE__, __LINE__, SDL_GetError());
         return 1;
@@ -67,25 +67,31 @@ defer:
 
 void closeCtx(sdl_ctx_t **sdl_ctx)
 {
-    sdl_ctx_t *c = (*sdl_ctx);
-    if (c != NULL) {
-        SDL_DestroyWindow(c->window);
-        c->window = NULL;
-
-        SDL_DestroyRenderer(c->renderer);
-        c->renderer = NULL;
-
+    if ((*sdl_ctx) != NULL) {
+        sdl_ctx_t *c = (*sdl_ctx);
         clearContextSurface(c);
         free(c->bgRect);
         c->bgRect = NULL;
 
+        // Safe function that does nothing when given a NULL
         TTF_CloseFont(c->font);
         c->font = NULL;
+
+        if (c->renderer != NULL) {
+            SDL_DestroyRenderer(c->renderer);
+            c->renderer = NULL;
+        }
+
+        if (c->window != NULL) {
+            SDL_DestroyWindow(c->window);
+            c->window = NULL;
+        }
     }
 
     // Freeing a NULL is fine
     free(*sdl_ctx);
 
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -115,13 +121,21 @@ bool disableVsync(sdl_ctx_t *sdl_ctx)
 
 void clearContextSurface(sdl_ctx_t *sdl_ctx)
 {
-    SDL_DestroyTexture(sdl_ctx->bgTexture);
-    sdl_ctx->bgTexture = NULL;
+    if (sdl_ctx->bgTexture != NULL) {
+        SDL_DestroyTexture(sdl_ctx->bgTexture);
+        sdl_ctx->bgTexture = NULL;
+    }
 }
 
-void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
+bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
 {
     sdl_ctx->bgTexture = IMG_LoadTexture(sdl_ctx->renderer, chemin);
+    if (sdl_ctx->bgTexture == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to load background image. See error: %s", __FILE__, __LINE__, SDL_GetError());
+        return false;
+    }
+
+    return true;
 }
 
 void renderBackground(sdl_ctx_t *sdl_ctx)
@@ -131,7 +145,7 @@ void renderBackground(sdl_ctx_t *sdl_ctx)
     }
 }
 
-TTF_Font *loadFont(char *path, float size, int fontStyle, int outline)
+TTF_Font *loadFont(char *path, float fontSize, int fontStyle, int outline)
 {
     /* Here the different styles a font can be set to:
      *   TTF_STYLE_NORMAL
@@ -139,11 +153,11 @@ TTF_Font *loadFont(char *path, float size, int fontStyle, int outline)
      *   TTF_STYLE_ITALIC
      *   TTF_STYLE_UNDERLINE
      *   TTF_STYLE_STRIKETHROUGH
-    */
+     */
 
     TTF_Font *result = NULL;
 
-    result = TTF_OpenFont(path, size);
+    result = TTF_OpenFont(path, fontSize);
     if (result == NULL) {
         nob_log(ERROR, "%s:%d: Failed to open font. See error: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(NULL);
@@ -165,5 +179,3 @@ defer:
     }
     return result;
 }
-
-
