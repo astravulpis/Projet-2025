@@ -14,7 +14,7 @@
  *
  * Takes the location of the rect we are moving then compares it to the bounds given.
  */
-void keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
+void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
 
 /**
  * @fn basic_movements(struct sdl_context_s *ctx)
@@ -22,15 +22,15 @@ void keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float
  * @param[in] ctx SDL context
  * @param[out] direction Returns the character pressed
  */
-void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy, SDL_FRect *a, SDL_FRect *b);
+void basicMovementEvents(struct sdl_context_s *ctx, float *dx, float *dy, SDL_FRect *a, SDL_FRect *b);
 
 /**
  * @fn basic_keyboard_events(struct sdl_context_s *ctx)
  * @brief Listens to keyboard inputs for mapped keys
  * @param[in] ctx SDL context
  */
-void basic_keyboard_events(sdl_ctx_t *sdl_ctx);
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx);
 
-void resolve_overlap(SDL_FRect *a, SDL_FRect *b);
+void resolveOverlap(SDL_FRect *a, SDL_FRect *b);
 
 #endif // EVENT_H_

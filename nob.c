@@ -125,6 +125,7 @@ int main(int argc, char **argv)
 
     // Add more submodules here
     da_append(&modules, "event");
+    da_append(&modules, "sdl_ctx");
     da_append(&modules, "sdl_helpers");
     if (!compile_submodules(&modules)) return_defer(1);
 
