@@ -43,6 +43,7 @@ bool compile(const char *test_name)
     // Compile the test
     nob_cc(&cmd);
     nob_cc_flags(&cmd);
+    cmd_append(&cmd, "-fsanitize=address");
     nob_cc_output(&cmd, bin_path);
     nob_cc_inputs(&cmd, src_path);
     cmd_append(&cmd, LIBPATH);

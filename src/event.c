@@ -2,7 +2,7 @@
 #include <math.h>
 
 // keep rectangle in the given bounds by window height and window width
-void keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
+void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
 {
     if (r == NULL) return;
     if (r->x < minX) r->x = minX;               // Left
@@ -16,7 +16,7 @@ int collision(SDL_FRect *a, SDL_FRect *b)
     return (a->x < b->x + b->w && a->x + a->w > b->x && a->y < b->y + b->h && a->y + a->h > b->y);
 }
 
-void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy, SDL_FRect *a, SDL_FRect *b)
+void basicMovementEvents(struct sdl_context_s *ctx, float *dx, float *dy, SDL_FRect *a, SDL_FRect *b)
 {
     const bool *keyboard_state = SDL_GetKeyboardState(NULL);
     *dx = 0.0f;
@@ -46,7 +46,7 @@ void basic_movement(struct sdl_context_s *ctx, float *dx, float *dy, SDL_FRect *
     }
 }
 
-void resolve_overlap(SDL_FRect *a, SDL_FRect *b)
+void resolveOverlap(SDL_FRect *a, SDL_FRect *b)
 {
     // getting all the overlaps
     float overlap_left = (a->x + a->w) - b->x;
@@ -69,7 +69,7 @@ void resolve_overlap(SDL_FRect *a, SDL_FRect *b)
     }
 }
 
-void basic_keyboard_events(sdl_ctx_t *sdl_ctx)
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 {
     SDL_Event e = sdl_ctx->event;
     if (e.type == SDL_EVENT_KEY_DOWN) {
