@@ -5,22 +5,19 @@
 #include <assert.h>
 #include <stdbool.h>
 
-typedef struct {
-    float x, y;
-} V2f;
 V2f expectedCoords = {0};
 
-bool is_at_expected_coords(SDL_FRect *r, V2f expected_coords)
+bool isAtExpectedCoords(SDL_FRect *r, V2f expected_coords)
 {
     return (r->x == expected_coords.x && r->y == expected_coords.y);
 }
 
-void move_rect(SDL_FRect *r, V2f new_pos)
+void moveRect(SDL_FRect *r, V2f new_pos)
 {
     r->x = new_pos.x;
     r->y = new_pos.y;
 }
-void resize_rect(SDL_FRect *r, V2f new_size)
+void resizeRect(SDL_FRect *r, V2f new_size)
 {
     r->w = new_size.x;
     r->h = new_size.y;
@@ -46,8 +43,8 @@ int main(void)
     nob_log(INFO, "Rectangle successfully created");
 
     // Setting it in bounds
-    keep_player_inbound(rect, 0.0f, 0.0f, 1920.0f, 1080.0f);
-    if (!is_at_expected_coords(rect, expectedCoords)) {
+    keepPlayerInbound(rect, 0.0f, 0.0f, 1920.0f, 1080.0f);
+    if (!isAtExpectedCoords(rect, expectedCoords)) {
         nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
                 expectedCoords.y, rect->x, rect->y);
         return_defer(1);
@@ -55,13 +52,13 @@ int main(void)
     nob_log(INFO, "Got expected coords");
 
     // Moving it oobe
-    move_rect(rect, (V2f){9999.0f, 9999.0f});
+    moveRect(rect, (V2f){9999.0f, 9999.0f});
     expectedCoords.x = WINDOW_WIDTH - rect->w;
     expectedCoords.y = WINDOW_HEIGHT - rect->h;
 
     // Setting it back in bounds
-    keep_player_inbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!is_at_expected_coords(rect, expectedCoords)) {
+    keepPlayerInbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!isAtExpectedCoords(rect, expectedCoords)) {
         nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
                 expectedCoords.y, rect->x, rect->y);
         return_defer(1);
@@ -69,13 +66,13 @@ int main(void)
     nob_log(INFO, "Got expected coords after transformation of position");
 
     // Mofiying the rect's size to check for correct displacement
-    resize_rect(rect, (V2f){128.0f, 256.0f});
+    resizeRect(rect, (V2f){128.0f, 256.0f});
     expectedCoords.x = WINDOW_WIDTH - rect->w;
     expectedCoords.y = WINDOW_HEIGHT - rect->h;
 
     // Setting it back in bounds
-    keep_player_inbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!is_at_expected_coords(rect, expectedCoords)) {
+    keepPlayerInbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!isAtExpectedCoords(rect, expectedCoords)) {
         nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
                 expectedCoords.y, rect->x, rect->y);
         return_defer(1);
@@ -83,13 +80,13 @@ int main(void)
     nob_log(INFO, "Got expected coords after transformation of size");
 
     // Moving and resizing
-    move_rect(rect, (V2f){9999.0f, -100.0f});
-    resize_rect(rect, (V2f){200.0f, 200.0f});
+    moveRect(rect, (V2f){9999.0f, -100.0f});
+    resizeRect(rect, (V2f){200.0f, 200.0f});
     expectedCoords.x = WINDOW_WIDTH - rect->w;
     expectedCoords.y = 0;
 
-    keep_player_inbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!is_at_expected_coords(rect, expectedCoords)) {
+    keepPlayerInbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!isAtExpectedCoords(rect, expectedCoords)) {
         nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
                 expectedCoords.y, rect->x, rect->y);
         return_defer(1);

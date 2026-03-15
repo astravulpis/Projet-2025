@@ -12,20 +12,49 @@
 bool createCtx(sdl_ctx_t **ctx);
 
 /**
- * @fn init_ctx(sdl_ctx_t *sdl_ctx)
+ * @fn initCtx(sdl_ctx_t *sdl_ctx)
  * @brief Initializes our sdl context
+ * @param[in] sdl_ctx Our sdl context
  * @param[out] result Returns true operations were a success, false otherwise.
  */
 bool initCtx(sdl_ctx_t *sdl_ctx);
 
 /**
- * @fn close_SDL()
+ * @fn closeCtx(sdl_ctx_t **sdl_ctx)
  * @param[in] sdl_ctx Our SDL context
  * @brief Destroys the SDL window
  *
  * Helper function to deallocate and put all of the SDL context pointers to NULL.
  */
 void closeCtx(sdl_ctx_t **sdl_ctx);
+
+/**
+ * @fn enableVsync(sdl_ctx_t *sdl_ctx)
+ * @return true if was successful, false otherwise
+ * @brief Activate VSync
+ */
+bool enableVsync(sdl_ctx_t *sdl_ctx);
+
+/**
+ * @fn disableVsync(sdl_ctx_t *sdl_ctx)
+ * @return true if was successful, false otherwise
+ * @brief Deactivate VSync
+ */
+bool disableVsync(sdl_ctx_t *sdl_ctx);
+
+/**
+ * @fn clearContextSurface(sdl_ctx_t *sdl_ctx)
+ * @brief Clear the background surface
+ */
+void clearContextSurface(sdl_ctx_t *sdl_ctx);
+
+/**
+ * \fn loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *path)
+ * \return result Returns true if image was loaded successfully, false otherwise.
+ * \brief cette fonction effectue un appel a chargerIamge(), et affecte le retour au contxet SDL, la bgTexture, bgSurface a été
+ * détruit car il ne sert plus a rien
+ */
+bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *path);
 
 /**
  * @fn renderBackground(sdl_ctx_t *sdl_ctx);
@@ -35,36 +64,9 @@ void closeCtx(sdl_ctx_t **sdl_ctx);
 void renderBackground(sdl_ctx_t *sdl_ctx);
 
 /**
- * \fn void chargerImageBg(char *chemin)
- * \return ne retourne rien, il faut vérifier dans le contexte SDL si la Texture est a NULL ou pas
- * \brief cette fonction effectue un appel a chargerIamge(), et affecte le retour au contxet SDL, la bgTexture, bgSurface a été
- * détruit car il ne sert plus a rien
+ * @fn loadFont(char *path, float fontSize, int fontStyle, int outline)
+ * @brief Loads a font based on its path, font size, font styling and its outline if any
  */
-void loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin);
-
-/**
- * @fn enableVsync(sdl_ctx_t *sdl_ctx)
- * @return true if was successful, false otherwise
- * @brief Active la vsync
- */
-bool enableVsync(sdl_ctx_t *sdl_ctx);
-
-/**
- * @fn disableVsync(sdl_ctx_t *sdl_ctx)
- * @return true if was successful, false otherwise
- * @brief Active la vsync
- */
-bool disableVsync(sdl_ctx_t *sdl_ctx);
-
-/**
- * @fn clearContextSurface(sdl_ctx_t *sdl_ctx)
- * @brief Vide le buffer de surface du context SDL
- */
-void clearContextSurface(sdl_ctx_t *sdl_ctx);
-
-/**
- * @fn loadFont(char *path, float size, int fontStyle, int outline)
- */
-TTF_Font *loadFont(char *path, float size, int fontStyle, int outline);
+TTF_Font *loadFont(char *path, float fontSize, int fontStyle, int outline);
 
 #endif // SDL_CTX_H_

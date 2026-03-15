@@ -42,9 +42,19 @@ struct sdl_context_s {
     SDL_Texture *bgTexture; //!< SDL3 surface renderer texture context
     SDL_FRect *bgRect;      //!< SDL3 surface renderer rectangle
     TTF_Font *font;         //!< SDL3 ttf font
-    SDL_Event event;        //!< Structure commune au contexte SDL.
-    bool vsyncActivation;   //!< boolean qui permet de prevenir si l'application est en VSync.
-    bool quit;              //!< Boolean permettant d'indiquer la fin d'arret du programme
+    SDL_Event event;        //!< Event struct to pull from
+    bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
+    bool quit;              //!< Global state to keep the application running or not
 };
+
+typedef struct {
+    int x;
+    int y;
+} V2i;
+
+typedef struct {
+    float x;
+    float y;
+} V2f;
 
 #endif // COMMON_H_
