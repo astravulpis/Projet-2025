@@ -4,21 +4,7 @@
 
 SDL_FRect *createRect(float x, float y, float width, float height)
 {
-    SDL_FRect *res = NULL;
-    if ((res = malloc(sizeof(SDL_FRect))) == NULL) {
-        nob_log(ERROR, "%s:%d: failed to create a rect. Please buy more ram", __FILE__, __LINE__);
-        return NULL;
-    }
-
-    if (width <= 0) width = 1;
-    if (height <= 0) height = 1;
-
-    res->x = x;
-    res->y = y;
-    res->w = width;
-    res->h = height;
-
-    return res;
+    return createRect_Ex((SDL_FRect){x, y, width, height});
 }
 
 SDL_FRect *createRect_Ex(SDL_FRect rect)
