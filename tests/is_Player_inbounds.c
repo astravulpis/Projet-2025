@@ -1,5 +1,4 @@
 #include "../shared.h"
-#include "../src/event.h"
 #include "../src/sdl_helpers.h"
 #include "SDL3/SDL_rect.h"
 #include <assert.h>
@@ -21,6 +20,15 @@ void resizeRect(SDL_FRect *r, V2f new_size)
 {
     r->w = new_size.x;
     r->h = new_size.y;
+}
+
+void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
+{
+    if (r == NULL) return;
+    if (r->x < minX) r->x = minX;               // Left
+    if (r->y < minY) r->y = minY;               // Down
+    if (r->x + r->w > maxX) r->x = maxX - r->w; // Right
+    if (r->y + r->h > maxY) r->y = maxY - r->h; // Up
 }
 
 int main(void)

@@ -1,5 +1,6 @@
 #include "../shared.h"
 #include "common.h"
+#include "event.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "player.h"
@@ -15,6 +16,9 @@ int main()
     sdl_ctx_t *sdl_ctx = NULL;
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
 
+    player_t *player = NULL;
+    if (!createPlayer(&player, (V2f){100.0f, 100.0f}, &sdl_ctx, "assets/img/C.png")) return 1;
+
     Uint32 last = SDL_GetTicks();
     float deltaT = 0;
 
@@ -23,13 +27,15 @@ int main()
     V2f fpsTextPos = {10.0f, 10.0f};
     V2f MouseTextPos = {10.0f, 48.0f};
     SDL_FRect *boxDummy = createRect(400.0f, 400.0f, 50.0f, 50.0f);
-    SDL_FRect *boxC = createRect(350.0f, 200.0f, 100.0f, 100.0f);
+    SDL_Texture *logoC = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png");
 
-    SDL_Texture *C_Logo = IMG_LoadTexture(sdl_ctx->renderer, "assets/img/C.png");
-    if (!C_Logo) {
-        nob_log(ERROR, "%s:%d: Failed to load C logo image", __FILE__, __LINE__);
+    if (logoC == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to load image. See error: %s", __FILE__, __LINE__, SDL_GetError());
+        destroyPlayer(&player);
+        closeCtx(&sdl_ctx);
         return 1;
     }
+
 
     float mouse_X = 0;
     float mouse_Y = 0;
@@ -60,31 +66,29 @@ int main()
                 break;
             }
         }
-
         SDL_PumpEvents();
 
-        UpdatePlayer(sdl_ctx, boxC, boxDummy, deltaT);
+        basicKeyboardEvents(sdl_ctx);
+        UpdatePlayer(player, boxDummy, deltaT);
 
         SDL_RenderClear(sdl_ctx->renderer);
-
         renderBackground(sdl_ctx);
 
-        renderImage(sdl_ctx, C_Logo, boxC);
-        renderImage(sdl_ctx, C_Logo, boxDummy);
-
-        renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
+        renderPlayer(player);
+        renderImage(sdl_ctx, logoC, boxDummy);
 
         SDL_GetMouseState(&mouse_X, &mouse_Y);
         renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
+        // renderText_Ex(sdl_ctx, temp_sprintf("timer: %.1f", player->stunnedTimer), WHITE, (V2f){10.0f, 148.0f});
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }
 
-    SDL_DestroyTexture(C_Logo);
-    free(boxC);
     free(boxDummy);
 
+    destroyPlayer(&player);
     closeCtx(&sdl_ctx);
     return 0;
 }

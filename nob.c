@@ -31,7 +31,7 @@ typedef struct submodules {
         cmd_append((cmd), "-lm");                                                                                            \
     } while (0)
 
-bool debug;
+bool debug = false;
 
 void usage(FILE *stream)
 {
@@ -67,13 +67,13 @@ bool compile_submodules(submodules *modules)
         nob_temp_rewind(mark);
         char *input = nob_temp_sprintf("%s%s.c", SRC_FOLDER, da_get(modules, i));
         char *output = nob_temp_sprintf("%s%s.o", BUILD_FOLDER, da_get(modules, i));
-        printf("-------------\n");
-        printf("Input path: %s\nOutput path: %s\n", input, output);
         if (nob_needs_rebuild1(output, input) || debug) {
+            printf("-------------\n");
+            printf("Input path: %s\nOutput path: %s\n", input, output);
             compile_command(&cmd, input, output, false); // No linking yet
             if (!cmd_run(&cmd)) return_defer(false);
+            printf("-------------\n");
         }
-        printf("-------------\n");
     }
 
 defer:
