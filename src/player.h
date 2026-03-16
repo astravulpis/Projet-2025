@@ -3,28 +3,19 @@
 
 #include "common.h"
 
-void UpdatePlayer(sdl_ctx_t *sdl_ctx, SDL_FRect *player, SDL_FRect *object, float deltaTime);
+typedef struct {
+    sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
+    SDL_FRect *boundingBox; //!< Player's BB
+    SDL_Texture *tex;       //!< Player's texture
+    float speed;            //!< Value may depend on preference
+    bool onGround;          //!< State to tell whenever the player is on the ground or not
+    // bool stunned;           //!< State used to avoid key mashing
+    float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
+} player_t;
 
-/**
- * @fn keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
- * @param[in] r The SDL rect given to check
- * @param[in] minX Minimum X bound
- * @param[in] minY Minimum Y bound
- * @param[in] maxX Maximum X bound
- * @param[in] maxY Maximum Y bound
- * @brief keep rectangle in the given bounds
- *
- * Takes the location of the rect we are moving then compares it to the bounds given.
- */
-void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
-
-/**
- * @fn basic_movements(struct sdl_context_s *ctx)
- * @brief Listens to keyboard inputs (specifically A and D)
- * @param[in] ctx SDL context
- * @param[out] direction Returns the character pressed
- */
-void basicMovementEvents(struct sdl_context_s *ctx, float *dx, float *dy);
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path);
+void destroyPlayer(player_t **p);
+void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime);
+void renderPlayer(player_t *p);
 
 #endif // PLAYER_H_
-

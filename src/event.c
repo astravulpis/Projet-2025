@@ -1,7 +1,4 @@
 #include "event.h"
-#include <math.h>
-
-
 
 // void resolveOverlap(SDL_FRect *a, SDL_FRect *b)
 // {
@@ -28,14 +25,8 @@
 
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 {
-    SDL_Event e = sdl_ctx->event;
-    if (e.type == SDL_EVENT_KEY_DOWN) {
-        switch (e.key.scancode) {
-        case SDL_SCANCODE_Q:
-            sdl_ctx->quit = true;
-            break;
-        default:
-            break;
-        }
+    const bool *state = SDL_GetKeyboardState(NULL);
+    if (state[SDL_SCANCODE_Q]) {
+        sdl_ctx->quit = true;
     }
 }
