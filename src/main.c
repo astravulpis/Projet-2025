@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
             stunnedTimer = 0.025;
         }
 
-        if (IsKeyDown(activeLayout.up) && onGround) {
+        if (IsKeyPressed(activeLayout.up) && onGround) {
             vel.y = jumpForce;
         }
 
