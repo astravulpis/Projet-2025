@@ -15,7 +15,7 @@ typedef struct {
 
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path);
 void destroyPlayer(player_t **p);
-void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime);
+void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float deltaTime);
 void renderPlayer(player_t *p);
 
 #endif // PLAYER_H_

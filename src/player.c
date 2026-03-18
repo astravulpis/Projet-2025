@@ -106,7 +106,7 @@ void destroyPlayer(player_t **p)
     (*p) = NULL;
 }
 
-void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime)
+void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float deltaTime)
 {
     // if (updateStunned(p)) return; // Player is currently stunned. No action can occur.
 
@@ -120,13 +120,27 @@ void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime)
     dy *= p->speed * deltaTime / sqrt(2);
 
     temp.x += dx;
-    if (!SDL_HasRectIntersectionFloat(&temp, object)) {
+    bool canMoveX = true;
+    for (int i = 0; i < object_count; i++) {
+        if (SDL_HasRectIntersectionFloat(&temp, &objects[i])) {
+            canMoveX = false;
+            break;
+        }
+    }
+    if (canMoveX) {
         p->boundingBox->x += dx;
     }
 
     temp = *(p->boundingBox);
     temp.y += dy;
-    if (!SDL_HasRectIntersectionFloat(&temp, object)) {
+    bool canMoveY = true;
+    for (int i = 0; i < object_count; i++) {
+        if (SDL_HasRectIntersectionFloat(&temp, &objects[i])) {
+            canMoveY = false;
+            break;
+        }
+    }
+    if (canMoveY) {
         p->boundingBox->y += dy;
     }
 
