@@ -15,7 +15,7 @@ bool createImageRect();
 int main()
 {
     int level_selector;
-    printf("give me the level you want to choose: ");
+    printf("give me the level you want to choose: ");   //choosing the level like this for now but in the future will be pulled from a file
     scanf("%d", &level_selector);
     
     int image_count = 0;
@@ -38,7 +38,7 @@ int main()
         return 1;
     }
 
-    switch (level_selector) {
+    switch (level_selector) {//this is the level selector, very barebones for now but this can be scaled up very well
     case 1:
         textures[0] = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png");
         boxes[0] = (SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f};
@@ -133,7 +133,7 @@ int main()
         renderPlayer(player);
 
         // Render level textures
-        for (int i = 0; i < image_count; i++) {
+        for (int i = 0; i < image_count; i++) { //rendering all hitboxes on the textures
             renderImage(sdl_ctx, textures[i], &boxes[i]);
         }
 
@@ -147,8 +147,8 @@ int main()
     }
 
     // Clean up level textures
-    for (int i = 0; i < image_count; i++) {
-        SDL_DestroyTexture(level_textures[i]);
+    for (int i = 0; i < image_count; i++) { //going through and destorying all the textures in the level_texture array
+        SDL_DestroyTexture(level_textures[i]); //NB THIS CAUSES A BUFFER OVERFLOW FOR UNKONWN REASONS, WILL COME BACK LATER
     }
     free(level_textures);
 
