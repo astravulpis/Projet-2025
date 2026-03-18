@@ -35,4 +35,4 @@ Les différents flags implémentés:
 - `./nob --tests`   Pour faire tourner les tests mis en place.
 
 Note: Tous les flags peuvent être utilisés independamment des autres.  
-Exemple: `./nob --clean --run` pour reconstruire le programme en supprimant le cache.  h
+Exemple: `./nob --clean --run` pour reconstruire le programme en supprimant le cache. 
