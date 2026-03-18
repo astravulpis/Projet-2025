@@ -65,16 +65,6 @@ void basicMovementEvents(player_t *p, float *dx, float *dy)
 //     return false;
 // }
 
-/**
- * @fn createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
- * @param[in] player pointer pointer to the player itself
- * @param[in] playerSize X and Y value for it's height and width
- * @param[in] sdl_ctx pointer pointer to the ctx variable
- * @param[in] path where the player file is located
- * @brief creates the player, makes sur it exists and then loads it
- *
- * creates the player and is only called once
- */
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
 {
     bool result = true;
@@ -102,13 +92,7 @@ defer:
     return result;
 }
 
-/**
- * @fn destroyPlayer(player_t **p)
- * @param[in] player pointer pointer to the player itself
- * @brief destroys the player
- *
- * Self explanatory
- */
+
 void destroyPlayer(player_t **p)
 {
     if (*p != NULL) {

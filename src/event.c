@@ -23,6 +23,14 @@
 //     }
 // }
 
+
+/**
+ * @fn basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
+ * @param[in] sdl_ctx sdl context variable
+ * @brief tests for exit input
+ *
+ * for now this is just to quit the game but we might add menu buttons and such in the future unless we go with a new function?
+ */
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 {
     const bool *state = SDL_GetKeyboardState(NULL);

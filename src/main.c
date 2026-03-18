@@ -55,22 +55,6 @@ int main()
         printf("Invalid level selector\n");
         return 1;
     }
-    /*
-    for (int i = 0; i < image_count; i++) {
-        level_textures[i] = IMG_LoadTexture(sdl_ctx->renderer, level_images[i]);
-        if (!level_textures[i]) {
-            nob_log(ERROR, "%s:%d: Failed to load image %s. See error: %s", __FILE__, __LINE__, level_images[i], SDL_GetError());
-            // Clean up already loaded textures
-            for (int j = 0; j < i; j++) {
-                SDL_DestroyTexture(level_textures[j]);
-            }
-            free(level_textures);
-            destroyPlayer(&player);
-            closeCtx(&sdl_ctx);
-            return 1;
-        }
-    }
-    */
     Uint32 last = SDL_GetTicks();
     float deltaT = 0;
 

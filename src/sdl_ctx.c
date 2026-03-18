@@ -95,6 +95,7 @@ void closeCtx(sdl_ctx_t **sdl_ctx)
     SDL_Quit();
 }
 
+
 bool enableVsync(sdl_ctx_t *sdl_ctx)
 {
     bool res = true;
@@ -137,6 +138,7 @@ bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
 
     return true;
 }
+
 
 void renderBackground(sdl_ctx_t *sdl_ctx)
 {
