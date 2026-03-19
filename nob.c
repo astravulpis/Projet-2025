@@ -128,6 +128,7 @@ int main(int argc, char **argv)
     da_append(&modules, "sdl_ctx");
     da_append(&modules, "sdl_helpers");
     da_append(&modules, "player");
+    da_append(&modules, "buttons");
     if (!compile_submodules(&modules)) return_defer(1);
 
     cmd_append(&cmd, "ar", "rcs");
