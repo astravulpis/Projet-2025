@@ -4,6 +4,7 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "player.h"
+#include "buttons.h"
 
 /**
  * @file main.c
@@ -29,10 +30,19 @@ int main()
     SDL_FRect *boxDummy = createRect(400.0f, 400.0f, 50.0f, 50.0f);
     SDL_Texture *logoC = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png");
 
-    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH/2-150, WINDOW_HEIGHT/2, 300.0f, 75.0f);
-    V2f bouton1Pos = {boxBouton1->x+35, boxBouton1->y+20};
+    //recherche de fonction dans la Documentation :
+    //  pour demain : SDL_RenderTextureRotated()
 
-    printf("x = %.2f\ny = %.2f\nw = %.2f\nh = %.2f\n", boxBouton1->x, boxBouton1->y, boxBouton1->w, boxBouton1->h);
+    //tout ce qui est liée a bouton 1 
+    //(question : en drevrais-je pas les charger dans une texture avant le while, puisque en principe il ne vont pas changer ?)
+    
+    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH/2-150, WINDOW_HEIGHT/2, 300.0f, 75.0f);
+    SDL_Color baseColor_btn1 = {0, 0, 255, 255};
+    SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
+    SDL_Color clickColor_btn1 = {200, 10, 100, 255};
+    char *textBtn1 = "btn 1";
+
+    button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
 
     if (logoC == NULL) {
         nob_log(ERROR, "%s:%d: Failed to load image. See error: %s", __FILE__, __LINE__, SDL_GetError());
@@ -42,8 +52,10 @@ int main()
     }
 
 
-    float mouse_X = 0;
-    float mouse_Y = 0;
+    SDL_FPoint mouseCoord = {0, 0};
+    int mouseInputFlag;
+    //float mouse_X = 0;
+    //float mouse_Y = 0;
 
     Uint32 frameStart = 0;
     int frameCounter = 0;
@@ -76,24 +88,17 @@ int main()
         basicKeyboardEvents(sdl_ctx);
         UpdatePlayer(player, boxDummy, deltaT);
 
-        SDL_GetMouseState(&mouse_X, &mouse_Y);//je l'ai bougé car il semble plus adapté ici
+        mouseInputFlag = SDL_GetMouseState(&(mouseCoord.x), &(mouseCoord.y));//je l'ai bougé car il semble plus adapté ici
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
         
-        //pour la zone de bouton c'est assez rapide de faire comme ça : on met une couleur de rendu, on rend dans la box bouton, avec la couleur mise
-        //ensuite on remet en noir pour que le background soit noir a la prochaine itération
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 255, 255);
-        SDL_RenderFillRect(sdl_ctx->renderer, boxBouton1);
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);
-
-        //affichage du texte du boutton (dans la même box)
-        renderText_Ex(sdl_ctx, temp_sprintf("bouton"), WHITE, bouton1Pos);
-        
+        updateButtonState(bouton1, mouseCoord, mouseInputFlag);
+        buttonRender(sdl_ctx, bouton1);
 
         renderPlayer(player);
         renderImage(sdl_ctx, logoC, boxDummy);
 
-        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouseCoord.x, mouseCoord.y), WHITE, MouseTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
         // renderText_Ex(sdl_ctx, temp_sprintf("timer: %.1f", player->stunnedTimer), WHITE, (V2f){10.0f, 148.0f});
 
@@ -102,6 +107,7 @@ int main()
     }
 
     free(boxDummy);
+    destroyButton(&bouton1);
 
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
