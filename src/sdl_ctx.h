@@ -1,3 +1,16 @@
+/**
+ * @file sdl_ctx.h
+ * @brief This where our SDL context is defined
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-15
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
+ **/
+
 #ifndef SDL_CTX_H_
 #define SDL_CTX_H_
 

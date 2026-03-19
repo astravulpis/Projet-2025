@@ -1,3 +1,15 @@
+/**
+ * @file nob.c
+ * @brief Compiling tool script using nob.h single-file header library.
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2025-12-12
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #include "shared.h"
 #include <string.h>
 

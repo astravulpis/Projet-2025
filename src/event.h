@@ -1,3 +1,15 @@
+/**
+ * @file event.h
+ * @brief Here lies event handlers
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-03
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #ifndef EVENT_H_
 #define EVENT_H_
 

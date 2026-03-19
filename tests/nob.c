@@ -1,3 +1,15 @@
+/**
+ * @file tests/nob.c
+ * @brief Compiling script which handles every test unit, and test them one by one
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-02-03
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #include "../shared.h"
 
 typedef struct target {
