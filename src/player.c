@@ -3,6 +3,9 @@
 #include "sdl_helpers.h"
 #include <math.h>
 
+#define gravity 9.2f       // units: pixels / s^2 (tune as needed)
+#define jumpForce -4.5f
+
 /**
  * @fn keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
  * @param[in] r The SDL rect given to check
@@ -30,7 +33,7 @@ void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float m
  * @param[in] dy Delta y position for the next y position
  * @param[out] direction Returns the character pressed
  */
-void basicMovementEvents(player_t *p, float *dx, float *dy)
+void basicMovementEvents(player_t *p, float *dx, float *dy, bool *jump)
 {
     const bool *keyboard_state = SDL_GetKeyboardState(NULL);
     *dx = 0.0f;
@@ -48,6 +51,9 @@ void basicMovementEvents(player_t *p, float *dx, float *dy)
     }
     if (keyboard_state[SDL_SCANCODE_S]) {
         *dy += 1.0f;
+    }
+    if (keyboard_state[SDL_SCANCODE_SPACE]) {
+        *jump=true;
     }
     // if (keyboard_state[SDL_SCANCODE_E]) {
     //     p->stunnedTimer = 0.15f;
@@ -123,12 +129,15 @@ void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float delta
 
     float dx = 0;
     float dy = 0;
+    bool jump = false;
     SDL_FRect temp = *(p->boundingBox);
 
-    basicMovementEvents(p, &dx, &dy);
+    basicMovementEvents(p, &dx, &dy, &jump);
 
     dx *= p->speed * deltaTime / sqrt(2);
     dy *= p->speed * deltaTime / sqrt(2);
+
+    float velocity;
 
     temp.x += dx;
     bool canMoveX = true;
@@ -155,6 +164,12 @@ void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float delta
         p->boundingBox->y += dy;
     }
 
+    if (jump==true) {
+            p->boundingBox->y = jumpForce;
+            printf("mewhen\n");
+        }
+    p->boundingBox->y += gravity * deltaTime;
+    p->boundingBox->y += p->boundingBox->y;
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 

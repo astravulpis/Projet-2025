@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+#define JUMP_SPEED 700.0f  // initial vy (pixels / s)
+
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB
@@ -11,6 +13,7 @@ typedef struct {
     bool onGround;          //!< State to tell whenever the player is on the ground or not
     // bool stunned;           //!< State used to avoid key mashing
     float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
+    float vy; //vertical velocity
 } player_t;
 
 /**
@@ -55,4 +58,6 @@ void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float delta
  */
 void renderPlayer(player_t *p);
 
+
+void check_on_ground(player_t * p, SDL_FRect * objects, int object_count);
 #endif // PLAYER_H_
