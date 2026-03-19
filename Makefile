@@ -21,7 +21,7 @@ LDFLAGS   := -L$(VENDOR)/SDL3/lib \
 LIBS      := -lSDL3 -lSDL3_image -lSDL3_ttf -lm
 RPATH     := -Wl,-rpath,$(VENDOR)/SDL3/lib:$(VENDOR)/SDL_Image/lib:$(VENDOR)/SDL_ttf/lib
 
-SRC       := event.c sdl_helpers.c
+SRC       := event.c sdl_helpers.c sdl_ctx.c player.c
 OBJS      := $(SRC:%.c=$(BUILD_DIR)/%.o)
 
 all: $(BUILD_DIR)/$(OUTPUT)
