@@ -1,3 +1,16 @@
+/**
+ * @file sdl_ctx.c
+ * @brief Implementation of the different SDL context function
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-15
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
+ **/
+
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 

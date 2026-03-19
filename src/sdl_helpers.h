@@ -1,3 +1,16 @@
+/**
+ * @file sdl_helpers.h
+ * @brief This file declares all of the helper functions related to SDL, but written by our hands
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-15
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
+ **/
+
 #ifndef SDL_HELPER_H_
 #define SDL_HELPER_H_
 

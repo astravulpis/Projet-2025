@@ -1,3 +1,16 @@
+/**
+ * @file event.c
+ * @brief Implementation of the different event handler
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-15
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Reeves Guillaume <greeves2306@gmail.com>
+ **/
+
 #include "event.h"
 
 // void resolveOverlap(SDL_FRect *a, SDL_FRect *b)

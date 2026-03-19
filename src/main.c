@@ -1,3 +1,17 @@
+/**
+ * @file main.c
+ * @brief Main translation unit to initialise and run the core loop of the game
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-02-02
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
+ * Reeves Guillaume <greeves2306@gmail.com>
+ **/
+
 #include "../shared.h"
 #include "common.h"
 #include "event.h"
@@ -5,10 +19,6 @@
 #include "sdl_helpers.h"
 #include "player.h"
 
-/**
- * @file main.c
- * @brief File where every actions to run the game are being executed at.
- */
 bool createImageRect();
 
 int main()

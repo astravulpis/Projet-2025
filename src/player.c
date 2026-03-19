@@ -1,3 +1,16 @@
+/**
+ * @file player.c
+ * @brief Implementation of the different player related functions
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-16
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Reeves Guillaume <greeves2306@gmail.com>
+ **/
+
 #include "player.h"
 #include "common.h"
 #include "sdl_helpers.h"

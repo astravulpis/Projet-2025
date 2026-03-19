@@ -1,3 +1,15 @@
+/**
+ * @file shared.h
+ * @brief All shared defines across all files, not just src/ files.
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-02-03
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #include <stdbool.h>
 
 #define NOB_IMPLEMENTATION

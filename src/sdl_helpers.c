@@ -1,3 +1,16 @@
+/**
+ * @file sdl_helpers.c
+ * @brief Implementation of the different SDL helper functions
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-03
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
+ **/
+
 #include "sdl_helpers.h"
 #include "common.h"
 #include <stdlib.h>

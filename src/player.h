@@ -1,3 +1,15 @@
+/**
+ * @file player.h
+ * @brief Header file to represent the player and all of its related features
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-18
+ * Date: 2026-03-16
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
