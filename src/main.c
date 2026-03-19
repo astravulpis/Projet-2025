@@ -80,7 +80,6 @@ int main()
 
         basicKeyboardEvents(sdl_ctx);
         UpdatePlayer(player, boxDummy, deltaT);
-
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
 
