@@ -20,7 +20,10 @@
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
-#include <stdlib.h>
+#include <math.h>
+
+#define rad2deg(deg) (((deg) / 180) * M_PI))
+#define deg2rad(rad) (((rad) / M_PI) * 180))
 
 /**
  * @file main.c
@@ -59,6 +62,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    SDL_FRect *lineX = createRect(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f, 1.0f, 1.0f);
+    SDL_FRect *lineY = createRect(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f, 1.0f, 1.0f);
+
     float mouse_X = 0;
     float mouse_Y = 0;
     SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2, 300.0f, 75.0f);
@@ -83,6 +89,8 @@ int main(int argc, char **argv)
     // Updates the event queue and internal input device state
     while (!sdl_ctx->quit) {
         temp_rewind(mark);
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0x00, 0x00, 0x00, 0xFF);
+
         Uint32 now = SDL_GetTicks();
         deltaT = (now - last) / 1000.0f; // seconds since last frame
         last = now;
@@ -134,6 +142,21 @@ int main(int argc, char **argv)
         renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
                       (V2f){10.0f, 80.0f});
 
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        // X
+        lineX->w = lineX->x + (mouse_X - WINDOW_WIDTH);
+
+        // Y
+        lineY->x = lineX->x + lineX->w;
+        lineY->h = lineX->h + (mouse_Y - WINDOW_HEIGHT / 2.0f);
+
+        // Hypotenus
+        SDL_RenderLine(sdl_ctx->renderer, lineX->x, lineX->y, lineY->x, mouse_Y);
+
+        renderText_Ex(sdl_ctx, temp_sprintf("height: %.2f", lineY->h), WHITE, (V2f){10.0f, 148.0f});
+        SDL_RenderFillRect(sdl_ctx->renderer, lineX);
+        SDL_RenderFillRect(sdl_ctx->renderer, lineY);
+
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }
@@ -144,6 +167,8 @@ int main(int argc, char **argv)
         SDL_DestroyTexture(it->texture);
     }
     free(level.items);
+    free(lineX);
+    free(lineY);
 
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
