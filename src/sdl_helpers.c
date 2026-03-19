@@ -34,8 +34,9 @@ SDL_FRect *createRect_Ex(SDL_FRect rect)
 }
 void renderImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect)
 {
-    assert(textureImg != NULL);
-    SDL_RenderTexture(sdl_ctx->renderer, textureImg, NULL, rect);
+    if (textureImg != NULL) {
+        SDL_RenderTexture(sdl_ctx->renderer, textureImg, NULL, rect);
+    }
 }
 
 bool renderText(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, float x_pos, float y_pos)

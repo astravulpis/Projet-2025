@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define JUMP_SPEED 700.0f  // initial vy (pixels / s)
+#define JUMP_SPEED 700.0f // initial vy (pixels / s)
 
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
@@ -12,8 +12,9 @@ typedef struct {
     float speed;            //!< Value may depend on preference
     bool onGround;          //!< State to tell whenever the player is on the ground or not
     // bool stunned;           //!< State used to avoid key mashing
-    float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
-    float vy; //vertical velocity
+    // float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
+    float jumpForce;
+    V2f velocity;
 } player_t;
 
 /**
@@ -39,15 +40,14 @@ void destroyPlayer(player_t **p);
 
 /**
  * @fn UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float deltaTime)
- * @param[in] p pointer to the player
- * @param[in] objects array of objects that we will be going through to check collisions
- * @param[in] object_count so we know how many elements are in objects
- * @param[in] deltaTime this is so we buffer the next frame (I think?)
+ * @param[in] p The player
+ * @param[in] object Object that we check collisions against
+ * @param[in] deltaTime To make thing independent of refresh of one's screen
  * @brief updates the player position
  *
  * updates the player position and checks for collisions with all other textures on the map
  */
-void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float deltaTime);
+void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime);
 
 /**
  * @fn renderPlayer(player_t *p)
@@ -58,6 +58,5 @@ void UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float delta
  */
 void renderPlayer(player_t *p);
 
-
-void check_on_ground(player_t * p, SDL_FRect * objects, int object_count);
+void check_on_ground(player_t *p, SDL_FRect *objects, int object_count);
 #endif // PLAYER_H_

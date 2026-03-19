@@ -1,53 +1,59 @@
 #include "../shared.h"
 #include "common.h"
 #include "event.h"
+#include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
-#include "player.h"
 #include <stdlib.h>
-
-#define GRAVITY 5.0f
 
 /**
  * @file main.c
  * @brief File where every actions to run the game are being executed at.
  */
-bool createImageRect();
+
+typedef struct {
+    SDL_FRect *boundingBox;
+    SDL_Texture *texture;
+} obj;
+
+typedef struct {
+    obj *items;
+    size_t count;
+    size_t capacity;
+} objs;
 
 int main()
 {
-    int level_selector;
-    printf("give me the level you want to choose: ");   //choosing the level like this for now but in the future will be pulled from a file
-    scanf("%d", &level_selector);
-    
-    int image_count = 0;
-    SDL_FRect boxes[10];
-    SDL_Texture *textures[10];
-    
-    
+    int level_selector = 2;
+
     sdl_ctx_t *sdl_ctx = NULL;
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     player_t *player = NULL;
     if (!createPlayer(&player, (V2f){100.0f, 100.0f}, &sdl_ctx, "assets/img/C.png")) return 1;
+    objs obj_arr = {0};
 
-    switch (level_selector) {//this is the level selector, very barebones for now but this can be scaled up very well
+    // // Load level textures
+    // SDL_Texture **level_textures = malloc(sizeof(SDL_Texture *));
+    // if (!level_textures) {
+    //     nob_log(ERROR, "Failed to allocate memory for level textures");
+    //     destroyPlayer(&player);
+    //     closeCtx(&sdl_ctx);
+    //     return 1;
+    // }
+
+    switch (level_selector) { // this is the level selector, very barebones for now but this can be scaled up very well
     case 1:
-        textures[0] = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png");
-        boxes[0] = (SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f};
-        textures[1] = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/Texturelabs_Stone_170M.jpg");
-        boxes[1] = (SDL_FRect){0.0f, WINDOW_HEIGHT-50, WINDOW_WIDTH, 50.0f};
-        image_count = 2;
-        loadBackgroundImage(sdl_ctx, "assets/img/Texturelabs_Atmosphere_201M.jpg");
+        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f}),
+                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png")}));
         break;
     case 2:
-        textures[0] = IMG_LoadTexture(sdl_ctx->renderer,"assets/img/C.png");
-        boxes[0] = (SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f};
-        textures[1] = IMG_LoadTexture(sdl_ctx->renderer, "assets/img/V1.png");
-        boxes[1] = (SDL_FRect){160.0f, 200.0f, 50.0f, 50.0f};
-        textures[1] = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/Texturelabs_Stone_170M.jpg");
-        boxes[1] = (SDL_FRect){0.0f, WINDOW_HEIGHT-50, WINDOW_WIDTH, 50.0f};
-        image_count = 3;
-        loadBackgroundImage(sdl_ctx, "assets/img/Texturelabs_Water_141M.jpg");
+        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f}),
+                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png")}));
+
+        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){160.0f, 200.0f, 50.0f, 50.0f}),
+                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/V1.png")}));
+        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){0.0f, WINDOW_HEIGHT - 200.0f, WINDOW_WIDTH, 10.0f}),
+                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/white.png")}));
         break;
     default:
         printf("Invalid level selector\n");
@@ -100,10 +106,11 @@ int main()
         }
         SDL_PumpEvents();
 
-        if (player->onGround == true) sdl_ctx->quit=true;
-
         basicKeyboardEvents(sdl_ctx);
-        UpdatePlayer(player, boxes, image_count, deltaT);
+        da_foreach(obj, it, &obj_arr)
+        {
+            UpdatePlayer(player, it->boundingBox, deltaT);
+        }
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
@@ -111,8 +118,9 @@ int main()
         renderPlayer(player);
 
         // Render level textures
-        for (int i = 0; i < image_count; i++) { //rendering all hitboxes on the textures
-            renderImage(sdl_ctx, textures[i], &boxes[i]);
+        da_foreach(obj, it, &obj_arr)
+        {
+            renderImage(sdl_ctx, it->texture, it->boundingBox);
         }
 
         SDL_GetMouseState(&mouse_X, &mouse_Y);
@@ -123,6 +131,20 @@ int main()
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }
+
+    // Clean up level textures
+    // for (int i = 0; i < image_count; i++) {
+    //     SDL_DestroyTexture(level_textures[i]);
+    // }
+    // free(level_textures);
+    // level_textures = NULL;
+
+    da_foreach(obj, it, &obj_arr)
+    {
+        free(it->boundingBox);
+        SDL_DestroyTexture(it->texture);
+    }
+    free(obj_arr.items);
 
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
