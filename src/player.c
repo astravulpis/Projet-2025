@@ -1,4 +1,5 @@
 #include "player.h"
+#include "SDL3/SDL_rect.h"
 #include "common.h"
 #include "sdl_helpers.h"
 
@@ -41,10 +42,10 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
 
-    p->speed = 500.0f;
-    p->jumpForce = -4.5f;
+    p->speed = 250.0f;
+    p->jumpForce = -7.0f;
     p->velocity = (V2f){0.0f, 0.0f};
-    p->onGround = true;
+    p->onGround = false;
 
 defer:
     return result;
@@ -64,15 +65,14 @@ void destroyPlayer(player_t **p)
     (*p) = NULL;
 }
 
-void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime)
+V2f inputUpdate(player_t *p, const float dt)
 {
-    float dx = 0;
-    float gravity = 9.2f;
-    const Uint8 *keyboard_state = (Uint8 *)SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
+    V2f deltaPos = {0};
+    const bool *keyboard_state = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
 
     // Horizontal movement
-    if (keyboard_state[SDL_SCANCODE_A]) dx -= p->speed * deltaTime;
-    if (keyboard_state[SDL_SCANCODE_D]) dx += p->speed * deltaTime;
+    if (keyboard_state[SDL_SCANCODE_A]) deltaPos.x -= p->speed * dt;
+    if (keyboard_state[SDL_SCANCODE_D]) deltaPos.x += p->speed * dt;
 
     // Vertical movement
     if (keyboard_state[SDL_SCANCODE_SPACE] && p->onGround) {
@@ -80,31 +80,47 @@ void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime)
         p->onGround = false;
     }
 
-    p->velocity.y += gravity * deltaTime;
-    float dy = p->velocity.y;
+    if (keyboard_state[SDL_SCANCODE_LCTRL] && !p->onGround) {
+        p->velocity.y -= p->jumpForce; // Up is towards negatives in SDL
+    }
+    return deltaPos;
+}
 
-    SDL_FRect temp = *(p->boundingBox);
-    temp.x += dx;
-    if (!SDL_HasRectIntersectionFloat(&temp, object)) {
-        p->boundingBox->x += dx;
+void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime)
+{
+    float gravity = 9.2f;
+    V2f movement = inputUpdate(p, deltaTime);
+    V2f frame_movement = {movement.x + p->velocity.x, movement.y + p->velocity.y};
+    p->onGround = false;
+
+    getBB(p)->x += frame_movement.x;
+    SDL_FRect entity_rect = *getBB(p);
+    if (SDL_HasRectIntersectionFloat(&entity_rect, object)) {
+        if (Bottom(&entity_rect) <= Top(object) || Top(&entity_rect) >= Top(object)) {
+            if (frame_movement.x > 0)  // Moving right
+                entity_rect.x = Left(object) - entity_rect.w - 1.0f;
+            if (frame_movement.x < 0)  // Moving left
+                entity_rect.x = Right(object) + 1.0f;
+
+            getBB(p)->x = entity_rect.x;
+        }
     }
 
-    // Vertical collision checking
-    temp = *(p->boundingBox);
-    temp.y += dy;
-    if (SDL_HasRectIntersectionFloat(&temp, object)) {
-        // THIS CONDITION IS A BIT TOO HACK-ISH MAY CHANGE IN THE FUTURE
-        if (p->velocity.y > 0.0f && p->boundingBox->y + p->boundingBox->h <= object->y + object->h + 5.0f) {
+    getBB(p)->y += frame_movement.y;
+    entity_rect = *getBB(p);
+    if (SDL_HasRectIntersectionFloat(&entity_rect, object)) {
+        if (frame_movement.y > 0) { // Moving down
+            entity_rect.y = Top(object) - entity_rect.h;
             p->onGround = true;
             p->velocity.y = 0;
-            p->boundingBox->y = object->y - p->boundingBox->h;
-        } else if (p->velocity.y < 0) {
-            p->velocity.y = 0;
         }
-    } else {
-        p->onGround = false;
-        p->boundingBox->y += dy;
+        if (frame_movement.y < 0)  // Moving up
+            entity_rect.y = Bottom(object);
+
+        getBB(p)->y = entity_rect.y;
     }
+
+    p->velocity.y = MIN(5, p->velocity.y + (gravity * deltaTime));
 
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }

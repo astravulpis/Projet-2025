@@ -23,6 +23,9 @@
 #define WHITE (SDL_Color){255, 255, 255, 255}
 #define BLACK (SDL_Color){0, 0, 0, 0}
 
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (y) : (x))
+
 /**
  * @typedef struct sdl_ctx_t
  * @brief shorter abreviation for @ref sdl_context_s

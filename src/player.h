@@ -3,8 +3,6 @@
 
 #include "common.h"
 
-#define JUMP_SPEED 700.0f // initial vy (pixels / s)
-
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB
@@ -16,6 +14,13 @@ typedef struct {
     float jumpForce;
     V2f velocity;
 } player_t;
+
+#define getBB(p) (p)->boundingBox
+
+#define Top(p)     (p)->y
+#define Bottom(p)  (p)->y + (p)->h
+#define Left(p)    (p)->x
+#define Right(p)   (p)->x + (p)->w
 
 /**
  * @fn createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)

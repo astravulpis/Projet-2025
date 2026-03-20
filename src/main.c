@@ -22,14 +22,18 @@ typedef struct {
     size_t capacity;
 } objs;
 
+#define obj_create(array, ctx, path, x, y, width, height) \
+    da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
+
+
 int main()
 {
-    int level_selector = 2;
+    // int level_selector = 1;
 
     sdl_ctx_t *sdl_ctx = NULL;
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     player_t *player = NULL;
-    if (!createPlayer(&player, (V2f){100.0f, 100.0f}, &sdl_ctx, "assets/img/C.png")) return 1;
+    if (!createPlayer(&player, (V2f){75.0f, 85.0f}, &sdl_ctx, "assets/img/V1.png")) return 1;
     objs obj_arr = {0};
 
     // // Load level textures
@@ -41,24 +45,22 @@ int main()
     //     return 1;
     // }
 
-    switch (level_selector) { // this is the level selector, very barebones for now but this can be scaled up very well
-    case 1:
-        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f}),
-                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png")}));
-        break;
-    case 2:
-        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){100.0f, 200.0f, 50.0f, 50.0f}),
-                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png")}));
-
-        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){160.0f, 200.0f, 50.0f, 50.0f}),
-                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/V1.png")}));
-        da_append(&obj_arr, ((obj){createRect_Ex((SDL_FRect){0.0f, WINDOW_HEIGHT - 200.0f, WINDOW_WIDTH, 10.0f}),
-                                   IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/white.png")}));
-        break;
-    default:
-        printf("Invalid level selector\n");
-        return 1;
-    }
+    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 0.0f, 500.0f, 1000.f, 500.f);
+    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 200.0f, 300.0f, 50.0f, 400.0f);
+    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", -10.0f, 0.0f, 15.f, 600.f);
+    // switch (level_selector) { // this is the level selector, very barebones for now but this can be scaled up very well
+    // case 1:
+    //     obj_create(&obj_arr, sdl_ctx, "./assets/img/C.png", 100.0f, 200.0f, 50.f, 50.f);
+    //     break;
+    // case 2:
+    //     obj_create(&obj_arr, sdl_ctx, "./assets/img/C.png", 100.0f, 200.0f, 50.f, 50.f);
+    //     obj_create(&obj_arr, sdl_ctx, "./assets/img/V1.png", 160.0f, 200.0f, 50.f, 250.f);
+    //     obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 0.0f, WINDOW_HEIGHT - 200.0f, WINDOW_WIDTH, 15.0f);
+    //     break;
+    // default:
+    //     printf("Invalid level selector\n");
+    //     return 1;
+    // }
     Uint32 last = SDL_GetTicks();
     float deltaT = 0;
 
@@ -124,9 +126,9 @@ int main()
         }
 
         SDL_GetMouseState(&mouse_X, &mouse_Y);
-        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
-        // renderText_Ex(sdl_ctx, temp_sprintf("timer: %.1f", player->stunnedTimer), WHITE, (V2f){10.0f, 148.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE, (V2f){10.0f, 80.0f});
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
