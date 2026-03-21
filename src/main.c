@@ -67,7 +67,8 @@ int main(int argc, char **argv)
 
     float mouse_X = 0;
     float mouse_Y = 0;
-    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2, 300.0f, 75.0f);
+    float angle;
+    SDL_FRect *boxBouton1 = createRect((WINDOW_WIDTH / 2.0f) - 150.0f, WINDOW_HEIGHT / 2.0f, 300.0f, 75.0f);
     SDL_Color baseColor_btn1 = {0, 0, 255, 255};
     SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
     SDL_Color clickColor_btn1 = {200, 10, 100, 255};
@@ -76,9 +77,7 @@ int main(int argc, char **argv)
     button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
 
     SDL_FPoint mouseCoord = {0, 0};
-    int mouseInputFlag;
-    // float mouse_X = 0;
-    // float mouse_Y = 0;
+    int mouseInputFlag = 0;
 
     Uint32 frameStart = 0;
     int frameCounter = 0;
@@ -150,10 +149,13 @@ int main(int argc, char **argv)
         lineY->x = lineX->x + lineX->w;
         lineY->h = lineX->h + (mouse_Y - WINDOW_HEIGHT / 2.0f);
 
+        angle = atan2(mouse_Y - WINDOW_HEIGHT/2.0f, mouse_X - WINDOW_WIDTH/2.0f)*180/M_PI;
+
         // Hypotenus
         SDL_RenderLine(sdl_ctx->renderer, lineX->x, lineX->y, lineY->x, mouse_Y);
-
         renderText_Ex(sdl_ctx, temp_sprintf("height: %.2f", lineY->h), WHITE, (V2f){10.0f, 148.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("width: %.2f", lineX->w), WHITE, (V2f){10.0f, 200.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("angle: %.2f", angle), WHITE, (V2f){10.0f, 250.0f});
         SDL_RenderFillRect(sdl_ctx->renderer, lineX);
         SDL_RenderFillRect(sdl_ctx->renderer, lineY);
 
