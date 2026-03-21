@@ -1,4 +1,4 @@
-/* nob - v3.2.0 - Public Domain - https://github.com/tsoding/nob.h
+/* nob - v3.7.0 - Public Domain - https://github.com/tsoding/nob.h
 
    This library is the next generation of the [NoBuild](https://github.com/tsoding/nobuild) idea.
 
@@ -63,7 +63,7 @@
       from other languages (for whatever reason).
 
       If only few specific names create conflicts for you, you can just #undef those names after the
-      `#include <nob.h>` without enabling `NOB_UNSTRIP_PREFIX` since they are macros anyway.
+      `#include <nob.h>` without enabling `NOB_UNSTRIP_PREFIX` since they are macros anyway.
 
    # Macro Interface
 
@@ -216,16 +216,19 @@ typedef enum {
     NOB_NO_LOGS,
 } Nob_Log_Level;
 
-// Any messages with the level below nob_minimal_log_level are going to be suppressed.
+// Any messages with the level below nob_minimal_log_level are going to be suppressed by the nob_default_log_handler.
 extern Nob_Log_Level nob_minimal_log_level;
 
-typedef void (nob_log_handler)(Nob_Log_Level level, const char *fmt, va_list args);
+typedef void (Nob_Log_Handler)(Nob_Log_Level level, const char *fmt, va_list args);
+NOB_DEPRECATED("Uncapitalized nob_log_handler type is deprecated. Use Nob_Log_Handler instead. It's just when we were releasing the log handler feature we forgot that we had a convention that all the types must be capitalized like that. Sorry about it!")
+typedef Nob_Log_Handler nob_log_handler;
 
-NOBDEF void nob_set_log_handler(nob_log_handler *handler);
-NOBDEF nob_log_handler *nob_get_log_handler(void);
+NOBDEF void nob_set_log_handler(Nob_Log_Handler *handler);
+NOBDEF Nob_Log_Handler *nob_get_log_handler(void);
 
-NOBDEF nob_log_handler nob_default_log_handler;
-NOBDEF nob_log_handler nob_cancer_log_handler;
+NOBDEF Nob_Log_Handler nob_default_log_handler;
+NOBDEF Nob_Log_Handler nob_cancer_log_handler;
+NOBDEF Nob_Log_Handler nob_null_log_handler;
 
 NOBDEF void nob_log(Nob_Log_Level level, const char *fmt, ...) NOB_PRINTF_FORMAT(2, 3);
 
@@ -380,6 +383,8 @@ NOBDEF void nob_dir_entry_close(Nob_Dir_Entry dir);
         (da)->count = (new_size);       \
     } while (0)
 
+#define nob_da_pop(da) (da)->items[(NOB_ASSERT((da)->count > 0), --(da)->count)]
+#define nob_da_first(da) (da)->items[(NOB_ASSERT((da)->count > 0), 0)]
 #define nob_da_last(da) (da)->items[(NOB_ASSERT((da)->count > 0), (da)->count-1)]
 #define nob_da_remove_unordered(da, i)               \
     do {                                             \
@@ -440,6 +445,9 @@ NOBDEF void nob_sb_pad_align(Nob_String_Builder *sb, size_t size);
 
 // Append a sized buffer to a string builder
 #define nob_sb_append_buf(sb, buf, size) nob_da_append_many(sb, buf, size)
+
+// Append a string view to a string builder
+#define nob_sb_append_sv(sb, sv) nob_sb_append_buf((sb), (sv).data, (sv).count)
 
 // Append a NULL-terminated string to a string builder
 #define nob_sb_append_cstr(sb, cstr)  \
@@ -880,14 +888,31 @@ typedef struct {
 
 NOBDEF const char *nob_temp_sv_to_cstr(Nob_String_View sv);
 
+NOBDEF Nob_String_View nob_sv_chop_while(Nob_String_View *sv, int (*p)(int x));
 NOBDEF Nob_String_View nob_sv_chop_by_delim(Nob_String_View *sv, char delim);
 NOBDEF Nob_String_View nob_sv_chop_left(Nob_String_View *sv, size_t n);
+NOBDEF Nob_String_View nob_sv_chop_right(Nob_String_View *sv, size_t n);
+// If `sv` starts with `prefix` chops off the prefix and returns true.
+// Otherwise, leaves `sv` unmodified and returns false.
+NOBDEF bool nob_sv_chop_prefix(Nob_String_View *sv, Nob_String_View prefix);
+// If `sv` ends with `suffix` chops off the suffix and returns true.
+// Otherwise, leaves `sv` unmodified and returns false.
+NOBDEF bool nob_sv_chop_suffix(Nob_String_View *sv, Nob_String_View suffix);
 NOBDEF Nob_String_View nob_sv_trim(Nob_String_View sv);
 NOBDEF Nob_String_View nob_sv_trim_left(Nob_String_View sv);
 NOBDEF Nob_String_View nob_sv_trim_right(Nob_String_View sv);
 NOBDEF bool nob_sv_eq(Nob_String_View a, Nob_String_View b);
+NOB_DEPRECATED("Use nob_sv_ends_with_cstr(sv, suffix) instead. "
+               "Pay attention to the `s` at the end of the `end`. "
+               "The reason this function was deprecated is because "
+               "of the typo in the name, of course, but also "
+               "because the second argument was a NULL-terminated string "
+               "while nob_sv_starts_with() accepted Nob_String_View as the "
+               "prefix which created an inconsistency in the API.")
 NOBDEF bool nob_sv_end_with(Nob_String_View sv, const char *cstr);
-NOBDEF bool nob_sv_starts_with(Nob_String_View sv, Nob_String_View expected_prefix);
+NOBDEF bool nob_sv_ends_with_cstr(Nob_String_View sv, const char *cstr);
+NOBDEF bool nob_sv_ends_with(Nob_String_View sv, Nob_String_View suffix);
+NOBDEF bool nob_sv_starts_with(Nob_String_View sv, Nob_String_View prefix);
 NOBDEF Nob_String_View nob_sv_from_cstr(const char *cstr);
 NOBDEF Nob_String_View nob_sv_from_parts(const char *data, size_t count);
 // nob_sb_to_sv() enables you to just view Nob_String_Builder as Nob_String_View
@@ -983,7 +1008,7 @@ NOBDEF void nob__go_rebuild_urself(int argc, char **argv, const char *source_pat
 #ifdef _WIN32
     // On Windows executables almost always invoked without extension, so
     // it's ./nob, not ./nob.exe. For renaming the extension is a must.
-    if (!nob_sv_end_with(nob_sv_from_cstr(binary_path), ".exe")) {
+    if (!nob_sv_ends_with_cstr(nob_sv_from_cstr(binary_path), ".exe")) {
         binary_path = nob_temp_sprintf("%s.exe", binary_path);
     }
 #endif
@@ -1843,14 +1868,14 @@ NOBDEF bool nob_cmd_run_sync_redirect_and_reset(Nob_Cmd *cmd, Nob_Cmd_Redirect r
     return nob_proc_wait(p);
 }
 
-static nob_log_handler *nob__log_handler = &nob_default_log_handler;
+static Nob_Log_Handler *nob__log_handler = &nob_default_log_handler;
 
-NOBDEF void nob_set_log_handler(nob_log_handler *handler)
+NOBDEF void nob_set_log_handler(Nob_Log_Handler *handler)
 {
     nob__log_handler = handler;
 }
 
-NOBDEF nob_log_handler *nob_get_log_handler(void)
+NOBDEF Nob_Log_Handler *nob_get_log_handler(void)
 {
     return nob__log_handler;
 }
@@ -1876,6 +1901,13 @@ NOBDEF void nob_default_log_handler(Nob_Log_Level level, const char *fmt, va_lis
 
     vfprintf(stderr, fmt, args);
     fprintf(stderr, "\n");
+}
+
+NOBDEF void nob_null_log_handler(Nob_Log_Level level, const char *fmt, va_list args)
+{
+    NOB_UNUSED(level);
+    NOB_UNUSED(fmt);
+    NOB_UNUSED(args);
 }
 
 NOBDEF void nob_cancer_log_handler(Nob_Log_Level level, const char *fmt, va_list args)
@@ -1923,7 +1955,7 @@ NOBDEF bool nob_dir_entry_open(const char *dir_path, Nob_Dir_Entry *dir)
     }
 #else
     dir->nob__private.posix_dir = opendir(dir_path);
-    if (dir == NULL) {
+    if (dir->nob__private.posix_dir == NULL) {
         nob_log(NOB_ERROR, "Could not open directory %s: %s", dir_path, strerror(errno));
         dir->error = true;
         return false;
@@ -2074,6 +2106,10 @@ NOBDEF bool nob_walk_dir_opt(const char *root, Nob_Walk_Func func, Nob_Walk_Dir_
 
 NOBDEF bool nob_read_entire_dir(const char *parent, Nob_File_Paths *children)
 {
+    if (strlen(parent) == 0) {
+        nob_log(NOB_ERROR, "Cannot read empty path");
+        return false;
+    }
     bool result = true;
     Nob_Dir_Entry dir = {0};
     if (!nob_dir_entry_open(parent, &dir)) nob_return_defer(false);
@@ -2490,6 +2526,20 @@ NOBDEF void nob_sb_pad_align(Nob_String_Builder *sb, size_t size)
     }
 }
 
+NOBDEF Nob_String_View nob_sv_chop_while(Nob_String_View *sv, int (*p)(int x))
+{
+    size_t i = 0;
+    while (i < sv->count && p(sv->data[i])) {
+        i += 1;
+    }
+
+    Nob_String_View result = nob_sv_from_parts(sv->data, i);
+    sv->count -= i;
+    sv->data  += i;
+
+    return result;
+}
+
 NOBDEF Nob_String_View nob_sv_chop_by_delim(Nob_String_View *sv, char delim)
 {
     size_t i = 0;
@@ -2510,6 +2560,24 @@ NOBDEF Nob_String_View nob_sv_chop_by_delim(Nob_String_View *sv, char delim)
     return result;
 }
 
+NOBDEF bool nob_sv_chop_prefix(Nob_String_View *sv, Nob_String_View prefix)
+{
+    if (nob_sv_starts_with(*sv, prefix)) {
+        nob_sv_chop_left(sv, prefix.count);
+        return true;
+    }
+    return false;
+}
+
+NOBDEF bool nob_sv_chop_suffix(Nob_String_View *sv, Nob_String_View suffix)
+{
+    if (nob_sv_ends_with(*sv, suffix)) {
+        nob_sv_chop_right(sv, suffix.count);
+        return true;
+    }
+    return false;
+}
+
 NOBDEF Nob_String_View nob_sv_chop_left(Nob_String_View *sv, size_t n)
 {
     if (n > sv->count) {
@@ -2519,6 +2587,19 @@ NOBDEF Nob_String_View nob_sv_chop_left(Nob_String_View *sv, size_t n)
     Nob_String_View result = nob_sv_from_parts(sv->data, n);
 
     sv->data  += n;
+    sv->count -= n;
+
+    return result;
+}
+
+NOBDEF Nob_String_View nob_sv_chop_right(Nob_String_View *sv, size_t n)
+{
+    if (n > sv->count) {
+        n = sv->count;
+    }
+
+    Nob_String_View result = nob_sv_from_parts(sv->data + sv->count - n, n);
+
     sv->count -= n;
 
     return result;
@@ -2573,15 +2654,25 @@ NOBDEF bool nob_sv_eq(Nob_String_View a, Nob_String_View b)
 
 NOBDEF bool nob_sv_end_with(Nob_String_View sv, const char *cstr)
 {
-    size_t cstr_count = strlen(cstr);
-    if (sv.count >= cstr_count) {
-        size_t ending_start = sv.count - cstr_count;
-        Nob_String_View sv_ending = nob_sv_from_parts(sv.data + ending_start, cstr_count);
-        return nob_sv_eq(sv_ending, nob_sv_from_cstr(cstr));
+    return nob_sv_ends_with_cstr(sv, cstr);
+}
+
+NOBDEF bool nob_sv_ends_with_cstr(Nob_String_View sv, const char *cstr)
+{
+    return nob_sv_ends_with(sv, nob_sv_from_cstr(cstr));
+}
+
+NOBDEF bool nob_sv_ends_with(Nob_String_View sv, Nob_String_View suffix)
+{
+    if (sv.count >= suffix.count) {
+        Nob_String_View sv_tail = {
+            .count = suffix.count,
+            .data = sv.data + sv.count - suffix.count,
+        };
+        return nob_sv_eq(sv_tail, suffix);
     }
     return false;
 }
-
 
 NOBDEF bool nob_sv_starts_with(Nob_String_View sv, Nob_String_View expected_prefix)
 {
@@ -2768,8 +2859,10 @@ NOBDEF char *nob_temp_running_executable_path(void)
         #define Log_Level Nob_Log_Level
         #define minimal_log_level nob_minimal_log_level
         #define log_handler nob_log_handler
+        #define Log_Handler Nob_Log_Handler
         #define set_log_handler nob_set_log_handler
         #define get_log_handler nob_get_log_handler
+        #define null_log_handler nob_null_log_handler
         #define default_log_handler nob_default_log_handler
         #define cancer_log_handler nob_cancer_log_handler
         // NOTE: Name log is already defined in math.h and historically always was the natural logarithmic function.
@@ -2812,6 +2905,8 @@ NOBDEF char *nob_temp_running_executable_path(void)
         #define da_resize nob_da_resize
         #define da_reserve nob_da_reserve
         #define da_last nob_da_last
+        #define da_first nob_da_first
+        #define da_pop nob_da_pop
         #define da_remove_unordered nob_da_remove_unordered
         #define da_foreach nob_da_foreach
         #define fa_append nob_fa_append
@@ -2820,6 +2915,7 @@ NOBDEF char *nob_temp_running_executable_path(void)
         #define read_entire_file nob_read_entire_file
         #define sb_appendf nob_sb_appendf
         #define sb_append_buf nob_sb_append_buf
+        #define sb_append_sv nob_sb_append_sv
         #define sb_append_cstr nob_sb_append_cstr
         #define sb_append_null nob_sb_append_null
         #define sb_append nob_sb_append
@@ -2890,13 +2986,19 @@ NOBDEF char *nob_temp_running_executable_path(void)
         #define String_View Nob_String_View
         #define temp_sv_to_cstr nob_temp_sv_to_cstr
         #define sv_chop_by_delim nob_sv_chop_by_delim
+        #define sv_chop_while nob_sv_chop_while
+        #define sv_chop_prefix nob_sv_chop_prefix
+        #define sv_chop_suffix nob_sv_chop_suffix
         #define sv_chop_left nob_sv_chop_left
+        #define sv_chop_right nob_sv_chop_right
         #define sv_trim nob_sv_trim
         #define sv_trim_left nob_sv_trim_left
         #define sv_trim_right nob_sv_trim_right
         #define sv_eq nob_sv_eq
         #define sv_starts_with nob_sv_starts_with
         #define sv_end_with nob_sv_end_with
+        #define sv_ends_with nob_sv_ends_with
+        #define sv_ends_with_cstr nob_sv_ends_with_cstr
         #define sv_from_cstr nob_sv_from_cstr
         #define sv_from_parts nob_sv_from_parts
         #define sb_to_sv nob_sb_to_sv
@@ -2910,7 +3012,20 @@ NOBDEF char *nob_temp_running_executable_path(void)
 /*
    Revision history:
 
-                         Fix the implicit declaration error when nob is included as a header (by @ysoftware)
+      3.7.0 (2026-03-20) Add nob_sb_append_sv()
+      3.6.0 (2026-03-16) Add nob_sv_chop_suffix()
+                         Deprecate nob_sv_end_with()
+                         Add nob_sv_ends_with_cstr() instead of nob_sv_end_with()
+                         Add nob_sv_ends_with()
+                         Add nob_sv_chop_right()
+      3.5.0 (2026-03-13) Add nob_null_log_handler() (by @rexim)
+                         Rename nob_log_handler to Nob_Log_Handler (by @rexim)
+      3.4.0 (2026-03-12) Add nob_da_first() (by @rexim)
+                         Add nob_da_pop() (by @rexim)
+                         Add nob_sv_chop_while() (by @rexim)
+      3.3.0 (2026-03-07) Add nob_sv_chop_prefix() (by @rexim)
+      3.2.2 (2026-02-06) Fix read_entire_dir crash on empty path (by @ysoftware)
+      3.2.1 (2026-01-29) Fix the implicit declaration error when nob is included as a header (by @ysoftware)
       3.2.0 (2026-01-28) Introduce Chain API
                            - Nob_Chain
                            - Nob_Chain_Begin_Opt
