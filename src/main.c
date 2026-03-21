@@ -11,17 +11,6 @@
  * @brief File where every actions to run the game are being executed at.
  */
 
-typedef struct {
-    SDL_FRect *boundingBox;
-    SDL_Texture *texture;
-} obj;
-
-typedef struct {
-    obj *items;
-    size_t count;
-    size_t capacity;
-} objs;
-
 #define obj_create(array, ctx, path, x, y, width, height) \
     da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
 
@@ -33,7 +22,8 @@ int main()
     sdl_ctx_t *sdl_ctx = NULL;
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     player_t *player = NULL;
-    if (!createPlayer(&player, (V2f){75.0f, 85.0f}, &sdl_ctx, "assets/img/V1.png")) return 1;
+    if (!createPlayer(&player, (V2f){40, 80}, &sdl_ctx, "assets/img/ourple.png")) return 1;
+    movePlayer(player, (V2f){200.0f, 200.0f});
     objs obj_arr = {0};
 
     // // Load level textures
@@ -46,8 +36,10 @@ int main()
     // }
 
     obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 0.0f, 500.0f, 1000.f, 500.f);
-    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 200.0f, 300.0f, 50.0f, 400.0f);
+    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 200.0f, 300.0f, 140.0f, 400.0f);
+    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 400.0f, 0.0f, 100.0f, 300.0f);
     obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", -10.0f, 0.0f, 15.f, 600.f);
+    obj_create(&obj_arr, sdl_ctx, "./assets/img/white.png", 0.0f, -10.0f, WINDOW_WIDTH, 15.0f);
     // switch (level_selector) { // this is the level selector, very barebones for now but this can be scaled up very well
     // case 1:
     //     obj_create(&obj_arr, sdl_ctx, "./assets/img/C.png", 100.0f, 200.0f, 50.f, 50.f);
@@ -109,10 +101,7 @@ int main()
         SDL_PumpEvents();
 
         basicKeyboardEvents(sdl_ctx);
-        da_foreach(obj, it, &obj_arr)
-        {
-            UpdatePlayer(player, it->boundingBox, deltaT);
-        }
+        UpdatePlayer(player, &obj_arr, deltaT);
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);

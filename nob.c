@@ -120,6 +120,8 @@ int main(int argc, char **argv)
     if (!(*clean)) minimal_log_level = WARNING;
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
     if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
+    if (file_exists(LIBPATH) && (*clean))
+        if (!delete_file(LIBPATH)) return_defer(1);
     // if (!nob_mkdir_if_not_exists(BINARIES_FOLDER "assets/")) return_defer(1);
     // if (!copy_directory_recursively("./assets/img", "./build/bin/assets/img")) return_defer(1);
 

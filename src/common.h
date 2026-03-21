@@ -60,4 +60,15 @@ typedef struct {
     float y;
 } V2f;
 
+typedef struct {
+    SDL_FRect *boundingBox;
+    SDL_Texture *texture;
+} obj;
+
+typedef struct {
+    obj *items;
+    size_t count;
+    size_t capacity;
+} objs;
+
 #endif // COMMON_H_

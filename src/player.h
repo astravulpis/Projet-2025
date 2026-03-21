@@ -52,7 +52,7 @@ void destroyPlayer(player_t **p);
  *
  * updates the player position and checks for collisions with all other textures on the map
  */
-void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime);
+void UpdatePlayer(player_t *p, objs *arr, float deltaTime);
 
 /**
  * @fn renderPlayer(player_t *p)
@@ -63,5 +63,5 @@ void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime);
  */
 void renderPlayer(player_t *p);
 
-void check_on_ground(player_t *p, SDL_FRect *objects, int object_count);
+void movePlayer(player_t *p, V2f newPos);
 #endif // PLAYER_H_

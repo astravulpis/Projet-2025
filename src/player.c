@@ -23,6 +23,12 @@ void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float m
     if (r->y + r->h > maxY) r->y = maxY - r->h; // Up
 }
 
+void movePlayer(player_t *p, V2f newPos)
+{
+    p->boundingBox->x = newPos.x;
+    p->boundingBox->y = newPos.y;
+}
+
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
 {
     bool result = true;
@@ -43,7 +49,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
 
     p->speed = 250.0f;
-    p->jumpForce = -7.0f;
+    p->jumpForce = -4.5f;
     p->velocity = (V2f){0.0f, 0.0f};
     p->onGround = false;
 
@@ -77,7 +83,6 @@ V2f inputUpdate(player_t *p, const float dt)
     // Vertical movement
     if (keyboard_state[SDL_SCANCODE_SPACE] && p->onGround) {
         p->velocity.y += p->jumpForce; // Up is towards negatives in SDL
-        p->onGround = false;
     }
 
     if (keyboard_state[SDL_SCANCODE_LCTRL] && !p->onGround) {
@@ -86,38 +91,36 @@ V2f inputUpdate(player_t *p, const float dt)
     return deltaPos;
 }
 
-void UpdatePlayer(player_t *p, SDL_FRect *object, float deltaTime)
+objs collision_test(player_t *p, objs *tiles)
+{
+    objs collisions = {0};
+    da_foreach(obj, tile, tiles) {
+        if (SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) {
+            da_append(&collisions, *tile);
+        }
+    }
+
+    return collisions;
+}
+
+void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
 {
     float gravity = 9.2f;
+    SDL_FRect *rect = getBB(p);
     V2f movement = inputUpdate(p, deltaTime);
     V2f frame_movement = {movement.x + p->velocity.x, movement.y + p->velocity.y};
     p->onGround = false;
 
-    getBB(p)->x += frame_movement.x;
-    SDL_FRect entity_rect = *getBB(p);
-    if (SDL_HasRectIntersectionFloat(&entity_rect, object)) {
-        if (Bottom(&entity_rect) <= Top(object) || Top(&entity_rect) >= Top(object)) {
-            if (frame_movement.x > 0)  // Moving right
-                entity_rect.x = Left(object) - entity_rect.w - 1.0f;
-            if (frame_movement.x < 0)  // Moving left
-                entity_rect.x = Right(object) + 1.0f;
-
-            getBB(p)->x = entity_rect.x;
+    rect->x += frame_movement.x;
+    objs collisions = collision_test(p, arr);
+    da_foreach(obj, it, &collisions) {
+        SDL_FRect *tile = it->boundingBox;
+        if (frame_movement.x > 0) {
+            rect->x = Left(tile) - rect->w; // Set the player's right edge to the tile's left edge
         }
-    }
-
-    getBB(p)->y += frame_movement.y;
-    entity_rect = *getBB(p);
-    if (SDL_HasRectIntersectionFloat(&entity_rect, object)) {
-        if (frame_movement.y > 0) { // Moving down
-            entity_rect.y = Top(object) - entity_rect.h;
-            p->onGround = true;
-            p->velocity.y = 0;
+        if (frame_movement.x < 0) {
+            rect->x = Right(tile); // Set the player's left edge to the tile's right edge
         }
-        if (frame_movement.y < 0)  // Moving up
-            entity_rect.y = Bottom(object);
-
-        getBB(p)->y = entity_rect.y;
     }
 
     p->velocity.y = MIN(5, p->velocity.y + (gravity * deltaTime));
