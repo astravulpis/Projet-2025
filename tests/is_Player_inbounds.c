@@ -39,25 +39,24 @@ int main(void)
     // Creating a rectangle
     rect = createRect(0, 0, 0, 0);
     if (rect == NULL) {
-        nob_log(ERROR, "%s:%d: Rect failed to be created", __FILE__, __LINE__);
+        printf("%s:%d: Rect failed to be created\n", __FILE__, __LINE__);
         return_defer(1);
     }
 
     if (rect->w != 1 && rect->h != 1) {
-        nob_log(ERROR, "%s:%d: Rect->w = %.2f, Rect->h = %.2f - Values are not set correctly.", __FILE__, __LINE__, rect->w,
-                rect->y);
+        printf("%s:%d: Rect->w = %.2f, Rect->h = %.2f - Values are not set correctly.\n", __FILE__, __LINE__, rect->w, rect->y);
         return_defer(1);
     }
-    nob_log(INFO, "Rectangle successfully created");
+    printf("Rectangle successfully created\n");
 
     // Setting it in bounds
     keepPlayerInbound(rect, 0.0f, 0.0f, 1920.0f, 1080.0f);
     if (!isAtExpectedCoords(rect, expectedCoords)) {
-        nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
-                expectedCoords.y, rect->x, rect->y);
+        printf("%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)\n", __FILE__, __LINE__, expectedCoords.x, expectedCoords.y,
+               rect->x, rect->y);
         return_defer(1);
     }
-    nob_log(INFO, "Got expected coords");
+    printf("Got expected coords\n");
 
     // Moving it oobe
     moveRect(rect, (V2f){9999.0f, 9999.0f});
@@ -67,11 +66,11 @@ int main(void)
     // Setting it back in bounds
     keepPlayerInbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
     if (!isAtExpectedCoords(rect, expectedCoords)) {
-        nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
-                expectedCoords.y, rect->x, rect->y);
+        printf("%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)\n", __FILE__, __LINE__, expectedCoords.x, expectedCoords.y,
+               rect->x, rect->y);
         return_defer(1);
     }
-    nob_log(INFO, "Got expected coords after transformation of position");
+    printf("Got expected coords after transformation of position\n");
 
     // Mofiying the rect's size to check for correct displacement
     resizeRect(rect, (V2f){128.0f, 256.0f});
@@ -81,11 +80,11 @@ int main(void)
     // Setting it back in bounds
     keepPlayerInbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
     if (!isAtExpectedCoords(rect, expectedCoords)) {
-        nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
-                expectedCoords.y, rect->x, rect->y);
+        printf("%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)\n", __FILE__, __LINE__, expectedCoords.x, expectedCoords.y,
+               rect->x, rect->y);
         return_defer(1);
     }
-    nob_log(INFO, "Got expected coords after transformation of size");
+    printf("Got expected coords after transformation of size\n");
 
     // Moving and resizing
     moveRect(rect, (V2f){9999.0f, -100.0f});
@@ -95,16 +94,16 @@ int main(void)
 
     keepPlayerInbound(rect, 0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
     if (!isAtExpectedCoords(rect, expectedCoords)) {
-        nob_log(ERROR, "%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)", __FILE__, __LINE__, expectedCoords.x,
-                expectedCoords.y, rect->x, rect->y);
+        printf("%s:%d: Expected: (%.2f, %.2f), got: (%.2f, %.2f)\n", __FILE__, __LINE__, expectedCoords.x, expectedCoords.y,
+               rect->x, rect->y);
         return_defer(1);
     }
-    nob_log(INFO, "Got expected coords after transformation of size and position");
+    printf("Got expected coords after transformation of size and position\n");
 
-    nob_log(INFO, "Every test case for `keep_player_inbound` passed successfully");
+    printf("Every test case for `keep_player_inbound` passed successfully\n");
 
 defer:
-    if (result) nob_log(ERROR, "Things failed");
+    if (result) printf("Things failed\n");
     free(rect);
     rect = NULL;
     return result;

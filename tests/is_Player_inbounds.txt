@@ -1,6 +1,6 @@
-[INFO] Rectangle successfully created
-[INFO] Got expected coords
-[INFO] Got expected coords after transformation of position
-[INFO] Got expected coords after transformation of size
-[INFO] Got expected coords after transformation of size and position
-[INFO] Every test case for `keep_player_inbound` passed successfully
+Rectangle successfully created
+Got expected coords
+Got expected coords after transformation of position
+Got expected coords after transformation of size
+Got expected coords after transformation of size and position
+Every test case for `keep_player_inbound` passed successfully

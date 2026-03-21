@@ -5,6 +5,10 @@
 #include "../thirdparty/nob.h"
 #endif // NOB_IMPLEMENTATION
 
+#ifndef FLAG_IMPLEMENTATION
+#include "../thirdparty/flag.h"
+#endif // FLAG_IMPLEMENTATION
+
 #include "SDL3/SDL.h"
 #include "SDL3_image/SDL_image.h"
 #include "SDL3_ttf/SDL_ttf.h"

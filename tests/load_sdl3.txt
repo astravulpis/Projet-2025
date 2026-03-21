@@ -1,1 +1,1 @@
-[INFO] SDL successfully initialized
+SDL successfully initialized

@@ -7,14 +7,14 @@ int main(void)
     int result = 0;
 
     if (!SDL_Init(0x0)) {
-        nob_log(ERROR, "SDL failed to initialize. See: %s", SDL_GetError());
+        printf("SDL failed to initialize. See: %s\n", SDL_GetError());
         return_defer(1);
     }
 
-    nob_log(INFO, "SDL successfully initialized");
+    printf("SDL successfully initialized\n");
 
 defer:
-    if (result) nob_log(ERROR, "SDL failed to initialize");
+    if (result) printf("SDL failed to initialize\n");
     SDL_Quit();
     return result;
 }

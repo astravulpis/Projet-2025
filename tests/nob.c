@@ -1,9 +1,16 @@
 #include "../shared.h"
 
-const char *test_targets[] = {
-    "load_sdl3",
-    "is_Player_inbounds",
-};
+typedef struct target {
+    const char *name;
+    const char *args;
+} target;
+
+typedef struct {
+    target *items;
+    size_t count;
+    size_t capacity;
+} targets;
+
 
 #define add_sdl_libraries(cmd)                                                                                               \
     do {                                                                                                                     \
@@ -57,7 +64,7 @@ defer:
     return result;
 }
 
-bool run_test(const char *test_name, bool record)
+bool run_test(target *test, bool record)
 {
     bool result = true;
 
@@ -68,17 +75,24 @@ bool run_test(const char *test_name, bool record)
     String_View sv_src = {0};
     String_View sv_dst = {0};
 
-    char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test_name);
-    char *bin_output_path = temp_sprintf("%s%s.txt", BUILD_FOLDER TEST_FOLDER, test_name);
-    char *test_output_path = temp_sprintf("%s%s.txt", TEST_FOLDER, test_name);
+    char *bin_path = temp_sprintf("%s%s", BUILD_FOLDER TEST_FOLDER, test->name);
+    char *bin_stdout_path = temp_sprintf("%s%s_stdout.txt", BUILD_FOLDER TEST_FOLDER, test->name);
+    char *test_output_path = temp_sprintf("%s%s.txt", TEST_FOLDER, test->name);
 
     cmd_append(&cmd, temp_sprintf("./%s", bin_path));
-    cmd_run(&cmd, .stdout_path = bin_output_path, .stderr_path = bin_output_path);
+    if (test->args) { // If any argument is passed
+        String_View sv = sv_from_cstr(test->args);
+        while (sv.count > 0) {
+            String_View arg = sv_chop_by_delim(&sv, ' ');
+            cmd_append(&cmd, temp_sprintf(SV_Fmt, SV_Arg(arg)));
+        }
+    }
+    cmd_run(&cmd, .stdout_path = bin_stdout_path);
 
     if (record) {
-        copy_file(bin_output_path, test_output_path);
+        copy_file(bin_stdout_path, test_output_path);
     } else {
-        if (!read_entire_file(bin_output_path, &src)) return_defer(false);
+        if (!read_entire_file(bin_stdout_path, &src)) return_defer(false);
         if (!read_entire_file(test_output_path, &dst)) return_defer(false);
 
         sv_src = sb_to_sv(src);
@@ -98,7 +112,7 @@ bool run_test(const char *test_name, bool record)
         }
     }
 
-    nob_log(INFO, "------ `%s` is finished ------\n", test_name);
+    nob_log(INFO, "------ `%s` is finished ------\n", test->name);
 
 defer:
     free(cmd.items);
@@ -110,12 +124,12 @@ defer:
 int main(int argc, char *argv[])
 {
     NOB_GO_REBUILD_URSELF(argc, argv);
-    Nob_Cmd cmd = {0};
+
     int result = 0;
+    size_t mark = nob_temp_save();
     bool record = false;
     UNUSED(shift(argv, argc));
-    size_t arrSize = ARRAY_LEN(test_targets);
-    size_t mark = nob_temp_save();
+    targets test_targets = {0};
 
     if (argc > 0) {
         char *flag = shift(argv, argc);
@@ -132,16 +146,17 @@ int main(int argc, char *argv[])
     if (!mkdir_if_not_exists(BUILD_FOLDER TEST_FOLDER)) return_defer(1);
     minimal_log_level = INFO;
 
-    // set_current_dir(curr_cwd);
-    for (size_t idx = 0; idx < arrSize; ++idx) {
+    da_append(&test_targets, ((target){.name = "load_sdl3"}));
+    da_append(&test_targets, ((target){.name = "is_Player_inbounds"}));
+    da_append(&test_targets, ((target){.name = "parseFile", .args = "--level-path=./tests/parseFile_test_level.txt"}));
+    da_foreach(target, it, &test_targets) {
         mark = nob_temp_save();
-        if (!compile(test_targets[idx])) return_defer(1);
-        if (!run_test(test_targets[idx], record)) return_defer(1);
+        if (!compile(it->name)) return_defer(1);
+        if (!run_test(it, record)) return_defer(1);
         temp_rewind(mark);
     }
 
 defer:
-    free(cmd.items);
     temp_rewind(mark);
 
     return result;
