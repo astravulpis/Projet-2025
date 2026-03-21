@@ -79,6 +79,8 @@ V2f inputUpdate(player_t *p, const float dt)
     // Horizontal movement
     if (keyboard_state[SDL_SCANCODE_A]) deltaPos.x -= p->speed * dt;
     if (keyboard_state[SDL_SCANCODE_D]) deltaPos.x += p->speed * dt;
+    if (keyboard_state[SDL_SCANCODE_S]) deltaPos.y += p->speed * dt;
+    if (keyboard_state[SDL_SCANCODE_W]) deltaPos.y -= p->speed * dt;
 
     // Vertical movement
     if (keyboard_state[SDL_SCANCODE_SPACE] && p->onGround) {
@@ -123,7 +125,19 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
         }
     }
 
-    p->velocity.y = MIN(5, p->velocity.y + (gravity * deltaTime));
+    rect->y += frame_movement.y;
+    collisions = collision_test(p, arr);
+    da_foreach(obj, it, &collisions) {
+        SDL_FRect *tile = it->boundingBox;
+        if (frame_movement.y > 0) {
+            rect->y = Top(tile) - rect->h; // Set the player's right edge to the tile's left edge
+        }
+        if (frame_movement.y < 0) {
+            rect->x = Bottom(tile); // Set the player's left edge to the tile's right edge
+        }
+    }
+
+    // p->velocity.y = MIN(5, p->velocity.y + (gravity * deltaTime));
 
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
