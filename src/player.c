@@ -131,13 +131,14 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
         SDL_FRect *tile = it->boundingBox;
         if (frame_movement.y > 0) {
             rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
+            p->onGround = true;
         }
         if (frame_movement.y < 0) {
             rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
         }
     }
 
-    // p->velocity.y = MIN(5, p->velocity.y + (gravity * deltaTime));
+    p->velocity.y = MIN(5, p->velocity.y + (gravity * deltaTime));
 
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
