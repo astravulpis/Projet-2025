@@ -75,4 +75,7 @@ typedef struct {
     size_t capacity;
 } objs;
 
+#define obj_create(array, ctx, path, x, y, width, height) \
+    da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
+
 #endif // COMMON_H_

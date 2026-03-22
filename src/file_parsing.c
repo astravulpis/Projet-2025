@@ -1,7 +1,8 @@
 #include "file_parsing.h"
+#include "sdl_helpers.h"
 #include "common.h"
 
-bool parseFlag(int xs_sz, char **xs, objs *level)
+bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
 {
     char *path = NULL;
     flag_str_var(&path, "-level-path", NULL, "Defines the path to the file where a level or room is stored at");
@@ -11,12 +12,12 @@ bool parseFlag(int xs_sz, char **xs, objs *level)
         return false;
     }
 
-    if (!parseFile(path, level)) return false;
+    if (!parseFile(path, ctx, level)) return false;
 
     return true;
 }
 
-bool parseFile(const char *path, objs *level)
+bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
 {
     if (path == NULL) {
         nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
@@ -32,11 +33,48 @@ bool parseFile(const char *path, objs *level)
     if (!read_entire_file(path, &sb)) return false;
 
     String_View sv = sb_to_sv(sb);
+    size_t mark = temp_save();
     while (sv.count > 0) {
         String_View line = sv_chop_by_delim(&sv, '\n');
-        printf("|"SV_Fmt"|\n", SV_Arg(line));
+        while (line.count > 0) {
+            String_View header = sv_chop_by_delim(&line, ' ');
+
+            // If line header is "obj"
+            if (sv_eq(header, sv_from_cstr("obj"))) {
+                // Path to image
+                String_View temp = sv_chop_by_delim(&line, ' ');
+                if (!sv_eq(temp, sv_from_cstr("")) && !sv_eq(temp, sv_from_cstr("NULL"))) {
+                    sv_chop_left(&temp, 1);
+                    sv_chop_right(&temp, 1);
+                }
+                const char *path = nob_temp_sv_to_cstr(temp);
+
+                // The rectangle's position, width and height
+                float rect[4] = {0};
+                for (int i = 0; i < 4; ++i) {
+                    float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                    rect[i] = val;
+                }
+
+                // Removing unwanted values
+                if (line.count > 0) {
+                    while (line.count > 0) {
+                        String_View unwanted = sv_chop_by_delim(&line, ' ');
+                        nob_log(WARNING, "%s:%d: |" SV_Fmt "| <-- This should be empty", __FILE__, __LINE__, SV_Arg(unwanted));
+                    }
+                    continue;
+                }
+
+                // Creating the object into the level itself
+                obj_create(level, ctx, path, rect[0], rect[1], rect[2], rect[3]);
+            } else {
+                nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
+                break;
+            }
+        }
     }
 
+    temp_rewind(mark);
     free(sb.items);
     return true;
 }

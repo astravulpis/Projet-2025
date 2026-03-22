@@ -1,6 +1,18 @@
-|player 200 200|
-|obj "./assets/img/white" 0.0 500.0 1000.0 500.0|
-|obj "./assets/img/white" 200.0 300.0 140.0 400.0|
-|obj "./assets/img/white" 400.0 0.0 100.0 300.0|
-|obj "./assets/img/white" 0.0 -10.0 800.0 15.0|
-tests/parseFile.c:14: the parsing of flags went smoothly. No error to report. Exiting...
+./assets/img/white.png, 0.00, 500.00, 1000.00, 500.00
+./assets/img/white.png, 200.00, 300.00, 140.00, 400.00
+./assets/img/white.png, 400.00, 0.00, 100.00, 300.00
+./assets/img/white.png, 0.00, -10.00, 800.00, 15.00
+, 0.00, -10.00, 800.00, 15.00
+tests/parseFile.c:75: Type "oj" is not yet supported
+./assets/img/white.png, -10.00, 800.00, 15.00, 0.00
+tests/parseFile.c:67: |9.0| <-- This should be empty
+./assets/img/white.ng, 0.00, -10.00, 800.00, 15.00
+NULL, 0.00, -10.00, 800.00, 15.00
+., -10.00, 800.00, 15.00, 0.00
+wds, 0.00, 0.00, 0.00, 0.00
+, 0.00, 0.00, 0.00, 0.00
+tests/parseFile.c:67: |jkladsjl| <-- This should be empty
+tests/parseFile.c:67: |jasdjksadjl| <-- This should be empty
+tests/parseFile.c:67: |lasjkasdjl| <-- This should be empty
+tests/parseFile.c:75: Type "ajskasdjkl" is not yet supported
+tests/parseFile.c:93: the parsing of flags went smoothly. No error to report. Exiting...

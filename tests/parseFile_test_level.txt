@@ -1,5 +1,17 @@
-player 200 200
-obj "./assets/img/white" 0.0 500.0 1000.0 500.0
-obj "./assets/img/white" 200.0 300.0 140.0 400.0
-obj "./assets/img/white" 400.0 0.0 100.0 300.0
-obj "./assets/img/white" 0.0 -10.0 800.0 15.0
+obj "./assets/img/white.png" 0.0 500.0 1000.0 500.0
+obj "./assets/img/white.png" 200.0 300.0 140.0 400.0
+obj "./assets/img/white.png" 400.0 0.0 100.0 300.0
+obj "./assets/img/white.png" 0.0 -10.0 800.0 15.0
+obj "" 0.0 -10.0 800.0 15.0
+oj "" 0.0 -10.0 800.0 15.0
+obj "./assets/img/white.png" -10.0 800.0 15.0
+obj "./assets/img/white.png" 0.0 -10.0 800.0 15.0 9.0
+obj "./assets/img/white.ng" 0.0 -10.0 800.0 15.0
+obj NULL 0.0 -10.0 800.0 15.0
+obj 0.0 -10.0 800.0 15.0
+
+
+obj awdsa 0.0 0.0 0.0 0.0
+obj "" 0.0. 0.0 0.0 0.0
+obj jkasdjlksajdlk jasjdl jkasdjl jlkasdj ljkadsjlk jkladsjl jasdjksadjl lasjkasdjl
+ajskasdjkl jkasdjlksajdlk jasjdl jkasdjl jlkasdj ljkadsjlk jkladsjl jasdjksadjl lasjkasdjl

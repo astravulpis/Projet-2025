@@ -96,6 +96,7 @@ int main(int argc, char **argv)
     bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2");
     bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
     bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
+    char **level   = flag_str("-level-path", false, "path to the level file, accessed from the root");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -164,13 +165,17 @@ int main(int argc, char **argv)
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
+    const char *level_path = (level[0] != NULL ? temp_sprintf("--level-path=%s", level[0]) : NULL);
+
     if (*debugui) {
         cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
+        if (level_path != NULL) cmd_append(&cmd, level_path);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     if (*run && !(*debugui)) {
         cmd_append(&cmd, "./" BINARIES_FOLDER "main");
+        if (level_path != NULL) cmd_append(&cmd, level_path);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
