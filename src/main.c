@@ -18,6 +18,7 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "player.h"
+#include "buttons.h"
 
 bool createImageRect();
 
@@ -46,9 +47,18 @@ int main()
         return 1;
     }
 
+    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH/2-150, WINDOW_HEIGHT/2, 300.0f, 75.0f);
+    SDL_Color baseColor_btn1 = {0, 0, 255, 255};
+    SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
+    SDL_Color clickColor_btn1 = {200, 10, 100, 255};
+    char *textBtn1 = "btn 1";
 
-    float mouse_X = 0;
-    float mouse_Y = 0;
+    button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
+
+    SDL_FPoint mouseCoord = {0, 0};
+    int mouseInputFlag;
+    //float mouse_X = 0;
+    //float mouse_Y = 0;
 
     Uint32 frameStart = 0;
     int frameCounter = 0;
@@ -80,14 +90,20 @@ int main()
 
         basicKeyboardEvents(sdl_ctx);
         UpdatePlayer(player, boxDummy, deltaT);
+        
+        //je l'ai bougé car il semble plus adapté ici
+        mouseInputFlag = SDL_GetMouseState(&(mouseCoord.x), &(mouseCoord.y));
+
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
+
+        updateButtonState(bouton1, mouseCoord, mouseInputFlag);
+        buttonRender(sdl_ctx, bouton1);
 
         renderPlayer(player);
         renderImage(sdl_ctx, logoC, boxDummy);
 
-        SDL_GetMouseState(&mouse_X, &mouse_Y);
-        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouseCoord.x, mouseCoord.y), WHITE, MouseTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
         // renderText_Ex(sdl_ctx, temp_sprintf("timer: %.1f", player->stunnedTimer), WHITE, (V2f){10.0f, 148.0f});
 
@@ -96,6 +112,7 @@ int main()
     }
 
     free(boxDummy);
+    destroyButton(&bouton1);
 
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
