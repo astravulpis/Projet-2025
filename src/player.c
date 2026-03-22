@@ -118,10 +118,10 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     da_foreach(obj, it, &collisions) {
         SDL_FRect *tile = it->boundingBox;
         if (frame_movement.x > 0) {
-            rect->x = Left(tile) - rect->w; // Set the player's right edge to the tile's left edge
+            rect->x = Left(tile) - rect->w - 0.01f; // Set the player's right edge to the tile's left edge
         }
         if (frame_movement.x < 0) {
-            rect->x = Right(tile); // Set the player's left edge to the tile's right edge
+            rect->x = Right(tile) + 0.01f; // Set the player's left edge to the tile's right edge
         }
     }
 
@@ -130,10 +130,10 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     da_foreach(obj, it, &collisions) {
         SDL_FRect *tile = it->boundingBox;
         if (frame_movement.y > 0) {
-            rect->y = Top(tile) - rect->h; // Set the player's right edge to the tile's left edge
+            rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
         }
         if (frame_movement.y < 0) {
-            rect->x = Bottom(tile); // Set the player's left edge to the tile's right edge
+            rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
         }
     }
 
