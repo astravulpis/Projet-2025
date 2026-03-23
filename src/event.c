@@ -46,8 +46,28 @@
  */
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 {
+    while (SDL_PollEvent(&sdl_ctx->event)) {
+        if (sdl_ctx->event.type == SDL_EVENT_KEY_DOWN) {
+            switch (sdl_ctx->event.key.scancode) {
+            case SDL_SCANCODE_Q:
+                sdl_ctx->quit = true;
+                break;
+            }
+        }
+    }
+}
+/*void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
+{
     const bool *state = SDL_GetKeyboardState(NULL);
     if (state[SDL_SCANCODE_Q]) {
         sdl_ctx->quit = true;
     }
-}
+    else if(state[SDL_SCANCODE_ESCAPE]) {
+        if (sdl_ctx->pause == true){
+            sdl_ctx->pause = false;
+        }
+        else{
+            sdl_ctx->pause = true;
+        }
+    }
+}*/
