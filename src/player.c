@@ -43,6 +43,7 @@ void movePlayer(player_t *p, V2f newPos)
     p->boundingBox->y = newPos.y;
 }
 
+
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
 {
     bool result = true;

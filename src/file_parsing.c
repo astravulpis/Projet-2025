@@ -18,6 +18,7 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
     return true;
 }
 
+
 bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
 {
     if (path == NULL) {
@@ -57,7 +58,7 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
                 }
                 const char *path = nob_temp_sv_to_cstr(temp);
 
-                // The rectangle's position, width and height
+                // The rectangle's position, width and height based on screen/FHD ratio
                 for (int i = 0; i < 4; ++i) {
                     float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                     rect[i] = val*ratio;

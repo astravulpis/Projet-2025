@@ -118,14 +118,14 @@ int main(int argc, char **argv)
         {
             renderImage(sdl_ctx, it->texture, it->boundingBox);
         }
-
+        // Render the level bounding boxes
         da_foreach(obj, it, &level)
         {
             if (SDL_HasRectIntersectionFloat(player->boundingBox, it->boundingBox)) {
                 renderText_Ex(sdl_ctx, "true", WHITE, (V2f){150.0f, 10.0f});
             }
         }
-
+        //temp text in the top left of the screen to monitor various game variables such as positions
         SDL_GetMouseState(&mouse_X, &mouse_Y);
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }
-
+    //destroying all the SDL textures to avoid memory leaks
     da_foreach(obj, it, &level)
     {
         free(it->boundingBox);

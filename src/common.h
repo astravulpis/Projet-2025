@@ -28,7 +28,7 @@
 
 #include <assert.h>
 
-#define WINDOW_WIDTH 1980
+#define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
 #if defined(DEBUG)
@@ -67,6 +67,7 @@ struct sdl_context_s {
     bool quit;              //!< Global state to keep the application running or not
 };
 
+
 typedef struct {
     int x;
     int y;
@@ -77,11 +78,23 @@ typedef struct {
     float y;
 } V2f;
 
+/**
+ * @struct obj
+ * @brief contains the bounding box and texture for the player
+ *
+ * Contains an SDL_FRect and SDL_Texture for the bounding box and textures respectively
+ */
 typedef struct {
     SDL_FRect *boundingBox;
     SDL_Texture *texture;
 } obj;
 
+/**
+ * @struct objs
+ * @brief is a list of obj
+ *
+ * contains a list of obj called items, with a count and a upper capacity
+ */
 typedef struct {
     obj *items;
     size_t count;

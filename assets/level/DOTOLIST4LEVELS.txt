@@ -1,0 +1,9 @@
+Adding all triger boxes once they are implemented
+
+Giving a specific spawnpoint for each level
+
+levelA.txt: adding the lava
+levelB.txt: adding the passthrough chains on the central top pillar + lava at the bottom right and left
+levelC.txt: adding the funky diagonal chains for the central node + the trigger to open the exit
+levelD.txt: 
+levelE.txt: 
