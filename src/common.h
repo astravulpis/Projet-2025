@@ -28,8 +28,8 @@
 
 #include <assert.h>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 #if defined(DEBUG)
 #define BREAKPOINT __asm("int3");

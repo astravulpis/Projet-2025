@@ -70,6 +70,8 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return 1;
     }
 
+    SDL_SetWindowFullscreen(sdl_ctx->window, true);
+
 defer:
     if (result == false) {
         closeCtx(&sdl_ctx);

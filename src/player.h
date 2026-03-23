@@ -24,7 +24,10 @@ typedef struct {
     // bool stunned;           //!< State used to avoid key mashing
     // float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
     float jumpForce;
+    int dashAmount;
+    float dashTimer;
     V2f velocity;
+    uint8_t lastKey;
 } player_t;
 
 #define getBB(p) (p)->boundingBox

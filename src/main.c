@@ -13,6 +13,7 @@
  **/
 
 #include "../shared.h"
+#include "buttons.h"
 #include "common.h"
 #include "event.h"
 #include "file_parsing.h"
@@ -20,7 +21,6 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include <stdlib.h>
-#include "buttons.h"
 
 /**
  * @file main.c
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
     float mouse_X = 0;
     float mouse_Y = 0;
-    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH/2-150, WINDOW_HEIGHT/2, 300.0f, 75.0f);
+    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2, 300.0f, 75.0f);
     SDL_Color baseColor_btn1 = {0, 0, 255, 255};
     SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
     SDL_Color clickColor_btn1 = {200, 10, 100, 255};
@@ -71,8 +71,8 @@ int main(int argc, char **argv)
 
     SDL_FPoint mouseCoord = {0, 0};
     int mouseInputFlag;
-    //float mouse_X = 0;
-    //float mouse_Y = 0;
+    // float mouse_X = 0;
+    // float mouse_Y = 0;
 
     Uint32 frameStart = 0;
     int frameCounter = 0;
@@ -114,11 +114,13 @@ int main(int argc, char **argv)
         renderPlayer(player);
 
         // Render level textures
-        da_foreach(obj, it, &level) {
+        da_foreach(obj, it, &level)
+        {
             renderImage(sdl_ctx, it->texture, it->boundingBox);
         }
 
-        da_foreach(obj, it, &level) {
+        da_foreach(obj, it, &level)
+        {
             if (SDL_HasRectIntersectionFloat(player->boundingBox, it->boundingBox)) {
                 renderText_Ex(sdl_ctx, "true", WHITE, (V2f){150.0f, 10.0f});
             }
@@ -127,6 +129,8 @@ int main(int argc, char **argv)
         SDL_GetMouseState(&mouse_X, &mouse_Y);
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("Dash: %i", player->dashAmount), WHITE, (V2f){10.0f, 110.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("DashT: %.2f", player->dashTimer), WHITE, (V2f){10.0f, 140.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
                       (V2f){10.0f, 80.0f});
 
@@ -134,14 +138,12 @@ int main(int argc, char **argv)
         frameCounter++;
     }
 
-
     da_foreach(obj, it, &level)
     {
         free(it->boundingBox);
         SDL_DestroyTexture(it->texture);
     }
     free(level.items);
-
 
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
