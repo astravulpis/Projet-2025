@@ -20,14 +20,17 @@ typedef struct {
     SDL_FRect *boundingBox; //!< Player's BB
     SDL_Texture *tex;       //!< Player's texture
     float speed;            //!< Value may depend on preference
-    bool onGround;          //!< State to tell whenever the player is on the ground or not
+    V2f velocity;
     // bool stunned;           //!< State used to avoid key mashing
     // float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
-    float jumpForce;
     int dashAmount;
     float dashTimer;
-    V2f velocity;
+    float jumpForce;
     uint8_t lastKey;
+    bool onGround;          //!< State to tell whenever the player is on the ground or not
+
+    bool flight;
+    bool noclip;
 } player_t;
 
 #define getBB(p) (p)->boundingBox

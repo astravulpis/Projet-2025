@@ -12,10 +12,10 @@
  **/
 
 #include "player.h"
-#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_scancode.h"
 #include "common.h"
 #include "sdl_helpers.h"
+#include <string.h>
 
 /**
  * @fn keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
@@ -63,12 +63,14 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
 
     p->speed = 325.0f;
-    p->jumpForce = -525.0f;
+    p->jumpForce = -625.0f;
     p->velocity = (V2f){0.0f, 0.0f};
     p->onGround = false;
     p->dashTimer = 1.0f;
     p->dashAmount = 3;
     p->lastKey = SDL_SCANCODE_UNKNOWN;
+    p->flight = false;
+    p->noclip = false;
 
 defer:
     return result;
@@ -92,6 +94,24 @@ V2f inputUpdate(player_t *p, const float dt)
 {
     V2f deltaPos = {0};
     const bool *keyboard_state = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
+    static bool previous_state[SDL_SCANCODE_COUNT] = {0};
+
+    if (keyboard_state[SDL_SCANCODE_LEFTBRACKET]) {
+        p->noclip = !p->noclip;
+    }
+
+    if (keyboard_state[SDL_SCANCODE_RIGHTBRACKET]) {
+        p->flight = !p->flight;
+    }
+
+    if (p->flight) {
+        if (keyboard_state[SDL_SCANCODE_W]) {
+            deltaPos.y -= p->speed * dt;
+        }
+        if (keyboard_state[SDL_SCANCODE_S]) {
+            deltaPos.y += p->speed * dt;
+        }
+    }
 
     // Horizontal movement
     if (keyboard_state[SDL_SCANCODE_A]) {
@@ -102,9 +122,9 @@ V2f inputUpdate(player_t *p, const float dt)
         deltaPos.x += p->speed * dt;
         p->lastKey = SDL_SCANCODE_D;
     }
-    if (keyboard_state[SDL_SCANCODE_LSHIFT] && p->dashAmount > 0) {
-        if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 2) * dt;
-        if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 2) * dt;
+    if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT] )&& p->dashAmount > 0) {
+        if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 4) * dt;
+        if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 4) * dt;
         p->dashAmount -= 1;
     }
 
@@ -113,10 +133,11 @@ V2f inputUpdate(player_t *p, const float dt)
         p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
     }
 
-    if (keyboard_state[SDL_SCANCODE_LCTRL] && !p->onGround) {
-        p->velocity.y -= p->jumpForce * dt; // Up is towards negatives in SDL
+    if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
+        p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }
 
+    memcpy(previous_state, keyboard_state, SDL_SCANCODE_COUNT);
     return deltaPos;
 }
 
@@ -142,7 +163,7 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
 
     if (p->dashAmount < 3) {
         if (p->dashTimer > 0) {
-            p->dashTimer -= 0.15 * deltaTime;
+            p->dashTimer -= 0.7 * deltaTime;
         } else {
             p->dashTimer = 1.0f;
             p->dashAmount += 1;
@@ -150,32 +171,37 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     }
 
     rect->x += frame_movement.x;
-    objs collisions = collision_test(p, arr);
-    da_foreach(obj, it, &collisions) {
-        SDL_FRect *tile = it->boundingBox;
-        if (frame_movement.x > 0) {
-            rect->x = Left(tile) - rect->w - 0.01f; // Set the player's right edge to the tile's left edge
-        }
-        if (frame_movement.x < 0) {
-            rect->x = Right(tile) + 0.01f; // Set the player's left edge to the tile's right edge
+    if (!p->noclip) {
+        objs collisions = collision_test(p, arr);
+        da_foreach(obj, it, &collisions) {
+            SDL_FRect *tile = it->boundingBox;
+            if (frame_movement.x > 0) {
+                rect->x = Left(tile) - rect->w - 0.01f; // Set the player's right edge to the tile's left edge
+            }
+            if (frame_movement.x < 0) {
+                rect->x = Right(tile) + 0.01f; // Set the player's left edge to the tile's right edge
+            }
         }
     }
 
     rect->y += frame_movement.y;
-    collisions = collision_test(p, arr);
-    da_foreach(obj, it, &collisions) {
-        SDL_FRect *tile = it->boundingBox;
-        if (frame_movement.y > 0) {
-            rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
-            p->onGround = true;
+    if (!p->noclip) {
+        objs collisions = collision_test(p, arr);
+        da_foreach(obj, it, &collisions) {
+            SDL_FRect *tile = it->boundingBox;
+            if (frame_movement.y > 0) {
+                rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
+                p->onGround = true;
+            }
+            if (frame_movement.y < 0) {
+                rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
+            }
+            p->velocity.y = 0;
         }
-        if (frame_movement.y < 0) {
-            rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
-        }
-        p->velocity.y = 0;
     }
 
-    p->velocity.y = MIN(10.0f, p->velocity.y + (gravity * deltaTime));
+    if (!p->flight)
+        p->velocity.y = MIN(10.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
