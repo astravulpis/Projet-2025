@@ -145,6 +145,7 @@ int main(int argc, char **argv)
     da_append(&modules, "player");
     da_append(&modules, "file_parsing");
     da_append(&modules, "buttons");
+    da_append(&modules, "gui");
     if (!compile_submodules(&modules)) return_defer(1);
 
     cmd_append(&cmd, "ar", "rcs");
