@@ -14,9 +14,9 @@ button *initButton(SDL_FRect *b_box, char *b_text, SDL_Color *b_baseC, SDL_Color
     b->buttonBox = b_box;
 
     //couleurs du boutton
-    b->baseColor = b_baseC;
-    b->hoverColor = b_hoverC;
-    b->clickColor = b_clickC;
+    b->baseColor = *b_baseC;
+    b->hoverColor = *b_hoverC;
+    b->clickColor = *b_clickC;
 
     //variables d'état du bouton
     b->hovered = false;
@@ -62,12 +62,10 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b){//rend le texte et l'arrière p
         SDL_Color *tempC;
 
         if (b->leftClicked || b->rightClicked)
-            tempC = b->clickColor;
+            SDL_SetRenderDrawColor(sdl_ctx->renderer, b->clickColor.r, b->clickColor.g, b->clickColor.b, b->clickColor.a);
         else
-            tempC = b->hoverColor;
+            SDL_SetRenderDrawColor(sdl_ctx->renderer, b->hoverColor.r, b->hoverColor.g, b->hoverColor.b, b->hoverColor.a);
 
-        //rendu de la'arrière plan du bouton
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, tempC->r, tempC->g, tempC->b, tempC->a);
         SDL_RenderFillRect(sdl_ctx->renderer, b->buttonBox);
         SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);//on remet en noir
 
@@ -86,10 +84,8 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b){//rend le texte et l'arrière p
         renderText_Ex(sdl_ctx, temp_sprintf("%s", b->buttonText), WHITE, tempPos);
     }
     else {
-        SDL_Color *tempC = b->baseColor;
-
         //rendu de la'arrière plan du bouton
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, tempC->r, tempC->g, tempC->b, tempC->a);
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, b->baseColor.r, b->baseColor.g, b->baseColor.b, b->baseColor.a);
         SDL_RenderFillRect(sdl_ctx->renderer, b->buttonBox);
         SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);//on remet en noir
 
