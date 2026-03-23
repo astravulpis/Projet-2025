@@ -63,7 +63,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
 
     p->speed = 325.0f;
-    p->jumpForce = -12.75f;
+    p->jumpForce = -525.0f;
     p->velocity = (V2f){0.0f, 0.0f};
     p->onGround = false;
     p->dashTimer = 1.0f;
@@ -110,11 +110,11 @@ V2f inputUpdate(player_t *p, const float dt)
 
     // Vertical movement
     if (keyboard_state[SDL_SCANCODE_SPACE] && p->onGround) {
-        p->velocity.y += p->jumpForce; // Up is towards negatives in SDL
+        p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
     }
 
     if (keyboard_state[SDL_SCANCODE_LCTRL] && !p->onGround) {
-        p->velocity.y -= p->jumpForce; // Up is towards negatives in SDL
+        p->velocity.y -= p->jumpForce * dt; // Up is towards negatives in SDL
     }
 
     return deltaPos;
