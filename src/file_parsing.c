@@ -71,6 +71,7 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
                     }
                     continue;
                 }
+
                 // Creating the object into the level itself
                 obj_create(level, ctx, path, rect[0], rect[1], rect[2], rect[3]);
             } else {

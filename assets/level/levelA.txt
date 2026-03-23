@@ -1,1 +1,8 @@
-obj "./assets/img/white.png" 0.0 1000.0 1980.0 150.0
+obj "./assets/img/white.png" 0.0 850.0 1980.0 150.0
+obj "./assets/img/white.png" 725.0 575.0 150.0 400.0
+obj "./assets/img/white.png" 1775.0 625.0 150.0 350.0
+obj "./assets/img/white.png" 0.0 0.0 1980.0 150.0
+obj "./assets/img/white.png" 0.0 0.0 250.0 250.0
+obj "./assets/img/white.png" 1670.0 0.0 250.0 250.0
+obj "./assets/img/white.png" 1400.0 575.0 150.0 25.0
+obj "./assets/img/white.png" 1075.0 575.0 150.0 25.0
