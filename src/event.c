@@ -44,25 +44,13 @@
  *
  * for now this is just to quit the game but we might add menu buttons and such in the future unless we go with a new function?
  */
+
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 {
-    while (SDL_PollEvent(&sdl_ctx->event)) {
-        if (sdl_ctx->event.type == SDL_EVENT_KEY_DOWN) {
-            switch (sdl_ctx->event.key.scancode) {
-            case SDL_SCANCODE_Q:
-                sdl_ctx->quit = true;
-                break;
-            }
-        }
-    }
-}
-/*void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
-{
     const bool *state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_Q]) {
-        sdl_ctx->quit = true;
-    }
-    else if(state[SDL_SCANCODE_ESCAPE]) {
+    static bool prev[SDL_SCANCODE_COUNT] = {0};
+
+    if(state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
         if (sdl_ctx->pause == true){
             sdl_ctx->pause = false;
         }
@@ -70,4 +58,5 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
             sdl_ctx->pause = true;
         }
     }
-}*/
+    memcpy(prev, state, SDL_SCANCODE_COUNT);
+}
