@@ -34,6 +34,7 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
     String_Builder sb = {0};
     if (!read_entire_file(path, &sb)) return false;
 
+    //recuperation de la resolution de l'ecran pour pouvoir adapter les coordone des textures/bounding box
     int num_displays;
     SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
     const SDL_DisplayMode * screenInformation;
