@@ -2,6 +2,7 @@
 #include "sdl_helpers.h"
 #include "common.h"
 
+
 bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
 {
     char *path = NULL;
@@ -36,10 +37,11 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
     SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
     const SDL_DisplayMode * screenInformation;
     screenInformation = SDL_GetCurrentDisplayMode(*displays);
-    float width = screenInformation->w/WINDOW_WIDTH;
-    float height = screenInformation->h/WINDOW_HEIGHT;
+    float ratio = (float)screenInformation->h / (float)WINDOW_HEIGHT;
     String_View sv = sb_to_sv(sb);
     size_t mark = temp_save();
+
+    float rect[4];
     while (sv.count > 0) {
         String_View line = sv_chop_by_delim(&sv, '\n');
         while (line.count > 0) {
@@ -56,10 +58,9 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
                 const char *path = nob_temp_sv_to_cstr(temp);
 
                 // The rectangle's position, width and height
-                float rect[4] = {0};
                 for (int i = 0; i < 4; ++i) {
                     float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                    rect[i] = val;
+                    rect[i] = val*ratio;
                 }
 
                 // Removing unwanted values
@@ -70,9 +71,8 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
                     }
                     continue;
                 }
-
                 // Creating the object into the level itself
-                obj_create(level, ctx, path, rect[0]*width, rect[1]*height, rect[2]*width, rect[3]*height);
+                obj_create(level, ctx, path, rect[0], rect[1], rect[2], rect[3]);
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
