@@ -55,7 +55,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    sdl_ctx->pause = true;
+    sdl_ctx->pause = false;
     sdl_ctx->quit = false;
 
     sdl_ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
