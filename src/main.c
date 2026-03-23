@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
     float mouse_X = 0;
     float mouse_Y = 0;
-    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2, 300.0f, 75.0f);
+    SDL_FRect *boxBouton1 = createRect(10, WINDOW_HEIGHT-130, 300.0f, 75.0f);
     SDL_Color baseColor_btn1 = {0, 0, 255, 255};
     SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
     SDL_Color clickColor_btn1 = {200, 10, 100, 255};
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
     button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
 
-    SDL_FRect footerBox = {0, WINDOW_HEIGHT, WINDOW_WIDTH, 150};
+    SDL_FRect footerBox = {0, WINDOW_HEIGHT-150, WINDOW_WIDTH, 150};
 
     SDL_FPoint mouseCoord = {0, 0};
     int mouseInputFlag;
@@ -105,7 +105,8 @@ int main(int argc, char **argv)
         SDL_PumpEvents();
 
         basicKeyboardEvents(sdl_ctx);
-        UpdatePlayer(player, &level, deltaT);
+        if (sdl_ctx->pause == false)
+            UpdatePlayer(player, &level, deltaT);
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
@@ -127,6 +128,16 @@ int main(int argc, char **argv)
             }
         }
 
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 45, 45, 45, 255);
+        SDL_RenderFillRect(sdl_ctx->renderer, &footerBox);
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);
+
+        if(sdl_ctx->pause == true){
+            SDL_SetRenderDrawColor(sdl_ctx->renderer, 60, 60, 60, 120);
+            SDL_RenderFillRect(sdl_ctx->renderer, &(SDL_FRect){0, 0, WINDOW_WIDTH, WINDOW_HEIGHT});
+            SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255); 
+        }
+
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouseCoord.x, mouseCoord.y), WHITE, MouseTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("Dash: %i", player->dashAmount), WHITE, (V2f){10.0f, 110.0f});
@@ -135,16 +146,15 @@ int main(int argc, char **argv)
                       (V2f){10.0f, 80.0f});
         renderText(sdl_ctx, temp_sprintf("DeltaT : %f", deltaT), WHITE, 10, 170);
 
-        updateButtonState(bouton1, mouseCoord, mouseInputFlag);
-        buttonRender(sdl_ctx, bouton1);
-
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, 45, 45, 45, 255);
-        SDL_RenderFillRect(sdl_ctx->renderer, &footerBox);
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);//on remet en noir
+        if(sdl_ctx->pause == true) {
+            updateButtonState(bouton1, mouseCoord, mouseInputFlag);
+            buttonRender(sdl_ctx, bouton1);
+        }
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
-        SDL_Delay(16);
+
+        SDL_Delay(16);//pour les processeurs de compétition ;D
     }
 
     da_foreach(obj, it, &level)
