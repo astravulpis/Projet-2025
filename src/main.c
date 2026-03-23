@@ -13,6 +13,7 @@
  **/
 
 #include "../shared.h"
+#include "SDL3/SDL_render.h"
 #include "buttons.h"
 #include "common.h"
 #include "event.h"
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
     objs level = {0};
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
-    if (!createPlayer(&player, (V2f){40, 80}, &sdl_ctx, "assets/img/ourple.png")) return 1;
+    if (!createPlayer(&player, (V2f){80, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
     movePlayer(player, (V2f){200.0f, 200.0f});
     parseFlag(argc, argv, sdl_ctx, &level);
 
@@ -82,6 +83,7 @@ int main(int argc, char **argv)
     int frameRate = 0;
 
     size_t mark = temp_save();
+    SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND);
 
     // Updates the event queue and internal input device state
     while (!sdl_ctx->quit) {
@@ -139,8 +141,10 @@ int main(int argc, char **argv)
         renderText_Ex(sdl_ctx, temp_sprintf("angle: %.2f", angle), WHITE, (V2f){10.0f, 250.0f});
 
         SDL_SetRenderDrawColor(sdl_ctx->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderLine(sdl_ctx->renderer, getBB(player)->x + getBB(player)->w / 2.0f, getBB(player)->y + getBB(player)->h / 2.0f,
+                                          mouseCoord.x, mouseCoord.y);
 
-        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0x00, 0x00, 0x00, 0xFF);
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0x00, 0x00, 0x00, 0x18);
         SDL_RenderFillRect(sdl_ctx->renderer, &(SDL_FRect){0.0f, 820.0f, WINDOW_WIDTH, WINDOW_HEIGHT-820.0f});
         buttonRender(sdl_ctx, bouton1);
 
@@ -157,6 +161,7 @@ int main(int argc, char **argv)
     free(lineX);
     free(lineY);
 
+    destroyButton(&bouton1);
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
     return 0;

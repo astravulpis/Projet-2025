@@ -96,11 +96,11 @@ V2f inputUpdate(player_t *p, const float dt)
     const bool *keyboard_state = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
     static bool previous_state[SDL_SCANCODE_COUNT] = {0};
 
-    if (keyboard_state[SDL_SCANCODE_LEFTBRACKET]) {
+    if (keyboard_state[SDL_SCANCODE_LEFTBRACKET] && !previous_state[SDL_SCANCODE_LEFTBRACKET]) {
         p->noclip = !p->noclip;
     }
 
-    if (keyboard_state[SDL_SCANCODE_RIGHTBRACKET]) {
+    if (keyboard_state[SDL_SCANCODE_RIGHTBRACKET] && !previous_state[SDL_SCANCODE_RIGHTBRACKET]) {
         p->flight = !p->flight;
     }
 
@@ -122,18 +122,16 @@ V2f inputUpdate(player_t *p, const float dt)
         deltaPos.x += p->speed * dt;
         p->lastKey = SDL_SCANCODE_D;
     }
-    if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT] )&& p->dashAmount > 0) {
+    if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->dashAmount > 0) {
         if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 4) * dt;
         if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 4) * dt;
         p->dashAmount -= 1;
     }
 
     // Vertical movement
-    if (keyboard_state[SDL_SCANCODE_SPACE] && p->onGround) {
+    if ((keyboard_state[SDL_SCANCODE_SPACE] && (!previous_state[SDL_SCANCODE_LCTRL] || !previous_state[SDL_SCANCODE_SPACE])) && p->onGround) {
         p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
-    }
-
-    if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
+    } else if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }
 
@@ -144,7 +142,8 @@ V2f inputUpdate(player_t *p, const float dt)
 objs collision_test(player_t *p, objs *tiles)
 {
     objs collisions = {0};
-    da_foreach(obj, tile, tiles) {
+    da_foreach(obj, tile, tiles)
+    {
         if (SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) {
             da_append(&collisions, *tile);
         }
@@ -173,7 +172,8 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     rect->x += frame_movement.x;
     if (!p->noclip) {
         objs collisions = collision_test(p, arr);
-        da_foreach(obj, it, &collisions) {
+        da_foreach(obj, it, &collisions)
+        {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.x > 0) {
                 rect->x = Left(tile) - rect->w - 0.01f; // Set the player's right edge to the tile's left edge
@@ -182,12 +182,14 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
                 rect->x = Right(tile) + 0.01f; // Set the player's left edge to the tile's right edge
             }
         }
+        free(collisions.items);
     }
 
     rect->y += frame_movement.y;
     if (!p->noclip) {
         objs collisions = collision_test(p, arr);
-        da_foreach(obj, it, &collisions) {
+        da_foreach(obj, it, &collisions)
+        {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.y > 0) {
                 rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
@@ -198,10 +200,10 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
             }
             p->velocity.y = 0;
         }
+        free(collisions.items);
     }
 
-    if (!p->flight)
-        p->velocity.y = MIN(10.0f, p->velocity.y + (gravity * deltaTime));
+    if (!p->flight) p->velocity.y = MIN(100.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -216,5 +218,6 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
  */
 void renderPlayer(player_t *p)
 {
-    renderImage(*p->ctx, p->tex, p->boundingBox);
+    bool flipped = (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN);
+    SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
 }
