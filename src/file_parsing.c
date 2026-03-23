@@ -32,6 +32,12 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
     String_Builder sb = {0};
     if (!read_entire_file(path, &sb)) return false;
 
+    int num_displays;
+    SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
+    const SDL_DisplayMode * screenInformation;
+    screenInformation = SDL_GetCurrentDisplayMode(*displays);
+    float width = screenInformation->w/WINDOW_WIDTH;
+    float height = screenInformation->h/WINDOW_HEIGHT;
     String_View sv = sb_to_sv(sb);
     size_t mark = temp_save();
     while (sv.count > 0) {
@@ -66,7 +72,7 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
                 }
 
                 // Creating the object into the level itself
-                obj_create(level, ctx, path, rect[0], rect[1], rect[2], rect[3]);
+                obj_create(level, ctx, path, rect[0]*width, rect[1]*height, rect[2]*width, rect[3]*height);
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
