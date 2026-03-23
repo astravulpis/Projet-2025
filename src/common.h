@@ -28,8 +28,8 @@
 
 #include <assert.h>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 #if defined(DEBUG)
 #define BREAKPOINT __asm("int3");
@@ -65,6 +65,7 @@ struct sdl_context_s {
     SDL_Event event;        //!< Event struct to pull from
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
+    bool pause;             //!< Global state to stop the game running or not
 };
 
 typedef struct {
