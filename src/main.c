@@ -69,6 +69,8 @@ int main(int argc, char **argv)
 
     button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
 
+    SDL_FRect footerBox = {0, WINDOW_HEIGHT, WINDOW_WIDTH, 150};
+
     SDL_FPoint mouseCoord = {0, 0};
     int mouseInputFlag;
     // float mouse_X = 0;
@@ -108,8 +110,7 @@ int main(int argc, char **argv)
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
 
-        updateButtonState(bouton1, mouseCoord, mouseInputFlag);
-        buttonRender(sdl_ctx, bouton1);
+        mouseInputFlag = SDL_GetMouseState(&(mouseCoord.x), &(mouseCoord.y));//ne pas toucher a cette ligne !
 
         renderPlayer(player);
 
@@ -126,16 +127,24 @@ int main(int argc, char **argv)
             }
         }
 
-        SDL_GetMouseState(&mouse_X, &mouse_Y);
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
-        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouseCoord.x, mouseCoord.y), WHITE, MouseTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("Dash: %i", player->dashAmount), WHITE, (V2f){10.0f, 110.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("DashT: %.2f", player->dashTimer), WHITE, (V2f){10.0f, 140.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
                       (V2f){10.0f, 80.0f});
+        renderText(sdl_ctx, temp_sprintf("DeltaT : %f", deltaT), WHITE, 10, 170);
+
+        updateButtonState(bouton1, mouseCoord, mouseInputFlag);
+        buttonRender(sdl_ctx, bouton1);
+
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 45, 45, 45, 255);
+        SDL_RenderFillRect(sdl_ctx->renderer, &footerBox);
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);//on remet en noir
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
+        SDL_Delay(16);
     }
 
     da_foreach(obj, it, &level)
