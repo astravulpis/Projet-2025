@@ -50,7 +50,14 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
+    if(!SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND)) {
+        nob_log(ERROR, "%s:%d: SDL failed to initialize SDL_BLENDMODE_BLEND. See: %s", __FILE__, __LINE__, SDL_GetError());
+        return_defer(false);
+    }
+
+    sdl_ctx->pause = true;
     sdl_ctx->quit = false;
+
     sdl_ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
     if (!sdl_ctx->bgRect) {
         nob_log(ERROR, "%s:%d: Failed creating the window's background rectangle surface", __FILE__, __LINE__);
