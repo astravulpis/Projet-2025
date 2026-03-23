@@ -7,9 +7,9 @@ typedef struct button{
     //je vais sans doute ajouter la possibilité de mettre une texture d'arrière plan
     char *buttonText;
     SDL_FRect *buttonBox;
-    SDL_Color *baseColor;
-    SDL_Color *hoverColor;
-    SDL_Color *clickColor;
+    SDL_Color baseColor;
+    SDL_Color hoverColor;
+    SDL_Color clickColor;
     bool hovered;
     bool leftClicked;
     bool rightClicked;
