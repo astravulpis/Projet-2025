@@ -20,6 +20,7 @@
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
+#include "gui.h"
 #include <stdlib.h>
 
 /**
@@ -59,15 +60,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    float mouse_X = 0;
-    float mouse_Y = 0;
-    SDL_FRect *boxBouton1 = createRect(10, WINDOW_HEIGHT-130, 300.0f, 75.0f);
-    SDL_Color baseColor_btn1 = {0, 0, 255, 255};
-    SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
-    SDL_Color clickColor_btn1 = {200, 10, 100, 255};
-    char *textBtn1 = "btn 1";
+    //initialisation du menu pause
+    button *resumeButton = NULL;
+    button *optionsButton = NULL;
+    button *quitButton = NULL;
 
-    button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
+    pauseMenu(&resumeButton, &optionsButton, &quitButton);
+    
 
     SDL_FRect footerBox = {0, WINDOW_HEIGHT-150, WINDOW_WIDTH, 150};
 
@@ -147,8 +146,7 @@ int main(int argc, char **argv)
         renderText(sdl_ctx, temp_sprintf("DeltaT : %f", deltaT), WHITE, 10, 170);
 
         if(sdl_ctx->pause == true) {
-            updateButtonState(bouton1, mouseCoord, mouseInputFlag);
-            buttonRender(sdl_ctx, bouton1);
+            update_and_renderPauseMenu(sdl_ctx, &mouseCoord, mouseInputFlag, resumeButton, optionsButton, quitButton);
         }
 
         SDL_RenderPresent(sdl_ctx->renderer);
@@ -164,6 +162,8 @@ int main(int argc, char **argv)
     }
     free(level.items);
 
+    destroyPauseMenu(&resumeButton, &optionsButton, &quitButton);
+    
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
     return 0;
