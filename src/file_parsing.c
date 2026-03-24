@@ -17,15 +17,18 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
     return true;
 }
 
-bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
+bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
 {
+    bool def = false;
     if (path == NULL) {
         nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
-        return true;
+        path = strdup("./assets/level/level-debug.txt");
+        def = true;
     }
 
     if (!file_exists(path)) {
         nob_log(ERROR, "%s:%d: %s is not a file or does not exist.", __FILE__, __LINE__, path);
+        if (def) free(path);
         return false;
     }
 
@@ -76,5 +79,6 @@ bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
 
     temp_rewind(mark);
     free(sb.items);
+    if (def) free(path);
     return true;
 }
