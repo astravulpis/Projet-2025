@@ -47,7 +47,15 @@
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 {
     const bool *state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_Q]) {
-        sdl_ctx->quit = true;
+    static bool prev[SDL_SCANCODE_COUNT] = {0};
+
+    if(state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
+        if (sdl_ctx->pause == true){
+            sdl_ctx->pause = false;
+        }
+        else{
+            sdl_ctx->pause = true;
+        }
     }
+    memcpy(prev, state, SDL_SCANCODE_COUNT);
 }
