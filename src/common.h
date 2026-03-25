@@ -63,8 +63,10 @@ struct sdl_context_s {
     SDL_FRect *bgRect;      //!< SDL3 surface renderer rectangle
     TTF_Font *font;         //!< SDL3 ttf font
     SDL_Event event;        //!< Event struct to pull from
+    float screenRatio;      //!< Ratio for adaptative ui link the screen size
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
+    bool pause;             //!< Global state to stop the game running or not
 };
 
 
