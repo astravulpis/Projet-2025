@@ -20,6 +20,7 @@
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
+#include "gui.h"
 #include <stdlib.h>
 
 /**
@@ -58,21 +59,18 @@ int main(int argc, char **argv)
         closeCtx(&sdl_ctx);
         return 1;
     }
+    
+    //initialisation du menu pause
+    button *resumeButton = NULL;
+    button *optionsButton = NULL;
+    button *quitButton = NULL;
 
-    float mouse_X = 0;
-    float mouse_Y = 0;
-    SDL_FRect *boxBouton1 = createRect(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2, 300.0f, 75.0f);
-    SDL_Color baseColor_btn1 = {0, 0, 255, 255};
-    SDL_Color hoverColor_btn1 = {255, 10, 100, 255};
-    SDL_Color clickColor_btn1 = {200, 10, 100, 255};
-    char *textBtn1 = "btn 1";
+    pauseMenu(sdl_ctx, &resumeButton, &optionsButton, &quitButton);
 
-    button *bouton1 = initButton(boxBouton1, textBtn1, &baseColor_btn1, &hoverColor_btn1, &clickColor_btn1);
+    SDL_FRect footerBox = {0, (WINDOW_HEIGHT-150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio, 150 * sdl_ctx->screenRatio};
 
     SDL_FPoint mouseCoord = {0, 0};
     int mouseInputFlag;
-    // float mouse_X = 0;
-    // float mouse_Y = 0;
 
     Uint32 frameStart = 0;
     int frameCounter = 0;
@@ -103,14 +101,15 @@ int main(int argc, char **argv)
         SDL_PumpEvents();
 
         basicKeyboardEvents(sdl_ctx);
-        UpdatePlayer(player, &level, deltaT);
+
+        if (sdl_ctx->pause == false)//stop le joueur et ses input
+            UpdatePlayer(player, &level, deltaT);
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
 
-        updateButtonState(bouton1, mouseCoord, mouseInputFlag);
-        buttonRender(sdl_ctx, bouton1);
-
+        mouseInputFlag = SDL_GetMouseState(&(mouseCoord.x), &(mouseCoord.y));//ne pas toucher a cette ligne !
+        
         renderPlayer(player);
 
         // Render level textures
@@ -125,14 +124,24 @@ int main(int argc, char **argv)
                 renderText_Ex(sdl_ctx, "true", WHITE, (V2f){150.0f, 10.0f});
             }
         }
+
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 45, 45, 45, 255);
+        SDL_RenderFillRect(sdl_ctx->renderer, &footerBox);
+        SDL_SetRenderDrawColor(sdl_ctx->renderer, 0, 0, 0, 255);
+
         //temp text in the top left of the screen to monitor various game variables such as positions
-        SDL_GetMouseState(&mouse_X, &mouse_Y);
+
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
-        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouse_X, mouse_Y), WHITE, MouseTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("Mouse: {%.1f, %.1f}", mouseCoord.x, mouseCoord.y), WHITE, MouseTextPos);
         renderText_Ex(sdl_ctx, temp_sprintf("Dash: %i", player->dashAmount), WHITE, (V2f){10.0f, 110.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("DashT: %.2f", player->dashTimer), WHITE, (V2f){10.0f, 140.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
                       (V2f){10.0f, 80.0f});
+        renderText(sdl_ctx, temp_sprintf("DeltaT : %f", deltaT), WHITE, 10, 170);
+
+        if(sdl_ctx->pause == true) {
+            update_and_renderPauseMenu(sdl_ctx, &mouseCoord, mouseInputFlag, resumeButton, optionsButton, quitButton);
+        }
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
@@ -144,6 +153,8 @@ int main(int argc, char **argv)
         SDL_DestroyTexture(it->texture);
     }
     free(level.items);
+
+    destroyPauseMenu(&resumeButton, &optionsButton, &quitButton);
 
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
