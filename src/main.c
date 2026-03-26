@@ -23,6 +23,8 @@
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
+#include "gui.h"
+#include <SDL3_mixer/SDL_mixer.h>
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -37,6 +39,15 @@ int main(int argc, char **argv)
     sdl_ctx_t *sdl_ctx = NULL;
     player_t *player = NULL;
     objs level = {0};
+
+    MIX_Mixer * mixer;
+    MIX_Audio * music;
+    //Mix_Chunk* sound;
+
+    const char * music_path = "assets/audio/Sneaky Snitch.mp3";
+    music = MIX_LoadAudio(mixer, music_path, 1);
+
+    MIX_PlayAudio( mixer, music );
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
