@@ -15,58 +15,61 @@
 #include "common.h"
 #include "sdl_helpers.h"
 
-button *initButton(SDL_FRect *b_box, char *b_text, SDL_Color *b_baseC, SDL_Color *b_hoverC, SDL_Color *b_clickC)
+bool createButton(button **b, const char *text, SDL_FRect rect,
+                  SDL_Color baseColor, SDL_Color hoveredColor, SDL_Color clickedColor)
 {
-    // création du boutton
-    button *b = malloc(sizeof(button));
+    *b = calloc(1, sizeof(button));
+    if ((*b) == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to allocate space for button", __FILE__, __LINE__);
+        return false;
+    }
 
-    // contenu et taille du bouton
-    // pas de copie des chaines, juste un pointeur vers la chaine
-    //(comme ça au peut modifier le contenu dans le main)
-    b->buttonText = b_text;
-    // b->buttonhoveredText = b_hoveredText;
-    b->buttonBox = b_box;
+    (*b)->buttonText = strdup(text);
+    (*b)->buttonBox = createRect_Ex(rect);
 
-    // couleurs du boutton
-    b->baseColor = *b_baseC;
-    b->hoverColor = *b_hoverC;
-    b->clickColor = *b_clickC;
+    (*b)->baseColor = baseColor;
+    (*b)->hoverColor = hoveredColor;
+    (*b)->clickColor = clickedColor;
 
-    // variables d'état du bouton
-    b->hovered = false;
-    b->leftClicked = false;
-    b->rightClicked = false;
+    (*b)->isHovered = false;
+    (*b)->isLeftClicked = false;
+    (*b)->isRightClicked = false;
 
-    return b;
+    return true;
 }
 
 void destroyButton(button **b)
 {
+    free((*b)->buttonText);
+    (*b)->buttonText = NULL;
     free((*b)->buttonBox);
+    (*b)->buttonBox = NULL;
     free(*b);
     b = NULL;
 }
 
-void updateButtonState(button *b, SDL_FPoint mouseCoord, int mouseFlag)
+void updateButtonState(button *b, V2f mouseCoord, int mouseFlag)
 {
-    if (SDL_PointInRectFloat(&mouseCoord, b->buttonBox)) {
+    SDL_FPoint coords = (SDL_FPoint){mouseCoord.x, mouseCoord.y};
+    if (SDL_PointInRectFloat(&coords, b->buttonBox)) {
 
-        b->hovered = true;
+        b->isHovered = true;
 
-        // clici gauche
-        if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) b->leftClicked = true;
+        // Right click
+        if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) b->isLeftClicked = true;
         else
-            b->leftClicked = false;
+            b->isLeftClicked = false;
 
-        // clic droit
-        if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) b->rightClicked = true;
+        // Right click
+        if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) b->isRightClicked = true;
         else
-            b->rightClicked = false;
+            b->isRightClicked = false;
 
-    } else { // par sécurité on remet tout a False
-        b->hovered = false;
-        b->leftClicked = false;
-        b->rightClicked = false;
+    } else {
+        // If no collision is detected: reset
+        b->isHovered = false;
+        b->isLeftClicked = false;
+        b->isRightClicked = false;
     }
 }
 
@@ -85,9 +88,9 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b)
     float YCentering = ((b->buttonBox)->h / 2.0f) - buttonTextHeight / 2.0f;
     V2f buttonPos = {(b->buttonBox)->x + XCentering, (b->buttonBox)->y + YCentering};
 
-    if (b->leftClicked || b->rightClicked) {
+    if (b->isLeftClicked || b->isRightClicked) {
         renderFillRect(sdl_ctx->renderer, b->buttonBox, b->clickColor);
-    } else if (b->hovered) {
+    } else if (b->isHovered) {
         renderFillRect(sdl_ctx->renderer, b->buttonBox, b->hoverColor);
     } else {
         // rendu de la'arrière plan du bouton

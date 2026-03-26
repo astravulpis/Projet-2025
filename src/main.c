@@ -14,7 +14,6 @@
 
 #include "../shared.h"
 #include "SDL3/SDL_render.h"
-#include "buttons.h"
 #include "common.h"
 #include "event.h"
 #include "file_parsing.h"
@@ -22,8 +21,6 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "gui.h"
-#include <stdlib.h>
-#include <math.h>
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -86,26 +83,11 @@ int main(int argc, char **argv)
     movePlayer(player, (V2f){200.0f, 200.0f});
     parseFlag(argc, argv, sdl_ctx, &level);
 
-    V2f fpsTextPos = {10.0f, 10.0f};
-    SDL_Texture *logoC = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/C.png");
-
-    if (logoC == NULL) {
-        nob_log(ERROR, "%s:%d: Failed to load image. See error: %s", __FILE__, __LINE__, SDL_GetError());
-        destroyPlayer(&player);
-        closeCtx(&sdl_ctx);
-        return 1;
-    }
-
-    //initialisation du menu pause
-    button *resumeButton = NULL;
-    button *optionsButton = NULL;
-    button *quitButton = NULL;
-
-    pauseMenu(sdl_ctx, &resumeButton, &optionsButton, &quitButton);
+    gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
 
     SDL_FRect footerBox = {0, (WINDOW_HEIGHT-150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio, 150 * sdl_ctx->screenRatio};
 
-    SDL_FPoint mouseCoord = {0, 0};
+    V2f mouseCoord = {0};
     int mouseInputFlag = 0;
     int prevMouseInput = 0;
 
@@ -184,17 +166,17 @@ int main(int argc, char **argv)
             }
         }
 
-        renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
-
-        //temp text in the top left of the screen to monitor various game variables such as positions
-        renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, fpsTextPos);
+        renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, (V2f){10.0f, 10.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE, (V2f){10.0f, 80.0f});
 
-        if(sdl_ctx->pause == true) {
-            update_and_renderPauseMenu(sdl_ctx, &mouseCoord, mouseInputFlag, resumeButton, optionsButton, quitButton);
-        }
+        // Everything after the footer being rendered is rendered OVER it.
+        renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
 
-        renderFillRect(sdl_ctx->renderer, &(SDL_FRect){0.0f, 820.0f, WINDOW_WIDTH, WINDOW_HEIGHT-820.0f}, (SDL_Color){0x00, 0x00, 0x00, 0x18});
+        // Update and render the menu at the very end
+        updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
+        if(sdl_ctx->pause == true) {
+            renderMenu(sdl_ctx, pauseMenu);
+        }
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
@@ -208,7 +190,7 @@ int main(int argc, char **argv)
     free(level.items);
 
     deleteBullets(&bullet_arr);
-    destroyPauseMenu(&resumeButton, &optionsButton, &quitButton);
+    destroyMenu(&pauseMenu);
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
     return 0;

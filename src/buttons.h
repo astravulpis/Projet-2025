@@ -15,21 +15,21 @@
 
 #include "common.h"
 
-typedef struct button{
-    //je vais sans doute ajouter la possibilité de mettre une texture d'arrière plan
+typedef struct button {
     char *buttonText;
     SDL_FRect *buttonBox;
     SDL_Color baseColor;
     SDL_Color hoverColor;
     SDL_Color clickColor;
-    bool hovered;
-    bool leftClicked;
-    bool rightClicked;
-}button;
+    bool isHovered;
+    bool isLeftClicked;
+    bool isRightClicked;
+} button;
 
-button *initButton(SDL_FRect *b_box, char *b_text, SDL_Color *b_baseC, SDL_Color *b_hoverC, SDL_Color *b_clickC);
-void destroyButton(button **b);
-void updateButtonState(button *b, SDL_FPoint mouseCoord, int mouseFlag);
+bool createButton(button **button, const char *text, SDL_FRect rect, SDL_Color baseColor, SDL_Color hoveredColor,
+                   SDL_Color clickedColor);
+void updateButtonState(button *b, V2f mouseCoord, int mouseFlag);
 void buttonRender(sdl_ctx_t *sdl_ctx, button *b);
+void destroyButton(button **b);
 
 #endif // BUTTONS_H_
