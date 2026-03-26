@@ -163,6 +163,7 @@ int main(int argc, char **argv)
     da_append(&modules, "file_parsing");
     da_append(&modules, "buttons");
     da_append(&modules, "gui");
+    da_append(&modules, "bullets");
     if (!compile_submodules(&modules)) return_defer(1);
 
     minimal_log_level = INFO;

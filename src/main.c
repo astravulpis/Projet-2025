@@ -21,6 +21,7 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "gui.h"
+#include "bullets.h"
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -29,48 +30,7 @@
  * @file main.c
  * @brief File where every actions to run the game are being executed at.
  */
-typedef struct {
-    SDL_FRect *boundingBox;
-    V2f velocity;
-} bullet;
 
-typedef struct {
-    bullet *items;
-    size_t count;
-    size_t capacity;
-} bullets;
-
-bool createBullet(bullets *arr, V2f init_pos, V2f vel) {
-    bullet projectile = {0};
-    projectile.boundingBox = createRect(init_pos.x, init_pos.y, 20, 20);
-    projectile.velocity.x = vel.x;
-    projectile.velocity.y = vel.y;
-
-    da_append(arr, projectile);
-
-    return true;
-}
-
-void updateBulletState(bullets *arr, float deltaTime) {
-    da_foreach(bullet, it, arr) {
-        getBB(it)->x += it->velocity.x * deltaTime;
-        getBB(it)->y += it->velocity.y * deltaTime;
-    }
-}
-
-void renderBullets(sdl_ctx_t *ctx, bullets *arr) {
-    da_foreach(bullet, it, arr) {
-        renderFillRect(ctx->renderer, it->boundingBox, (SDL_Color){0xFF, 0x00, 0x00, 0xFF});
-    }
-}
-
-void deleteBullets(bullets *arr) {
-    da_foreach(bullet, it, arr)
-    {
-        free(it->boundingBox);
-    }
-    free(arr->items);
-}
 
 int main(int argc, char **argv)
 {

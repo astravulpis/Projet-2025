@@ -93,7 +93,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
             } else if (sv_eq(header, sv_from_cstr("bg"))) {
                 String_View bgTemp = sv_chop_by_delim(&line, ' ');
                 sv_chop_left(&bgTemp, 1);
-                sv_chop_right(&bgTemp, 1);
+                sv_chop_right(&bgTemp, 1); //change to 2 on winslop because different formatting
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 if (!loadBackgroundImage(ctx, path)) return false;
             } else {
