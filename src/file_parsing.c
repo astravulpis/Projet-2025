@@ -38,22 +38,25 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
     bool usingDefault = false;
     size_t mark = temp_save();
     String_Builder sb = {0};
+    const char *realPath = NULL;
 
     if (path == NULL) {
-        path = strdup("./assets/level/level-debug.txt");
+        nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
         usingDefault = true;
     }
 
-    if (!file_exists(path)) {
+    if (usingDefault) {
+        realPath = temp_sprintf("./assets/level/level_debug.txt");
+    } else {
+        realPath = temp_sprintf("./assets/level/%s.txt", path);
+    }
+
+    if (!file_exists(realPath)) {
         nob_log(ERROR, "%s:%d: %s is not a file or does not exist.", __FILE__, __LINE__, path);
-        if (usingDefault) free(path);
         return_defer(false);
     }
 
-    if (!read_entire_file(path, &sb)) {
-        nob_log(ERROR, "%s:%d: Failed to parse the file %s.", __FILE__, __LINE__, path);
-        return_defer(false);
-    }
+    if (!read_entire_file(realPath, &sb)) return false;
 
     String_View sv = sb_to_sv(sb);
 
