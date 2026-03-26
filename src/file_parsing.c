@@ -33,33 +33,32 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
 
 bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
 {
-    bool def = false;
+    bool result = true;
+    bool usingDefault = false;
+    size_t mark = temp_save();
+    String_Builder sb = {0};
+
     if (path == NULL) {
-        nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
         path = strdup("./assets/level/level-debug.txt");
-        def = true;
+        usingDefault = true;
     }
 
     if (!file_exists(path)) {
         nob_log(ERROR, "%s:%d: %s is not a file or does not exist.", __FILE__, __LINE__, path);
-        if (def) free(path);
-        return false;
+        if (usingDefault) free(path);
+        return_defer(false);
     }
 
-    String_Builder sb = {0};
-    if (!read_entire_file(path, &sb)) return false;
+    if (!read_entire_file(path, &sb)) {
+        nob_log(ERROR, "%s:%d: Failed to parse the file %s.", __FILE__, __LINE__, path);
+        return_defer(false);
+    }
 
-    //recuperation de la resolution de l'ecran pour pouvoir adapter les coordone des textures/bounding box
-    int num_displays;
-    SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
-    const SDL_DisplayMode * screenInformation;
-    screenInformation = SDL_GetCurrentDisplayMode(*displays);
-    float ratio = (float)screenInformation->h / (float)WINDOW_HEIGHT;
     String_View sv = sb_to_sv(sb);
-    size_t mark = temp_save();
 
-    float rect[4];
+    float rect[4] = {0};
     while (sv.count > 0) {
+        temp_rewind(mark);
         String_View line = sv_chop_by_delim(&sv, '\n');
         while (line.count > 0) {
             String_View header = sv_chop_by_delim(&line, ' ');
@@ -77,7 +76,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
                 // The rectangle's position, width and height based on screen/FHD ratio
                 for (int i = 0; i < 4; ++i) {
                     float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                    rect[i] = val*ratio;
+                    rect[i] = val * ctx->screenRatio;
                 }
 
                 // Removing unwanted values
@@ -96,7 +95,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
                 sv_chop_left(&bgTemp, 1);
                 sv_chop_right(&bgTemp, 1);
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
-                loadBackgroundImage(ctx, path);
+                if (!loadBackgroundImage(ctx, path)) return false;
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
@@ -104,11 +103,12 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
         }
     }
 
+defer:
     temp_rewind(mark);
     free(sb.items);
-    if (def) {
+    if (usingDefault) {
         free(path);
         path = NULL;
     }
-    return true;
+    return result;
 }
