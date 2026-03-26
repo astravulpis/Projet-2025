@@ -88,6 +88,18 @@ bool compile_submodules(submodules *modules)
         }
     }
 
+    if (file_exists(LIBPATH))
+        delete_file(LIBPATH);
+
+    nob_log(INFO, "Creating archive to hold the modules...");
+    cmd_append(&cmd, "ar", "rcs");
+    cmd_append(&cmd, LIBPATH);
+    da_foreach(const char *, it, modules)
+    {
+        cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
+    }
+    if (!nob_cmd_run(&cmd)) return_defer(1);
+
 defer:
     free(cmd.items);
     return result;
@@ -139,6 +151,7 @@ int main(int argc, char **argv)
     // if (!copy_directory_recursively("./assets/img", "./build/bin/assets/img")) return_defer(1);
 
     // Add more submodules here
+    nob_log(INFO, "compiling modules...");
     da_append(&modules, "event");
     da_append(&modules, "sdl_ctx");
     da_append(&modules, "sdl_helpers");
@@ -147,17 +160,11 @@ int main(int argc, char **argv)
     da_append(&modules, "buttons");
     if (!compile_submodules(&modules)) return_defer(1);
 
-    cmd_append(&cmd, "ar", "rcs");
-    cmd_append(&cmd, LIBPATH);
-    da_foreach(const char *, it, &modules)
-    {
-        cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
-    }
-    if (!cmd_run(&cmd)) return_defer(1);
 
     minimal_log_level = INFO;
     // IMPORTANT: `Tests` cannot be run with other commands.
     if (*tests || *rec) {
+        nob_log(INFO, "Running tests...");
         set_current_dir("./tests/");
         nob_log(INFO, "CMD: cd ./tests/");
         if (nob_needs_rebuild1("nob", "nob.c")) {
@@ -174,6 +181,7 @@ int main(int argc, char **argv)
 
     // Binary compiling
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
+        nob_log(INFO, "Compiling main");
         compile_command(&cmd, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
@@ -181,12 +189,14 @@ int main(int argc, char **argv)
     const char *level_path = (level[0] != NULL ? temp_sprintf("--level-path=%s", level[0]) : NULL);
 
     if (*debugui) {
+        nob_log(INFO, "Running main in debug mode");
         cmd_append(&cmd, "gf2", "./" BINARIES_FOLDER "main");
         if (level_path != NULL) cmd_append(&cmd, level_path);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
     if (*run && !(*debugui)) {
+        nob_log(INFO, "Running main in normal mode");
         cmd_append(&cmd, "./" BINARIES_FOLDER "main");
         if (level_path != NULL) cmd_append(&cmd, level_path);
         if (!nob_cmd_run(&cmd)) return_defer(1);
