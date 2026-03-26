@@ -205,6 +205,7 @@ int main(int argc, char **argv)
 
 defer:
     free(cmd.items);
+    free(modules.items);
     temp_rewind(mark);
 
     return result;

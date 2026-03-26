@@ -1,3 +1,15 @@
+/**
+ * @file button.h
+ * @brief File to define what a button is and how it works
+ *
+ * Author: Rossignol François <francois_rossignol@outlook.fr>
+ * Last Modified: 2026-03-26
+ * Date: 2026-03-22
+ *
+ * * Contributors:
+ * Rossignol François <francois_rossignol@outlook.fr>
+ **/
+
 #ifndef BUTTONS_H_
 #define BUTTONS_H_
 

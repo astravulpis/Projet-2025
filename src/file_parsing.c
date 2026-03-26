@@ -1,3 +1,16 @@
+/**
+ * @file file_parsing.c
+ * @brief Implementation of the different file parsing function
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-26
+ * Date: 2026-03-21
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Reeves Guillaume <greeves2306@gmail.com>
+ **/
+
 #include "file_parsing.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
@@ -15,7 +28,6 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
     }
 
     if (!parseFile(path, ctx, level)) return false;
-
     return true;
 }
 
@@ -94,6 +106,9 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
 
     temp_rewind(mark);
     free(sb.items);
-    if (def) free(path);
+    if (def) {
+        free(path);
+        path = NULL;
+    }
     return true;
 }

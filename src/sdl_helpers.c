@@ -82,3 +82,13 @@ defer:
     tex = NULL;
     return result;
 }
+
+void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color)
+{
+    SDL_Color prev = {0};
+    SDL_GetRenderDrawColor(renderer, &prev.r, &prev.g, &prev.b, &prev.a);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(renderer, rect);
+    SDL_SetRenderDrawColor(renderer, prev.r, prev.g, prev.b, prev.a);
+}
+

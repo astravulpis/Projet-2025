@@ -1,3 +1,16 @@
+/**
+ * @file file_parsing.h
+ * @brief Declarations to parse a file
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Last Modified: 2026-03-26
+ * Date: 2026-03-21
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ * Reeves Guillaume <greeves2306@gmail.com>
+ **/
+
 #ifndef FILE_PARSING_H
 #define FILE_PARSING_H
 

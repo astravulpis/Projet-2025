@@ -32,15 +32,6 @@
  * @file main.c
  * @brief File where every actions to run the game are being executed at.
  */
-void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color)
-{
-    SDL_Color prev = {0};
-    SDL_GetRenderDrawColor(renderer, &prev.r, &prev.g, &prev.b, &prev.a);
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(renderer, rect);
-    SDL_SetRenderDrawColor(renderer, prev.r, prev.g, prev.b, prev.a);
-}
-
 typedef struct {
     SDL_FRect *boundingBox;
     V2f velocity;

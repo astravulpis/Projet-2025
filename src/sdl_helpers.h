@@ -65,4 +65,10 @@ bool renderText(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, float x_p
  */
 bool renderText_Ex(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, V2f position);
 
+/**
+ * @fn renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color)
+ * @brief render a rectangle with the color specified
+ */
+void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color);
+
 #endif // SDL_HELPER_H_
