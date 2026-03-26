@@ -67,7 +67,7 @@ void clearContextSurface(sdl_ctx_t *sdl_ctx);
  * \brief cette fonction effectue un appel a chargerIamge(), et affecte le retour au contxet SDL, la bgTexture, bgSurface a été
  * détruit car il ne sert plus a rien
  */
-bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *path);
+bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, const char *path);
 
 /**
  * @fn renderBackground(sdl_ctx_t *sdl_ctx);

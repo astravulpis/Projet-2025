@@ -13,6 +13,7 @@
 
 #include "player.h"
 #include "SDL3/SDL_scancode.h"
+#include "SDL3/SDL_surface.h"
 #include "common.h"
 #include "sdl_helpers.h"
 #include <string.h>
@@ -218,6 +219,6 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
  */
 void renderPlayer(player_t *p)
 {
-    bool flipped = (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN);
+    SDL_FlipMode flipped = (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
 }
