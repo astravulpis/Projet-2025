@@ -19,10 +19,10 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level);
  * @param[in] ctx our own sdl context variable
  * @param[in] level level object
  * @brief parse le fichier pour recuperer les objects data
- * 
+ *
  * Parcourt le fichier donne pour recuperer tout les objects et dans le meme temps viens
  * les adapter a la taille de la fenetre
  */
-bool parseFile(const char *path, sdl_ctx_t *ctx, objs *level);
+bool parseFile(char *path, sdl_ctx_t *ctx, objs *level);
 
 #endif // FILE_PARSING_H

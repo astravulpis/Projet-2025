@@ -167,9 +167,9 @@ void clearContextSurface(sdl_ctx_t *sdl_ctx)
     }
 }
 
-bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, char *chemin)
+bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, const char *path)
 {
-    sdl_ctx->bgTexture = IMG_LoadTexture(sdl_ctx->renderer, chemin);
+    sdl_ctx->bgTexture = IMG_LoadTexture(sdl_ctx->renderer, path);
     if (sdl_ctx->bgTexture == NULL) {
         nob_log(ERROR, "%s:%d: Failed to load background image. See error: %s", __FILE__, __LINE__, SDL_GetError());
         return false;
