@@ -34,8 +34,8 @@ typedef struct submodules {
         cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                            \
         cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                                \
         cmd_append((cmd), "-lSDL3");                                                                                         \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Mixer"));                                           \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Mixer"));                                               \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Mixer/"));                                          \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Mixer/"));                                              \
         cmd_append((cmd), "-lSDL3_mixer");                                                                                   \
         cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                          \
         cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                              \
