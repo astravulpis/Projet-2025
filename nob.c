@@ -8,6 +8,8 @@
  *
  * * Contributors:
  * Liam B. <liam.berge72@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
+ * Reeves Guillaume <greeves2306@gmail.com>
  **/
 
 #include "shared.h"
@@ -32,6 +34,9 @@ typedef struct submodules {
         cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                            \
         cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                                \
         cmd_append((cmd), "-lSDL3");                                                                                         \
+        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Mixer"));                                           \
+        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Mixer"));                                               \
+        cmd_append((cmd), "-lSDL3_mixer");                                                                                   \
         cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                          \
         cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                              \
         cmd_append((cmd), "-lSDL3_image");                                                                                   \
@@ -88,8 +93,7 @@ bool compile_submodules(submodules *modules)
         }
     }
 
-    if (file_exists(LIBPATH))
-        delete_file(LIBPATH);
+    if (file_exists(LIBPATH)) delete_file(LIBPATH);
 
     nob_log(INFO, "Creating archive to hold the modules...");
     cmd_append(&cmd, "ar", "rcs");
@@ -114,13 +118,13 @@ int main(int argc, char **argv)
     size_t mark = nob_temp_save();
 
     flag_bool_var(&debug, "-debug", false, "run in debug mode");
-    bool *help    = flag_bool("-help", false, "Print this help");
-    bool *clean   = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
-    bool *run     = flag_bool("-run", false, "run the program");
+    bool *help = flag_bool("-help", false, "Print this help");
+    bool *clean = flag_bool("-clean", false, "Does a clean build (i.e. rebuilds the build folder)");
+    bool *run = flag_bool("-run", false, "run the program");
     bool *debugui = flag_bool("-debugui", false, "run in debug mode using gf2");
-    bool *tests   = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
-    bool *rec     = flag_bool("-test-rec", false, "builds, run, record the output of tests");
-    char **level   = flag_str("-level-path", false, "path to the level file, accessed from the root");
+    bool *tests = flag_bool("-tests", false, "builds and run the tests, works as a standalone");
+    bool *rec = flag_bool("-test-rec", false, "builds, run, record the output of tests");
+    char **level = flag_str("-level-path", false, "path to the level file, accessed from the root");
 
     if (!flag_parse(argc, argv)) {
         usage(stderr);
@@ -160,7 +164,6 @@ int main(int argc, char **argv)
     da_append(&modules, "buttons");
     da_append(&modules, "gui");
     if (!compile_submodules(&modules)) return_defer(1);
-
 
     minimal_log_level = INFO;
     // IMPORTANT: `Tests` cannot be run with other commands.
