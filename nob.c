@@ -77,6 +77,7 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
 bool compile_submodules(submodules *modules)
 {
     Nob_Cmd cmd = {0};
+    Procs procs = {0};
     bool result = true;
 
     size_t mark = temp_save();
@@ -88,10 +89,12 @@ bool compile_submodules(submodules *modules)
             printf("-------------\n");
             printf("Input path: %s\nOutput path: %s\n", input, output);
             compile_command(&cmd, input, output, false); // No linking yet
-            if (!cmd_run(&cmd)) return_defer(false);
+            if (!cmd_run(&cmd, .async = &procs)) return_defer(false);
             printf("-------------\n");
         }
     }
+
+    if (procs_flush(&procs)) return_defer(false);
 
     if (file_exists(LIBPATH)) delete_file(LIBPATH);
 
@@ -100,6 +103,7 @@ bool compile_submodules(submodules *modules)
     cmd_append(&cmd, LIBPATH);
     da_foreach(const char *, it, modules)
     {
+	nob_log(INFO, "adding %s to the archive", *it);
         cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
     }
     if (!nob_cmd_run(&cmd)) return_defer(1);
@@ -191,7 +195,8 @@ int main(int argc, char **argv)
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
-    const char *level_path = (level[0] != NULL ? temp_sprintf("--level-path=%s", level[0]) : NULL);
+    const char *level_path = NULL;
+    if (level[0]) level_path = temp_sprintf("--level-path=%s", level[0]);
 
     if (*debugui) {
         nob_log(INFO, "Running main in debug mode");
