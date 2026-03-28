@@ -44,7 +44,6 @@ void movePlayer(player_t *p, V2f newPos)
     p->boundingBox->y = newPos.y;
 }
 
-
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
 {
     bool result = true;
@@ -131,7 +130,8 @@ V2f inputUpdate(player_t *p, const float dt)
     }
 
     // Vertical movement
-    if ((keyboard_state[SDL_SCANCODE_SPACE] && (!previous_state[SDL_SCANCODE_LCTRL] || !previous_state[SDL_SCANCODE_SPACE])) && p->onGround) {
+    if ((keyboard_state[SDL_SCANCODE_SPACE] && (!previous_state[SDL_SCANCODE_LCTRL] || !previous_state[SDL_SCANCODE_SPACE])) &&
+        p->onGround) {
         p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
     } else if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
@@ -144,8 +144,7 @@ V2f inputUpdate(player_t *p, const float dt)
 objs collision_test(player_t *p, objs *tiles)
 {
     objs collisions = {0};
-    da_foreach(obj, tile, tiles)
-    {
+    da_foreach (obj, tile, tiles) {
         if (SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) {
             da_append(&collisions, *tile);
         }
@@ -174,8 +173,7 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     rect->x += frame_movement.x;
     if (!p->noclip) {
         objs collisions = collision_test(p, arr);
-        da_foreach(obj, it, &collisions)
-        {
+        da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.x > 0) {
                 rect->x = Left(tile) - rect->w - 0.01f; // Set the player's right edge to the tile's left edge
@@ -190,8 +188,7 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     rect->y += frame_movement.y;
     if (!p->noclip) {
         objs collisions = collision_test(p, arr);
-        da_foreach(obj, it, &collisions)
-        {
+        da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.y > 0) {
                 rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
@@ -220,6 +217,7 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
  */
 void renderPlayer(player_t *p)
 {
-    SDL_FlipMode flipped = (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    SDL_FlipMode flipped =
+        (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
 }

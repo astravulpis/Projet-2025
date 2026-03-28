@@ -76,11 +76,10 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
     if (menu->items[2]->isLeftClicked == true) sdl_ctx->quit = true;
 }
 
-void
-updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, void (*updateFunc)(sdl_ctx_t *, gui_menu *))
+void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu,
+                void (*updateFunc)(sdl_ctx_t *, gui_menu *))
 {
-    da_foreach(button *, button, menu)
-    {
+    da_foreach (button *, button, menu) {
         updateButtonState(*button, mouseCoord, mouseInputFlag);
     }
     updateFunc(sdl_ctx, menu);
@@ -92,16 +91,14 @@ void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
     renderFillRect(sdl_ctx->renderer, &(SDL_FRect){0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}, menu->bgColor);
 
     // Render each button of the menu
-    da_foreach(button *, button, menu)
-    {
+    da_foreach (button *, button, menu) {
         buttonRender(sdl_ctx, *button);
     }
 }
 
 void destroyMenu(gui_menu **menu)
 {
-    da_foreach(button *, button, (*menu))
-    {
+    da_foreach (button *, button, (*menu)) {
         destroyButton(button);
     }
     free((*menu)->items);

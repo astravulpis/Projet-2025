@@ -36,7 +36,6 @@
 //     }
 // }
 
-
 /**
  * @fn basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
  * @param[in] sdl_ctx sdl context variable
@@ -49,11 +48,10 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
     const bool *state = SDL_GetKeyboardState(NULL);
     static bool prev[SDL_SCANCODE_COUNT] = {0};
 
-    if(state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
-        if (sdl_ctx->pause == true){
+    if (state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
+        if (sdl_ctx->pause == true) {
             sdl_ctx->pause = false;
-        }
-        else{
+        } else {
             sdl_ctx->pause = true;
         }
     }

@@ -91,4 +91,3 @@ void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color)
     SDL_RenderFillRect(renderer, rect);
     SDL_SetRenderDrawColor(renderer, prev.r, prev.g, prev.b, prev.a);
 }
-

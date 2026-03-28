@@ -7,11 +7,9 @@ AllowShortIfStatementsOnASingleLine: OnlyFirstIf
 AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: None
 AllowShortLoopsOnASingleLine: true
-BinPackArguments: true
 MaxEmptyLinesToKeep: 1
 AlignAfterOpenBracket: Align
 SpaceBeforeParens: ControlStatements
-AlwaysBreakAfterReturnType: Automatic
 BreakBeforeBraces: Linux
 PenaltyReturnTypeOnItsOwnLine: 1
 AlignConsecutiveMacros:
@@ -20,3 +18,6 @@ AlignEscapedNewlines: LeftWithLastLine
 PointerAlignment: Right
 ContinuationIndentWidth: 4
 IndentCaseLabels: false
+AlignTrailingComments:
+  Kind: Leave
+ForEachMacros: [da_foreach]

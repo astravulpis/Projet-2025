@@ -15,8 +15,8 @@
 #include "common.h"
 #include "sdl_helpers.h"
 
-bool createButton(button **b, const char *text, SDL_FRect rect,
-                  SDL_Color baseColor, SDL_Color hoveredColor, SDL_Color clickedColor)
+bool createButton(button **b, const char *text, SDL_FRect rect, SDL_Color baseColor, SDL_Color hoveredColor,
+                  SDL_Color clickedColor)
 {
     *b = calloc(1, sizeof(button));
     if ((*b) == NULL) {

@@ -120,13 +120,11 @@ int main(int argc, char **argv)
         renderEntity(filth);
 
         // Render level textures
-        da_foreach(obj, it, &level)
-        {
+        da_foreach (obj, it, &level) {
             renderImage(sdl_ctx, it->texture, it->boundingBox);
         }
         // Render the level bounding boxes
-        da_foreach(obj, it, &level)
-        {
+        da_foreach (obj, it, &level) {
             if (SDL_HasRectIntersectionFloat(player->boundingBox, it->boundingBox)) {
                 renderText_Ex(sdl_ctx, "true", WHITE, (V2f){150.0f, 10.0f});
             }
@@ -149,8 +147,7 @@ int main(int argc, char **argv)
         frameCounter++;
     }
     // destroying all the SDL textures to avoid memory leaks
-    da_foreach(obj, it, &level)
-    {
+    da_foreach (obj, it, &level) {
         free(it->boundingBox);
         SDL_DestroyTexture(it->texture);
     }
