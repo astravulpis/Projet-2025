@@ -50,7 +50,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    if(!SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND)) {
+    if (!SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND)) {
         nob_log(ERROR, "%s:%d: SDL failed to initialize SDL_BLENDMODE_BLEND. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
@@ -77,22 +77,21 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
 
     SDL_SetWindowFullscreen(sdl_ctx->window, true);
 
-    //ratio mis dans le context SDL
+    // ratio mis dans le context SDL
     int num_displays;
     SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
-    if (displays == NULL){
+    if (displays == NULL) {
         nob_log(ERROR, "%s:%d: Failed to use SDL_GetDisplays(). See error: %s", __FILE__, __LINE__, SDL_GetError());
         return 1;
     }
 
-    SDL_DisplayMode * screenInformation;
-    screenInformation = SDL_GetCurrentDisplayMode(*displays);
+    const SDL_DisplayMode *screenInformation = SDL_GetCurrentDisplayMode(*displays);
 
-    if (screenInformation == NULL){
+    if (screenInformation == NULL) {
         nob_log(ERROR, "%s:%d: Failed to use SDL_GetCurrentDisplayMode(). See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return 1; 
+        return 1;
     }
-    
+
     sdl_ctx->screenRatio = (float)screenInformation->h / (float)WINDOW_HEIGHT;
     SDL_free(displays);
 
@@ -133,7 +132,6 @@ void closeCtx(sdl_ctx_t **sdl_ctx)
     TTF_Quit();
     SDL_Quit();
 }
-
 
 bool enableVsync(sdl_ctx_t *sdl_ctx)
 {
@@ -177,7 +175,6 @@ bool loadBackgroundImage(sdl_ctx_t *sdl_ctx, const char *path)
 
     return true;
 }
-
 
 void renderBackground(sdl_ctx_t *sdl_ctx)
 {

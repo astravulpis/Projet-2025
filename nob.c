@@ -74,7 +74,7 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
     add_sdl_libraries(cmd);
 }
 
-bool compile_submodules(submodules *modules)
+bool compile_submodules(submodules *modules, bool *needsRecompile)
 {
     Cmd cmd = {0};
     Procs procs = {0};
@@ -86,6 +86,7 @@ bool compile_submodules(submodules *modules)
         char *input = nob_temp_sprintf("%s%s.c", SRC_FOLDER, da_get(modules, i));
         char *output = nob_temp_sprintf("%s%s.o", BUILD_FOLDER, da_get(modules, i));
         if (nob_needs_rebuild1(output, input) || debug) {
+            *needsRecompile = true;
             printf("-------------\n");
             printf("Input path: %s\nOutput path: %s\n", input, output);
             compile_command(&cmd, input, output, false); // No linking yet
@@ -96,20 +97,23 @@ bool compile_submodules(submodules *modules)
 
     if (!procs_flush(&procs)) return_defer(false);
 
-    if (file_exists(LIBPATH)) delete_file(LIBPATH);
+    if (*needsRecompile) {
+        if (file_exists(LIBPATH)) 
+            delete_file(LIBPATH);
 
-    nob_log(INFO, "Creating archive to hold the modules...");
-    cmd_append(&cmd, "ar", "rcs");
-    cmd_append(&cmd, LIBPATH);
-    da_foreach(const char *, it, modules)
-    {
-	nob_log(INFO, "adding %s to the archive", *it);
-        cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
+        nob_log(INFO, "Recreating the archive to hold the modules...");
+        cmd_append(&cmd, "ar", "rcs");
+        cmd_append(&cmd, LIBPATH);
+        da_foreach(const char *, it, modules)
+        {
+            cmd_append(&cmd, temp_sprintf("%s%s.o", BUILD_FOLDER, *it));
+        }
+        if (!nob_cmd_run(&cmd)) return_defer(1);
     }
-    if (!nob_cmd_run(&cmd)) return_defer(1);
 
 defer:
     free(cmd.items);
+    free(procs.items);
     return result;
 }
 
@@ -120,6 +124,7 @@ int main(int argc, char **argv)
     submodules modules = {0};
     int result = 0;
     size_t mark = nob_temp_save();
+    bool needsRecompile = false;
 
     flag_bool_var(&debug, "-debug", false, "run in debug mode");
     bool *help = flag_bool("-help", false, "Print this help");
@@ -153,10 +158,9 @@ int main(int argc, char **argv)
     if (!(*clean)) minimal_log_level = WARNING;
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
     if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
-    if (file_exists(LIBPATH) && (*clean))
-        if (!delete_file(LIBPATH)) return_defer(1);
     // if (!nob_mkdir_if_not_exists(BINARIES_FOLDER "assets/")) return_defer(1);
     // if (!copy_directory_recursively("./assets/img", "./build/bin/assets/img")) return_defer(1);
+    if (!(*clean)) minimal_log_level = INFO;
 
     // Add more submodules here
     nob_log(INFO, "compiling modules...");
@@ -168,9 +172,9 @@ int main(int argc, char **argv)
     da_append(&modules, "buttons");
     da_append(&modules, "gui");
     da_append(&modules, "bullets");
-    if (!compile_submodules(&modules)) return_defer(1);
+    da_append(&modules, "entity");
+    if (!compile_submodules(&modules, &needsRecompile)) return_defer(1);
 
-    minimal_log_level = INFO;
     // IMPORTANT: `Tests` cannot be run with other commands.
     if (*tests || *rec) {
         nob_log(INFO, "Running tests...");
@@ -189,8 +193,10 @@ int main(int argc, char **argv)
     }
 
     // Binary compiling
+    if (needsRecompile && file_exists(BINARIES_FOLDER "main")) {
+        delete_file(BINARIES_FOLDER "main");
+    }
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
-        nob_log(INFO, "Compiling main");
         compile_command(&cmd, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }

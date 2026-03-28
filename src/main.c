@@ -16,6 +16,7 @@
 #include "SDL3/SDL_render.h"
 #include "bullets.h"
 #include "common.h"
+#include "entity.h"
 #include "event.h"
 #include "file_parsing.h"
 #include "gui.h"
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     objs level = {0};
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
-    if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/ourple.png")) return 1;
+    if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
     movePlayer(player, (V2f){200.0f, 200.0f});
     parseFlag(argc, argv, sdl_ctx, &level);
 
@@ -52,6 +53,8 @@ int main(int argc, char **argv)
     int prevMouseInput = 0;
 
     bullets bullet_arr = {0};
+    entity_t *filth = NULL;
+    if (!createEntity(&sdl_ctx, &filth, "./assets/img/filth.png", E_FILTH, (V2f){700.0f, 400.0f})) return 1;
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -114,6 +117,7 @@ int main(int argc, char **argv)
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
         renderPlayer(player);
+        renderEntity(filth);
 
         // Render level textures
         da_foreach(obj, it, &level)
@@ -152,6 +156,7 @@ int main(int argc, char **argv)
     }
     free(level.items);
 
+    destroyEntity(&filth);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);
