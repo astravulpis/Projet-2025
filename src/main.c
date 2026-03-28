@@ -14,14 +14,14 @@
 
 #include "../shared.h"
 #include "SDL3/SDL_render.h"
+#include "bullets.h"
 #include "common.h"
 #include "event.h"
 #include "file_parsing.h"
+#include "gui.h"
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
-#include "gui.h"
-#include "bullets.h"
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -30,7 +30,6 @@
  * @file main.c
  * @brief File where every actions to run the game are being executed at.
  */
-
 
 int main(int argc, char **argv)
 {
@@ -45,7 +44,8 @@ int main(int argc, char **argv)
 
     gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
 
-    SDL_FRect footerBox = {0, (WINDOW_HEIGHT-150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio, 150 * sdl_ctx->screenRatio};
+    SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
+                           150 * sdl_ctx->screenRatio};
 
     V2f mouseCoord = {0};
     int mouseInputFlag = 0;
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
         mouseInputFlag = SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
         basicKeyboardEvents(sdl_ctx);
 
-        if (sdl_ctx->pause == false)//stop le joueur et ses input
+        if (sdl_ctx->pause == false) // stop le joueur et ses input
             UpdatePlayer(player, &level, deltaTime);
         UpdatePlayer(player, &level, deltaTime);
 
@@ -97,14 +97,16 @@ int main(int argc, char **argv)
         renderBackground(sdl_ctx);
 
         if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
-            V2f startingPos = (V2f){player->boundingBox->x + player->boundingBox->w / 2.0f, player->boundingBox->y + player->boundingBox->h / 2.0f};
+            V2f startingPos = (V2f){player->boundingBox->x + player->boundingBox->w / 2.0f,
+                                    player->boundingBox->y + player->boundingBox->h / 2.0f};
             V2f deltaPos = (V2f){mouseCoord.x - startingPos.x, mouseCoord.y - startingPos.y - 15.0f};
             float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
             createBullet(&bullet_arr, startingPos, vel);
         }
-        // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT))) {
+        // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
+        // {
         //     printf("Right Clicked\n");
         // }
 
@@ -127,21 +129,22 @@ int main(int argc, char **argv)
         }
 
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, (V2f){10.0f, 10.0f});
-        renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE, (V2f){10.0f, 80.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
+                      (V2f){10.0f, 80.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
 
         // Update and render the menu at the very end
-        updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
-        if(sdl_ctx->pause == true) {
+        if (sdl_ctx->pause == true) {
+            updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
             renderMenu(sdl_ctx, pauseMenu);
         }
 
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }
-    //destroying all the SDL textures to avoid memory leaks
+    // destroying all the SDL textures to avoid memory leaks
     da_foreach(obj, it, &level)
     {
         free(it->boundingBox);
