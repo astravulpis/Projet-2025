@@ -29,24 +29,21 @@ typedef struct submodules {
 } submodules;
 
 #define da_get(da, idx) (da)->items[i]
-#define add_sdl_libraries(cmd)                                                                                               \
-    do {                                                                                                                     \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                            \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                                \
-        cmd_append((cmd), "-lSDL3");                                                                                         \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Mixer/"));                                          \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Mixer/"));                                              \
-        cmd_append((cmd), "-lSDL3_mixer");                                                                                   \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                          \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                              \
-        cmd_append((cmd), "-lSDL3_image");                                                                                   \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_ttf/"));                                            \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_ttf/"));                                                \
-        cmd_append((cmd), "-lSDL3_ttf");                                                                                     \
-        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/", \
-                                       VENDOR_FOLDER "SDL_ttf/"));                                                           \
-        cmd_append((cmd), "-lm");                                                                                            \
-    } while (0)
+
+typedef struct {
+    const char *include;
+    const char *lib;
+    const char *linking;
+} library;
+
+typedef struct {
+    library *items;
+    size_t count;
+    size_t capacity;
+
+    String_Builder rpath;
+} SDL_Libraries;
+
 
 bool debug = false;
 
@@ -57,7 +54,17 @@ void usage(FILE *stream)
     flag_print_options(stream);
 }
 
-void compile_command(Cmd *cmd, const char *input_path, const char *output_path, bool linking)
+void add_library(SDL_Libraries *libs, const char *path, const char *linkingName)
+{
+    library lib = {.include = temp_sprintf("-I%s%sinclude", VENDOR_FOLDER, path),
+                   .lib = temp_sprintf("-L%s%slib", VENDOR_FOLDER, path),
+                   .linking = temp_sprintf("-l%s", linkingName)};
+
+    sb_appendf(&libs->rpath, "%s%slib:", VENDOR_FOLDER, path);
+    da_append(libs, lib);
+}
+
+void compile_command(Cmd *cmd, SDL_Libraries *libs, const char *input_path, const char *output_path, bool linking)
 {
     cmd_append(cmd, "cc");
     cmd_append(cmd, "-Wall");
@@ -71,10 +78,17 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
         cmd_append(cmd, input_path);
         cmd_append(cmd, LIBPATH);
     }
-    add_sdl_libraries(cmd);
+
+    da_foreach(library, lib, libs) {
+        cmd_append(cmd, lib->include);
+        cmd_append(cmd, lib->lib);
+        cmd_append(cmd, lib->linking);
+    }
+    cmd_append(cmd, temp_sprintf("-Wl,-rpath,%s", libs->rpath.items));
+    cmd_append(cmd, "-lm");
 }
 
-bool compile_submodules(submodules *modules, bool *needsRecompile)
+bool compile_submodules(SDL_Libraries *libs, submodules *modules, bool *needsRecompile)
 {
     Cmd cmd = {0};
     Procs procs = {0};
@@ -89,7 +103,7 @@ bool compile_submodules(submodules *modules, bool *needsRecompile)
             *needsRecompile = true;
             printf("-------------\n");
             printf("Input path: %s\nOutput path: %s\n", input, output);
-            compile_command(&cmd, input, output, false); // No linking yet
+            compile_command(&cmd, libs, input, output, false); // No linking yet
             if (!cmd_run(&cmd, .async = &procs)) return_defer(false);
             printf("-------------\n");
         }
@@ -98,8 +112,7 @@ bool compile_submodules(submodules *modules, bool *needsRecompile)
     if (!procs_flush(&procs)) return_defer(false);
 
     if (*needsRecompile) {
-        if (file_exists(LIBPATH)) 
-            delete_file(LIBPATH);
+        if (file_exists(LIBPATH)) delete_file(LIBPATH);
 
         nob_log(INFO, "Recreating the archive to hold the modules...");
         cmd_append(&cmd, "ar", "rcs");
@@ -122,6 +135,7 @@ int main(int argc, char **argv)
     NOB_GO_REBUILD_URSELF(argc, argv);
     Nob_Cmd cmd = {0};
     submodules modules = {0};
+    SDL_Libraries libs = {0};
     int result = 0;
     size_t mark = nob_temp_save();
     bool needsRecompile = false;
@@ -158,9 +172,16 @@ int main(int argc, char **argv)
     if (!(*clean)) minimal_log_level = WARNING;
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return_defer(1);
     if (!nob_mkdir_if_not_exists(BINARIES_FOLDER)) return_defer(1);
-    // if (!nob_mkdir_if_not_exists(BINARIES_FOLDER "assets/")) return_defer(1);
-    // if (!copy_directory_recursively("./assets/img", "./build/bin/assets/img")) return_defer(1);
     if (!(*clean)) minimal_log_level = INFO;
+
+    // Add more SDL libraries here
+    add_library(&libs, SDL_FOLDER, "SDL3");
+    add_library(&libs, "SDL_Image/", "SDL3_image");
+    add_library(&libs, "SDL_ttf/", "SDL3_ttf");
+    add_library(&libs, "SDL_Mixer/", "SDL3_mixer");
+
+    libs.rpath.count--; // Remove the last ':'
+    sb_append_null(&libs.rpath); // To finalize the rpath with a '\0'
 
     // Add more submodules here
     nob_log(INFO, "compiling modules...");
@@ -173,7 +194,7 @@ int main(int argc, char **argv)
     da_append(&modules, "gui");
     da_append(&modules, "bullets");
     da_append(&modules, "entity");
-    if (!compile_submodules(&modules, &needsRecompile)) return_defer(1);
+    if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);
 
     // IMPORTANT: `Tests` cannot be run with other commands.
     if (*tests || *rec) {
@@ -197,7 +218,7 @@ int main(int argc, char **argv)
         delete_file(BINARIES_FOLDER "main");
     }
     if (nob_needs_rebuild1(BINARIES_FOLDER "main", SRC_FOLDER "main.c") || debug) {
-        compile_command(&cmd, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true);
+        compile_command(&cmd, &libs, SRC_FOLDER "main.c", BINARIES_FOLDER "main", true);
         if (!nob_cmd_run(&cmd)) return_defer(1);
     }
 
