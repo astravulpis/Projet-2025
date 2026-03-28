@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
     bullets bullet_arr = {0};
     entity_t *filth = NULL;
-    if (!createEntity(&sdl_ctx, &filth, "./assets/img/filth.png", E_FILTH, (V2f){700.0f, 400.0f})) return 1;
+    if (!createEntity(&sdl_ctx, &filth, "./assets/img/filth.png", E_FILTH, (V2f){700.0f, 200.0f})) return 1;
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -92,14 +92,11 @@ int main(int argc, char **argv)
         mouseInputFlag = SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
         basicKeyboardEvents(sdl_ctx);
 
-        if (sdl_ctx->pause == false) // stop le joueur et ses input
-            UpdatePlayer(player, &level, deltaTime);
-        UpdatePlayer(player, &level, deltaTime);
-
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
 
-        if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
+        if (!sdl_ctx->paused &&
+            (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
             V2f startingPos = (V2f){player->boundingBox->x + player->boundingBox->w / 2.0f,
                                     player->boundingBox->y + player->boundingBox->h / 2.0f};
             V2f deltaPos = (V2f){mouseCoord.x - startingPos.x, mouseCoord.y - startingPos.y - 15.0f};
@@ -116,7 +113,12 @@ int main(int argc, char **argv)
         updateBulletState(&bullet_arr, deltaTime);
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
+
+        if (!sdl_ctx->paused) updatePlayer(player, &level, deltaTime);
+
         renderPlayer(player);
+
+        if (!sdl_ctx->paused) updateEntity(filth, player, &bullet_arr, &level, deltaTime);
         renderEntity(filth);
 
         // Render level textures
@@ -130,7 +132,8 @@ int main(int argc, char **argv)
             }
         }
 
-        renderText_Ex(sdl_ctx, temp_sprintf("fps : %i", frameRate), WHITE, (V2f){10.0f, 10.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("bullets: %zu", bullet_arr.count), WHITE, (V2f){10.0f, 40.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
                       (V2f){10.0f, 80.0f});
 
@@ -138,7 +141,7 @@ int main(int argc, char **argv)
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
 
         // Update and render the menu at the very end
-        if (sdl_ctx->pause == true) {
+        if (sdl_ctx->paused == true) {
             updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
             renderMenu(sdl_ctx, pauseMenu);
         }

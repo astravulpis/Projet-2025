@@ -35,10 +35,10 @@ typedef struct {
 
 #define getBB(p) (p)->boundingBox
 
-#define Top(p)     (p)->y
-#define Bottom(p)  (p)->y + (p)->h
-#define Left(p)    (p)->x
-#define Right(p)   (p)->x + (p)->w
+#define Top(p) (p)->y
+#define Bottom(p) (p)->y + (p)->h
+#define Left(p) (p)->x
+#define Right(p) (p)->x + (p)->w
 
 /**
  * @fn createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
@@ -70,7 +70,7 @@ void destroyPlayer(player_t **p);
  *
  * updates the player position and checks for collisions with all other textures on the map
  */
-void UpdatePlayer(player_t *p, objs *arr, float deltaTime);
+void updatePlayer(player_t *p, objs *arr, float deltaTime);
 
 /**
  * @fn renderPlayer(player_t *p)

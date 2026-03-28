@@ -70,9 +70,8 @@ struct sdl_context_s {
     float screenRatio;      //!< Ratio for adaptative ui link the screen size
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
-    bool pause;             //!< Global state to stop the game running or not
+    bool paused;            //!< Global state to stop the game running or not
 };
-
 
 typedef struct {
     int x;
@@ -107,7 +106,7 @@ typedef struct {
     size_t capacity;
 } objs;
 
-#define obj_create(array, ctx, path, x, y, width, height) \
+#define obj_create(array, ctx, path, x, y, width, height)                                                           \
     da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
 
 #endif // COMMON_H_

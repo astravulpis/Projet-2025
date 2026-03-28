@@ -12,7 +12,10 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
+#include "bullets.h"
 #include "common.h"
+#include "player.h"
+#include "sdl_helpers.h"
 
 #define BASE_SPEED 250
 
@@ -62,6 +65,7 @@ typedef struct {
 
 bool createEntity(sdl_ctx_t **sdl_ctx, entity_t **e, const char *texturePath, entity_type type, V2f basePos);
 void renderEntity(entity_t *e);
+void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *objects, float deltaTime);
 
 #define setEntityAttributs(e, ...) _setEntityAttributs((e), (entity_attributs){__VA_ARGS__});
 void _setEntityAttributs(entity_t *e, entity_attributs attributs);

@@ -21,6 +21,17 @@ void updateBulletState(bullets *arr, float deltaTime)
         getBB(it)->x += it->velocity.x * deltaTime;
         getBB(it)->y += it->velocity.y * deltaTime;
     }
+
+    size_t i = 0;
+    while (i < arr->count) {
+        bullet *it = &arr->items[i];
+        if ((getBB(it)->x < -64 || getBB(it)->x >= WINDOW_WIDTH * 2) ||
+            (getBB(it)->y < -64 || getBB(it)->y >= WINDOW_HEIGHT * 2)) {
+            da_remove_unordered(arr, i);
+            i -= 1;
+        }
+        i += 1;
+    }
 }
 
 void renderBullets(sdl_ctx_t *ctx, bullets *arr)

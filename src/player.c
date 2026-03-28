@@ -141,7 +141,7 @@ V2f inputUpdate(player_t *p, const float dt)
     return deltaPos;
 }
 
-objs collision_test(player_t *p, objs *tiles)
+objs collision_test_player(player_t *p, objs *tiles)
 {
     objs collisions = {0};
     da_foreach (obj, tile, tiles) {
@@ -153,7 +153,7 @@ objs collision_test(player_t *p, objs *tiles)
     return collisions;
 }
 
-void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
+void updatePlayer(player_t *p, objs *arr, float deltaTime)
 {
     float gravity = 28.0f;
     SDL_FRect *rect = getBB(p);
@@ -172,7 +172,7 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
 
     rect->x += frame_movement.x;
     if (!p->noclip) {
-        objs collisions = collision_test(p, arr);
+        objs collisions = collision_test_player(p, arr);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.x > 0) {
@@ -187,7 +187,7 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
 
     rect->y += frame_movement.y;
     if (!p->noclip) {
-        objs collisions = collision_test(p, arr);
+        objs collisions = collision_test_player(p, arr);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.y > 0) {
@@ -208,13 +208,6 @@ void UpdatePlayer(player_t *p, objs *arr, float deltaTime)
     keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
-/**
- * @fn renderPlayer(player_t *p)
- * @param[in] p this is the player
- * @brief drenders the player image
- *
- * renders the player what more do you want?
- */
 void renderPlayer(player_t *p)
 {
     SDL_FlipMode flipped =

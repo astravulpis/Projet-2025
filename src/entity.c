@@ -10,7 +10,6 @@
  **/
 
 #include "entity.h"
-#include "sdl_helpers.h"
 
 bool createEntity(sdl_ctx_t **sdl_ctx, entity_t **e, const char *texturePath, entity_type e_type, V2f basePos)
 {
@@ -116,6 +115,48 @@ entity_state getEntityState(entity_t *e)
 float getAngle(entity_t *e)
 {
     return (e->velocity.x > 0) ? 180.0f : 0.0f;
+}
+
+objs collision_test_entity(entity_t *e, objs *tiles)
+{
+    objs collisions = {0};
+    da_foreach (obj, tile, tiles) {
+        if (SDL_HasRectIntersectionFloat(getBB(e), getBB(tile))) {
+            da_append(&collisions, *tile);
+        }
+    }
+
+    return collisions;
+}
+
+void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+                  // void (*behaviour_func)(entity_t *, player_t *, bullets *, objs *, float))
+{
+    float gravity = 28.0f;
+    SDL_FRect *rect = getBB(e);
+    V2f frame_movement = {e->velocity.x, e->velocity.y};
+    e->onGround = false;
+
+    rect->y += frame_movement.y;
+    objs collisions = collision_test_entity(e, objects);
+    da_foreach (obj, it, &collisions) {
+        SDL_FRect *tile = it->boundingBox;
+        if (frame_movement.y > 0) {
+            rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
+            e->onGround = true;
+        }
+        if (frame_movement.y < 0) {
+            rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
+        }
+        e->velocity.y = 0;
+    }
+    free(collisions.items);
+
+    e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
+    // p->velocity.y = p->velocity.y + (gravity * deltaTime);
+
+    keepPlayerInbound(e->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
 void renderEntity(entity_t *e)
