@@ -76,7 +76,7 @@ void compile_command(Cmd *cmd, const char *input_path, const char *output_path, 
 
 bool compile_submodules(submodules *modules)
 {
-    Nob_Cmd cmd = {0};
+    Cmd cmd = {0};
     Procs procs = {0};
     bool result = true;
 
@@ -94,7 +94,7 @@ bool compile_submodules(submodules *modules)
         }
     }
 
-    if (procs_flush(&procs)) return_defer(false);
+    if (!procs_flush(&procs)) return_defer(false);
 
     if (file_exists(LIBPATH)) delete_file(LIBPATH);
 
