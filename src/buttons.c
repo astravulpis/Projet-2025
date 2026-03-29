@@ -15,8 +15,7 @@
 #include "common.h"
 #include "sdl_helpers.h"
 
-bool createButton(button **b, const char *text, SDL_FRect rect, SDL_Color baseColor, SDL_Color hoveredColor,
-                  SDL_Color clickedColor)
+bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect rect, char * baseImgPath, char * hoverImgPath, char * clickImgPath)
 {
     *b = calloc(1, sizeof(button));
     if ((*b) == NULL) {
@@ -27,9 +26,9 @@ bool createButton(button **b, const char *text, SDL_FRect rect, SDL_Color baseCo
     (*b)->buttonText = strdup(text);
     (*b)->buttonBox = createRect_Ex(rect);
 
-    (*b)->baseColor = baseColor;
-    (*b)->hoverColor = hoveredColor;
-    (*b)->clickColor = clickedColor;
+    (*b)->baseImg = IMG_LoadTexture(sdl_ctx->renderer, baseImgPath);
+    (*b)->hoverImg = IMG_LoadTexture(sdl_ctx->renderer, hoverImgPath);
+    (*b)->clickImg = IMG_LoadTexture(sdl_ctx->renderer, clickImgPath);
 
     (*b)->isHovered = false;
     (*b)->isLeftClicked = false;
@@ -40,6 +39,10 @@ bool createButton(button **b, const char *text, SDL_FRect rect, SDL_Color baseCo
 
 void destroyButton(button **b)
 {
+    SDL_DestroyTexture((*b)->baseImg);
+    SDL_DestroyTexture((*b)->hoverImg);
+    SDL_DestroyTexture((*b)->clickImg);
+
     free((*b)->buttonText);
     (*b)->buttonText = NULL;
     free((*b)->buttonBox);
@@ -89,12 +92,12 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b)
     V2f buttonPos = {(b->buttonBox)->x + XCentering, (b->buttonBox)->y + YCentering};
 
     if (b->isLeftClicked || b->isRightClicked) {
-        renderFillRect(sdl_ctx->renderer, b->buttonBox, b->clickColor);
+        renderImage(sdl_ctx, b->clickImg, b->buttonBox);
     } else if (b->isHovered) {
-        renderFillRect(sdl_ctx->renderer, b->buttonBox, b->hoverColor);
+        renderImage(sdl_ctx, b->hoverImg, b->buttonBox);
     } else {
         // rendu de la'arrière plan du bouton
-        renderFillRect(sdl_ctx->renderer, b->buttonBox, b->baseColor);
+        renderImage(sdl_ctx, b->baseImg, b->buttonBox);
     }
     renderText_Ex(sdl_ctx, temp_sprintf("%s", b->buttonText), WHITE, buttonPos);
 }

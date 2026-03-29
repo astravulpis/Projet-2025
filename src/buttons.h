@@ -15,6 +15,7 @@
 
 #include "common.h"
 
+/* Ancienne version du type boutons
 typedef struct button {
     char *buttonText;
     SDL_FRect *buttonBox;
@@ -25,9 +26,20 @@ typedef struct button {
     bool isLeftClicked;
     bool isRightClicked;
 } button;
+*/
 
-bool createButton(button **button, const char *text, SDL_FRect rect, SDL_Color baseColor, SDL_Color hoveredColor,
-                  SDL_Color clickedColor);
+typedef struct button {
+    char *buttonText;
+    SDL_FRect *buttonBox;
+    SDL_Texture *baseImg;
+    SDL_Texture *hoverImg;
+    SDL_Texture *clickImg;
+    bool isHovered;
+    bool isLeftClicked;
+    bool isRightClicked;
+} button;
+
+bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect rect, char * baseImgPath, char * hoverImgPath, char * clickImgPath);
 void updateButtonState(button *b, V2f mouseCoord, int mouseFlag);
 void buttonRender(sdl_ctx_t *sdl_ctx, button *b);
 void destroyButton(button **b);
