@@ -31,28 +31,27 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
     return true;
 }
 
-
 bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
 {
+    String_Builder sb = {0};
     bool result = true;
     bool usingDefault = false;
     size_t mark = temp_save();
-    String_Builder sb = {0};
-    const char *realPath = NULL;
+    char *realPath = NULL;
 
     if (path == NULL) {
         nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
         usingDefault = true;
     }
 
-    if (usingDefault) {
+    if (!usingDefault) realPath = temp_sprintf("./assets/level/%s.txt", path);
+    else {
         realPath = temp_sprintf("./assets/level/level_debug.txt");
-    } else {
-        realPath = temp_sprintf("./assets/level/%s.txt", path);
+        nob_log(WARNING, "using default debug level: %s", realPath);
     }
 
     if (!file_exists(realPath)) {
-        nob_log(ERROR, "%s:%d: %s is not a file or does not exist.", __FILE__, __LINE__, path);
+        nob_log(ERROR, "%s:%d: %s is not a file or does not exist.", __FILE__, __LINE__, realPath);
         return_defer(false);
     }
 

@@ -18,22 +18,20 @@
 
 /**
  * @fn parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
- * @param[in] xs_sz argument size
- * @param[in] xs arguments
+ * @param[in] xs_sz Amount of elements in the list of elements `xs`
+ * @param[in] xs List of elements
  * @param[in] ctx our own sdl context variable
  * @param[in] level level object
- * @brief parse l'appel du programme pour recuperer les flags
+ * @brief Parse the arguments given when calling the main function.
  */
 bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level);
 
 /**
  * @fn parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
- * @param[in] char chemin d'acces du fichier des niveaux
+ * @param[in] path The path to the file to parse
  * @param[in] ctx our own sdl context variable
- * @param[in] level level object
- * @brief parse le fichier pour recuperer les objects data
- * Parcourt le fichier donne pour recuperer tout les objects et dans le meme temps viens
- * les adapter a la taille de la fenetre
+ * @param[in] level Array of objects that will be filled with the level's objects
+ * @brief Parse a level file to get each object out and constructed into the array `level`
  */
 bool parseFile(char *path, sdl_ctx_t *ctx, objs *level);
 
