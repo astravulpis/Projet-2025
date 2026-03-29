@@ -25,7 +25,7 @@
 #include "sdl_helpers.h"
 #include "gui.h"
 #include "music.h"
-#include <SDL3_mixer/SDL_mixer.h>
+#include "health_bar.h"
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -46,6 +46,14 @@ int main(int argc, char **argv)
     movePlayer(player, (V2f){200.0f, 200.0f});
     parseFlag(argc, argv, sdl_ctx, &level);
 
+    health_bar *hpBar = NULL;
+    if (!createHealthBar(&hpBar,
+                        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio, 450 * sdl_ctx->screenRatio, 60.0f * sdl_ctx->screenRatio},
+                        (SDL_Color){20, 20, 20, 255},
+                        (SDL_Color){178, 19, 19, 255},
+                        (SDL_Color){255, 255, 255, 255},
+                        100.0f, 10.0f)) return 1;
+
     gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
 
     SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
@@ -64,6 +72,9 @@ int main(int argc, char **argv)
     int frameCounter = 0;
     int frameRate = 0;
     float deltaTime = 0;
+
+    float healthBarTest = 0;
+    bool addition = true;
 
     size_t mark = temp_save();
     SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND);
@@ -116,6 +127,7 @@ int main(int argc, char **argv)
 
         updateBulletState(&bullet_arr, deltaTime);
         checkBulletLevelCollisions(&bullet_arr, &level); //collision check between the bullets and env + enemies
+        updateBulletState(&bullet_arr, deltaTime);
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
 
@@ -144,6 +156,7 @@ int main(int argc, char **argv)
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
+        healthBarRender(sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
 
         // Update and render the menu at the very end
         if (sdl_ctx->paused == true) {
@@ -151,8 +164,19 @@ int main(int argc, char **argv)
             renderMenu(sdl_ctx, pauseMenu);
             MIX_PauseTrack(sdl_ctx->track);
         }
+
         SDL_RenderPresent(sdl_ctx->renderer);
+
         frameCounter++;
+        if (healthBarTest < 0 && !addition)
+            addition = true;
+        if (healthBarTest > 100 && addition)
+            addition = false;
+
+        if (addition)
+            healthBarTest += 10 * deltaTime;
+        else
+            healthBarTest -= 10 * deltaTime;
     }
     // destroying all the SDL textures to avoid memory leaks
     da_foreach (obj, it, &level) {
@@ -161,11 +185,12 @@ int main(int argc, char **argv)
     }
     free(level.items);
 
-    MIX_Quit();
     destroyEntity(&filth);
+    destroyHealthBar(&hpBar);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
+    MIX_Quit();
     return 0;
 }
