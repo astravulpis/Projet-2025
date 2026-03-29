@@ -79,7 +79,11 @@ int main(int argc, char **argv)
     bullets bullet_arr = {0};
     entities e_bundle = {0};
 
-    da_append(&e_bundle, (createEntity(&sdl_ctx, "./assets/img/filth.png", E_FILTH, (V2f){700.0f, 200.0f})));
+    for (int i = 0; i < 5; ++i) {
+        float offset = 25.0f * i;
+        da_append(&e_bundle,
+                  (createEntity(&sdl_ctx, "./assets/img/filth.png", E_FILTH, (V2f){700.0f + offset * 2, 200.0f - offset})));
+    }
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
