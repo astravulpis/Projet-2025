@@ -11,7 +11,29 @@
 
 #include "entity.h"
 
-entity_t *createEntity(sdl_ctx_t **sdl_ctx, const char *texturePath, entity_type type, V2f basePos)
+SDL_Texture *entity_textures[E_TYPE_COUNT] = {0};
+
+void loadEntityTex(sdl_ctx_t *ctx)
+{
+    const char *texPaths[E_TYPE_COUNT] = {
+        "./assets/img/filth.png",
+    };
+
+    for (size_t i = 0; i < 1; ++i) {
+        entity_textures[i] = IMG_LoadTexture(ctx->renderer, texPaths[i]);
+    }
+}
+
+SDL_Texture *getEntityTex(sdl_ctx_t *ctx, int index)
+{
+    if (entity_textures[assert(index < E_TYPE_COUNT && index >= 0), index] == NULL) {
+        loadEntityTex(ctx);
+    }
+    return entity_textures[index];
+    ;
+}
+
+entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
 {
     entity_t *e = calloc(1, sizeof(entity_t));
     if (e == NULL) {
@@ -19,12 +41,8 @@ entity_t *createEntity(sdl_ctx_t **sdl_ctx, const char *texturePath, entity_type
         return NULL;
     }
 
-    e->tex = IMG_LoadTexture((*sdl_ctx)->renderer, texturePath);
-    if (e->tex == NULL) {
-        nob_log(ERROR, "%s:%d: Failed to load the entity's texture. See error: %s", __FILE__, __LINE__, SDL_GetError());
-        free(e);
-        return NULL;
-    }
+    // See TODO(2026-03-29 18:13:39)
+    e->tex = getEntityTex(*sdl_ctx, type);
 
     e->type = type;
     e->ctx = sdl_ctx;
@@ -33,38 +51,38 @@ entity_t *createEntity(sdl_ctx_t **sdl_ctx, const char *texturePath, entity_type
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
     case E_FILTH: {
-        e->boundingBox = createRect(basePos.x, basePos.y, 45, 100);
+        e->boundingBox = createRect_Ex((SDL_FRect){basePos.x, basePos.y, 45, 100});
         setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f);
         break;
     }
-    case E_STRAY: {
-        TODO("skism");
-        break;
-    }
-    case E_SWORDSMACHINE: {
-        TODO("swordmachine");
-        break;
-    }
-    case E_PROVIDENCE: {
-        TODO("providence");
-        break;
-    }
-    case E_ANGEL: {
-        TODO("angel");
-        break;
-    }
-    case E_MAURICE: {
-        TODO("maurice");
-        break;
-    }
-    case E_MINOS_PRIME: {
-        TODO("thy end is now");
-        break;
-    }
-    case E_SISYPHUS: {
-        TODO("you cannot escape");
-        break;
-    }
+    // case E_STRAY: {
+    //     TODO("skism");
+    //     break;
+    // }
+    // case E_SWORDSMACHINE: {
+    //     TODO("swordmachine");
+    //     break;
+    // }
+    // case E_PROVIDENCE: {
+    //     TODO("providence");
+    //     break;
+    // }
+    // case E_ANGEL: {
+    //     TODO("angel");
+    //     break;
+    // }
+    // case E_MAURICE: {
+    //     TODO("maurice");
+    //     break;
+    // }
+    // case E_MINOS_PRIME: {
+    //     TODO("thy end is now");
+    //     break;
+    // }
+    // case E_SISYPHUS: {
+    //     TODO("you cannot escape");
+    //     break;
+    // }
     default:
         UNREACHABLE("entity_type");
         break;
@@ -205,3 +223,4 @@ void destroyEntities(entities *entities)
 
     free(entities->items);
 }
+// TODO(2026-03-29 18:13:39): Make the bundle of entity take an array of loaded texture instead of loading one for each entity

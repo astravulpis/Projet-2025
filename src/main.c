@@ -79,11 +79,17 @@ int main(int argc, char **argv)
     bullets bullet_arr = {0};
     entities e_bundle = {0};
 
-    for (int i = 0; i < 5; ++i) {
+#if (1)
+    Uint32 test1 = SDL_GetTicks();
+    Uint32 test2;
+    for (int i = 0; i < 20; ++i) {
+        Uint32 test1 = SDL_GetTicks();
+        printf("%u since last entity\n", test1 - test2);
         float offset = 25.0f * i;
-        da_append(&e_bundle,
-                  (createEntity(&sdl_ctx, "./assets/img/filth.png", E_FILTH, (V2f){700.0f + offset * 2, 200.0f - offset})));
+        da_append(&e_bundle, (createEntity(&sdl_ctx, E_FILTH, (V2f){700.0f + offset * 2, 200.0f - offset})));
+        test2 = test1;
     }
+#endif
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;

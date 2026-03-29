@@ -32,6 +32,8 @@ typedef enum {
     E_TYPE_COUNT = 8
 } entity_type;
 
+extern SDL_Texture *entity_textures[E_TYPE_COUNT];
+
 typedef enum {
     STATE_IDLE,
     STATE_PURSUING,
@@ -69,7 +71,7 @@ typedef struct {
     size_t capacity;
 } entities;
 
-entity_t *createEntity(sdl_ctx_t **sdl_ctx, const char *texturePath, entity_type type, V2f basePos);
+entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
 
 /**
  * @fn renderEntity(entity_t *e)
