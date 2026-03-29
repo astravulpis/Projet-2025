@@ -63,9 +63,39 @@ typedef struct {
     bool onGround;
 } entity_t;
 
-bool createEntity(sdl_ctx_t **sdl_ctx, entity_t **e, const char *texturePath, entity_type type, V2f basePos);
+typedef struct {
+    entity_t **items;
+    size_t count;
+    size_t capacity;
+} entities;
+
+entity_t *createEntity(sdl_ctx_t **sdl_ctx, const char *texturePath, entity_type type, V2f basePos);
+
+/**
+ * @fn renderEntity(entity_t *e)
+ * @param[in] e The entity to render
+ * @brief renders the texture of the entity onto the screen
+ */
 void renderEntity(entity_t *e);
+
+/**
+ * @fn renderEntities(entities *entities)
+ * @param[in] entities The array of entities to loop through and render
+ * @brief wrapper for render in a for-loop of each entity in the current level
+ */
+void renderEntities(entities *entities);
+
+/**
+ * @fn updateEntity(entity_t e, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+ * @brief updates the attributs and behaviour of the entity
+ */
 void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *objects, float deltaTime);
+
+/**
+ * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+ * @brief wrapper for the update in a for-loop of each entity in the current level
+ */
+void updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime);
 
 #define setEntityAttributs(e, ...) _setEntityAttributs((e), (entity_attributs){__VA_ARGS__});
 void _setEntityAttributs(entity_t *e, entity_attributs attributs);
@@ -78,5 +108,6 @@ void setHP(entity_t *e, float HP);
 void setEntitySpeed(entity_t *e, float speed);
 
 void destroyEntity(entity_t **e);
+void destroyEntities(entities *entities);
 
 #endif // ENTITY_H_

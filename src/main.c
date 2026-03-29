@@ -29,9 +29,6 @@
 #include "sliders.h"
 #include "checkboxes.h"
 
-#define rad2deg(deg) (((deg) / 180) * M_PI))
-#define deg2rad(rad) (((rad) / M_PI) * 180))
-
 /**
  * @file main.c
  * @brief File where every actions to run the game are being executed at.
@@ -80,8 +77,9 @@ int main(int argc, char **argv)
     int prevMouseInput = 0;
 
     bullets bullet_arr = {0};
-    entity_t *filth = NULL;
-    if (!createEntity(&sdl_ctx, &filth, "./assets/img/filth.png", E_FILTH, (V2f){700.0f, 200.0f})) return 1;
+    entities e_bundle = {0};
+
+    da_append(&e_bundle, (createEntity(&sdl_ctx, "./assets/img/filth.png", E_FILTH, (V2f){700.0f, 200.0f})));
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -147,12 +145,13 @@ int main(int argc, char **argv)
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
 
-        if (!sdl_ctx->paused) updatePlayer(player, &level, deltaTime);
+        if (!sdl_ctx->paused) {
+            updatePlayer(player, &level, deltaTime);
+            updateEntities(&e_bundle, player, &bullet_arr, &level, deltaTime);
+        }
 
         renderPlayer(player);
-
-        if (!sdl_ctx->paused) updateEntity(filth, player, &bullet_arr, &level, deltaTime);
-        renderEntity(filth);
+        renderEntities(&e_bundle);
 
         // Render level textures
         da_foreach (obj, it, &level) {
@@ -206,7 +205,6 @@ int main(int argc, char **argv)
     }
     free(level.items);
 
-    destroyEntity(&filth);
     destroyBar(&hpBar);
     destroySliders(&sTest);
     destroyCheckbox(&cTest);

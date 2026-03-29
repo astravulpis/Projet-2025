@@ -48,6 +48,7 @@ void updateBulletState(bullets *arr, float deltaTime)
         bullet *it = &arr->items[i];
         if ((getBB(it)->x < -64 || getBB(it)->x >= WINDOW_WIDTH * 2) ||
             (getBB(it)->y < -64 || getBB(it)->y >= WINDOW_HEIGHT * 2)) {
+            deleteBullet(&it);
             da_remove_unordered(arr, i);
             i -= 1;
         }
@@ -62,10 +63,15 @@ void renderBullets(sdl_ctx_t *ctx, bullets *arr)
     }
 }
 
+void deleteBullet(bullet **bullet)
+{
+    if (*bullet != NULL) free((*bullet)->boundingBox);
+}
+
 void deleteBullets(bullets *arr)
 {
     da_foreach (bullet, it, arr) {
-        free(it->boundingBox);
+        deleteBullet(&it);
     }
     free(arr->items);
 }

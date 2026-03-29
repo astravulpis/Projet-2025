@@ -11,29 +11,30 @@
 
 #include "entity.h"
 
-bool createEntity(sdl_ctx_t **sdl_ctx, entity_t **e, const char *texturePath, entity_type e_type, V2f basePos)
+entity_t *createEntity(sdl_ctx_t **sdl_ctx, const char *texturePath, entity_type type, V2f basePos)
 {
-    *e = calloc(1, sizeof(entity_t));
-    if (*e == NULL) {
+    entity_t *e = calloc(1, sizeof(entity_t));
+    if (e == NULL) {
         nob_log(ERROR, "%s:%d: Failed to allocate space for an entity", __FILE__, __LINE__);
-        return false;
+        return NULL;
     }
 
-    (*e)->tex = IMG_LoadTexture((*sdl_ctx)->renderer, texturePath);
-    if ((*e)->tex == NULL) {
+    e->tex = IMG_LoadTexture((*sdl_ctx)->renderer, texturePath);
+    if (e->tex == NULL) {
         nob_log(ERROR, "%s:%d: Failed to load the entity's texture. See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return false;
+        free(e);
+        return NULL;
     }
 
-    (*e)->type = e_type;
-    (*e)->ctx = sdl_ctx;
+    e->type = type;
+    e->ctx = sdl_ctx;
 
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
-    switch (e_type) {
+    switch (type) {
     case E_FILTH: {
-        (*e)->boundingBox = createRect(basePos.x, basePos.y, 45, 100);
-        setEntityAttributs(*e, .entity_speed = 240, .maxHP = 15.0f);
+        e->boundingBox = createRect(basePos.x, basePos.y, 45, 100);
+        setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f);
         break;
     }
     case E_STRAY: {
@@ -69,7 +70,7 @@ bool createEntity(sdl_ctx_t **sdl_ctx, entity_t **e, const char *texturePath, en
         break;
     }
 
-    return true;
+    return e;
 }
 
 void setMaxHP(entity_t *e, float maxHP)
@@ -159,10 +160,24 @@ void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *obj
     // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
+void updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+{
+    da_foreach (entity_t *, e, entities) {
+        updateEntity((*e), player, projectiles, objects, deltaTime);
+    }
+}
+
 void renderEntity(entity_t *e)
 {
     SDL_FlipMode flip = (getAngle(e) >= 180.0f) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     SDL_RenderTextureRotated((*e->ctx)->renderer, e->tex, NULL, e->boundingBox, 0.0f, NULL, flip);
+}
+
+void renderEntities(entities *entities)
+{
+    da_foreach (entity_t *, e, entities) {
+        renderEntity(*e);
+    }
 }
 
 void destroyEntity(entity_t **e)
@@ -179,4 +194,14 @@ void destroyEntity(entity_t **e)
 
     free(*e);
     *e = NULL;
+}
+
+void destroyEntities(entities *entities)
+{
+    da_foreach (entity_t *, e, entities) {
+        destroyEntity(e);
+        *e = NULL;
+    }
+
+    free(entities->items);
 }

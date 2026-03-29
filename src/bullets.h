@@ -67,6 +67,7 @@ void checkBulletLevelCollisions(bullets *arr, objs *level);
  */
 void renderBullets(sdl_ctx_t *ctx, bullets *arr);
 
+void deleteBullet(bullet **bullet);
 /**
  * @fn deleteBullets(bullets *arr)
  * @param[in] arr bullets array
