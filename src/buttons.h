@@ -27,7 +27,7 @@ typedef struct button {
 } button;
 
 bool createButton(button **button, const char *text, SDL_FRect rect, SDL_Color baseColor, SDL_Color hoveredColor,
-                   SDL_Color clickedColor);
+                  SDL_Color clickedColor);
 void updateButtonState(button *b, V2f mouseCoord, int mouseFlag);
 void buttonRender(sdl_ctx_t *sdl_ctx, button *b);
 void destroyButton(button **b);

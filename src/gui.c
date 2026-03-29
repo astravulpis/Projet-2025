@@ -72,7 +72,7 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 {
 
-    if (menu->items[0]->isLeftClicked == true) sdl_ctx->pause = false;
+    if (menu->items[0]->isLeftClicked == true) sdl_ctx->paused = false;
     if (menu->items[2]->isLeftClicked == true) sdl_ctx->quit = true;
 }
 

@@ -27,7 +27,8 @@ typedef struct {
 } gui_menu;
 
 gui_menu *createMenu(SDL_Color bgColor, size_t count, ...);
-void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, void (*updateFunc)(sdl_ctx_t *, gui_menu *));
+void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu,
+                void (*updateFunc)(sdl_ctx_t *, gui_menu *));
 void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
 void destroyMenu(gui_menu **menu);
 

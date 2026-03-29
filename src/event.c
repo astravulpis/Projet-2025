@@ -49,11 +49,7 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
     static bool prev[SDL_SCANCODE_COUNT] = {0};
 
     if (state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
-        if (sdl_ctx->pause == true) {
-            sdl_ctx->pause = false;
-        } else {
-            sdl_ctx->pause = true;
-        }
+        sdl_ctx->paused = !sdl_ctx->paused;
     }
     memcpy(prev, state, SDL_SCANCODE_COUNT);
 }
