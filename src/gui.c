@@ -52,18 +52,14 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
                                     (WINDOW_HEIGHT / 2.0f - 37.5f + 90.0f) * sdl_ctx->screenRatio,
                                     300.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
 
-    SDL_Color baseColor = {0, 0, 255, 255};
-    SDL_Color hoverColor = {255, 10, 100, 255};
-    SDL_Color clickColor = {200, 10, 100, 255};
-
     button *resumeButton = NULL;
-    createButton(&resumeButton, "resume", boxResume, baseColor, hoverColor, clickColor);
+    createButton(sdl_ctx, &resumeButton, "resume", boxResume, "./assets/img/buttons/BTest.png", "./assets/img/buttons/HTest.png", "./assets/img/buttons/CTest.png");
 
     button *optionsButton = NULL;
-    createButton(&optionsButton, "options", boxOptions, baseColor, hoverColor, clickColor);
+    createButton(sdl_ctx, &optionsButton, "options", boxOptions, "./assets/img/buttons/BTest.png", "./assets/img/buttons/HTest.png", "./assets/img/buttons/CTest.png");
 
     button *quitButton = NULL;
-    createButton(&quitButton, "quit", boxQuit, baseColor, hoverColor, clickColor);
+    createButton(sdl_ctx, &quitButton, "quit", boxQuit, "./assets/img/buttons/BTest.png", "./assets/img/buttons/HTest.png", "./assets/img/buttons/CTest.png");
 
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120}, 3, resumeButton, optionsButton, quitButton);
 
