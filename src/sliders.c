@@ -24,7 +24,7 @@ bool createSlider(sdl_ctx_t *sdl_ctx, slider **s, SDL_FRect rect, char *bgImg_Pa
     }
 
     (*s)->sliderBox = createRect_Ex(rect);
-    (*s)->cursorBox = createRect_Ex((SDL_FRect){rect.x + (borderSize * sdl_ctx->screenRatio), rect.y + (borderSize * sdl_ctx->screenRatio), ((rect.w - borderSize * 2) / nbValue) * sdl_ctx->screenRatio, ((rect.h - borderSize * 2) * sdl_ctx->screenRatio)});
+    (*s)->cursorBox = createRect_Ex((SDL_FRect){rect.x + (borderSize), rect.y + (borderSize), ((rect.w - borderSize * 2) / nbValue), ((rect.h - borderSize * 2))});
 
     (*s)->backgroundImg = IMG_LoadTexture(sdl_ctx->renderer, bgImg_Path);
     (*s)->cursorImg = IMG_LoadTexture(sdl_ctx->renderer, cursorImg_Path);
@@ -101,14 +101,14 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
         int difference = mouseCoord.x - s->prevX;// prevX est normalement toujours différent de -1 si on est arrivé ici
         s->prevX = mouseCoord.x;
         float step = roundf(difference / s->cursorBox->w) * s->cursorBox->w;
-        float minX = s->sliderBox->x + (s->borderSize * sdl_ctx->screenRatio);
-        float maxX = s->sliderBox->x + s->sliderBox->w - s->cursorBox->w - (s->borderSize * sdl_ctx->screenRatio);
+        float minX = s->sliderBox->x + (s->borderSize);
+        float maxX = s->sliderBox->x + s->sliderBox->w - s->cursorBox->w - (s->borderSize);
 
         FRect_Change_x(s->cursorBox, step, minX, maxX);
 
         //s->currentValue = s->cursorBox->x ; // current value est un int
         //s->currentValue = roundf(difference / s->cursorBox->w); // current value est un int
-        s->currentValue = roundf(((s->cursorBox->x + s->cursorBox->w) - (s->sliderBox->x  + s->borderSize * sdl_ctx->screenRatio)) / s->cursorBox->w);
+        s->currentValue = roundf(((s->cursorBox->x + s->cursorBox->w) - (s->sliderBox->x  + s->borderSize)) / s->cursorBox->w);
     }
     else {
         s->hovered = false;
