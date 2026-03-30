@@ -47,8 +47,8 @@ int main(int argc, char **argv)
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
-    movePlayer(player, (V2f){200.0f, 200.0f});
     parseFlag(argc, argv, sdl_ctx, &level);
+    movePlayer(player, level->items[level->currentLoadedRoomID]->startPos);
 
     bar *hpBar = NULL;
     if (!createBar(
@@ -113,11 +113,10 @@ int main(int argc, char **argv)
         SDL_PumpEvents();
 
         mouseInputFlag = SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
-        basicKeyboardEvents(sdl_ctx);
+        basicKeyboardEvents(sdl_ctx, level, player);
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
-
         if (!sdl_ctx->paused &&
             (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
             V2f startingPos = (V2f){player->boundingBox->x + player->boundingBox->w / 2.0f,
@@ -160,6 +159,8 @@ int main(int argc, char **argv)
         }
 
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
+
+        // Render the currently loaded level
         renderRoom(sdl_ctx, level);
 
         // Everything after the footer being rendered is rendered OVER it.

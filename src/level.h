@@ -9,6 +9,7 @@
 typedef struct {
     objs structures;
     entities e_waves[MAX_WAVE_COUNT];
+    V2f startPos;
 
     int roomID;
 } room_t;

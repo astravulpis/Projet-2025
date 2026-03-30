@@ -1,13 +1,20 @@
 info "debug level" 0
 room 0
-obj "./assets/img/white.png" 0.0 500.0 1920.0 800.0
-obj "./assets/img/white.png" 420.0 435.0 128.0 80.0
+player 800 10
+obj "./assets/img/white.png" 0 0 760 1080
+obj "./assets/img/white.png" 930 0 30 520
+obj "./assets/img/white.png" 930 0 1000 480
+obj "./assets/img/white.png" 760 800 1920 800
 room 1
-obj "./assets/img/white.png" 0.0 450.0 1920.0 800.0
-obj "./assets/img/white.png" 420.0 425.0 128.0 80.0
-room 2
-obj "./assets/img/white.png" 0.0 425.0 1920.0 800.0
-obj "./assets/img/white.png" 420.0 395.0 128.0 80.0
-room 3
-obj "./assets/img/white.png" 0.0 400.0 1920.0 800.0
-obj "./assets/img/white.png" 420.0 375.0 128.0 80.0
+player 100 600
+obj "./assets/img/white.png" 0 800 1920 800
+obj "./assets/img/white.png" 0 0 10 1080
+obj "./assets/img/white.png" 0 0 1920 10
+obj "./assets/img/white.png" 1910 0 10 1080
+obj "./assets/img/white.png" 700 740 245 180
+obj "./assets/img/white.png" 980 610 150 50
+obj "./assets/img/white.png" 680 0 90 350
+obj "./assets/img/white.png" 450 500 300 50
+obj "./assets/img/white.png" 585 260 165 65
+obj "./assets/img/white.png" 520 260 180 25
+obj "./assets/img/white.png" 0 375 345 55

@@ -67,7 +67,13 @@ void checkBulletLevelCollisions(bullets *arr, objs *level);
  */
 void renderBullets(sdl_ctx_t *ctx, bullets *arr);
 
+/**
+ * @fn deleteBullets(bullets *arr)
+ * @param[in] bullet Address of the bullet to delete
+ * @brief detroys the bullet
+ */
 void deleteBullet(bullet **bullet);
+
 /**
  * @fn deleteBullets(bullets *arr)
  * @param[in] arr bullets array

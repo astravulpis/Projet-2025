@@ -16,6 +16,7 @@
 #include "sdl_ctx.h"
 #include "music.h"
 #include "level.h"
+#include "player.h"
 
 bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, level_t **level)
 {
@@ -96,7 +97,6 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
                 }
                 int room_id = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 room = createRoom(room_id);
-                nob_log(INFO, "Created room id: %d", room_id);
 
             // Insert objects in the room
             } else if (sv_eq(header, sv_from_cstr("obj"))) {
@@ -123,7 +123,6 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
                     }
                     continue;
                 }
-                nob_log(INFO, "Inserting rect inside of room id: %d", room->roomID);
                 assignObject(room, ctx, path, rect[0], rect[1], rect[2], rect[3]);
 
             } else if (sv_eq(header, sv_from_cstr("bg"))) {
@@ -144,6 +143,12 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 printf("%s\n", path);
                 if (!Mix_Init(path, ctx)) return false;
+            } else if (sv_eq(header, sv_from_cstr("player"))) {
+                int x_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                int y_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                room->startPos = (V2f){x_pos, y_pos};
+            } else if (sv_eq(header, sv_from_cstr("entity"))) { // See TODO(2026-03-30 08:08:45)
+                TODO("entity parsing");
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
@@ -152,7 +157,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
     }
     if (room != NULL) {
         assignRoomToLevel((*level), room);
-        loadRoom((*level), 0);
+        loadRoom((*level), (*level)->items[0]->roomID);
     }
 
 defer:

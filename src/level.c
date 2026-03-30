@@ -1,4 +1,5 @@
 #include "level.h"
+#include "player.h"
 
 room_t *createRoom(int id)
 {
@@ -11,6 +12,7 @@ room_t *createRoom(int id)
     r->roomID = (assert(id >= 0 && "`id` is below 0, which is undefined behaviour"), id);
     memset(&r->structures, 0, sizeof(objs)); // Delete the trash values in the structures
     memset(&r->e_waves, 0, sizeof(entities) * MAX_WAVE_COUNT); // Delete the trash values in the waves
+    memset(&r->startPos, 0, sizeof(V2f)); // set start pos at 0, 0
 
     return r;
 }

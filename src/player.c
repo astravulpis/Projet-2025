@@ -65,7 +65,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
 
     p->speed = 325.0f;
-    p->jumpForce = -625.0f;
+    p->jumpForce = -685.0f;
     p->velocity = (V2f){0.0f, 0.0f};
     p->onGround = false;
     p->dashTimer = 1.0f;
