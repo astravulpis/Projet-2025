@@ -40,17 +40,17 @@ gui_menu *createMenu(SDL_Color bgColor, size_t count, ...)
 
 gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 {
-    SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 128.0f) * sdl_ctx->screenRatio,
-                                      (WINDOW_HEIGHT / 2.0f - 32.0f - 90.0f) * sdl_ctx->screenRatio,
-                                      256.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
+    SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f) * sdl_ctx->screenRatio,
+                                      (WINDOW_HEIGHT / 2.0f - 48.0f - 120.0f) * sdl_ctx->screenRatio,
+                                      384.0f * sdl_ctx->screenRatio, 96.0f * sdl_ctx->screenRatio};
 
-    SDL_FRect boxOptions = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 128.0f) * sdl_ctx->screenRatio,
-                                       (WINDOW_HEIGHT / 2.0f - 32.0f) * sdl_ctx->screenRatio, 256.0f * sdl_ctx->screenRatio,
-                                       75.0f * sdl_ctx->screenRatio};
+    SDL_FRect boxOptions = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f) * sdl_ctx->screenRatio,
+                                       (WINDOW_HEIGHT / 2.0f - 48.0f) * sdl_ctx->screenRatio, 384.0f * sdl_ctx->screenRatio,
+                                       96.0f * sdl_ctx->screenRatio};
 
-    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 128.0f) * sdl_ctx->screenRatio,
-                                    (WINDOW_HEIGHT / 2.0f - 32.0f + 90.0f) * sdl_ctx->screenRatio,
-                                    256.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
+    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f) * sdl_ctx->screenRatio,
+                                    (WINDOW_HEIGHT / 2.0f - 48.0f + 120.0f) * sdl_ctx->screenRatio,
+                                    384.0f * sdl_ctx->screenRatio, 96.0f * sdl_ctx->screenRatio};
 
     button *resumeButton = NULL;
     createButton(sdl_ctx, &resumeButton, "resume", boxResume, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
