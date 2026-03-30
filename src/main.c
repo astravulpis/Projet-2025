@@ -13,21 +13,19 @@
  **/
 
 #include "../shared.h"
-#include "SDL3/SDL_render.h"
-#include "bullets.h"
 #include "common.h"
-#include "entity.h"
-#include "event.h"
-#include "file_parsing.h"
-#include "gui.h"
-#include "bars.h"
-#include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
+#include "event.h"
+#include "file_parsing.h"
+#include "level.h"
+#include "player.h"
+#include "bullets.h"
 #include "gui.h"
-#include "music.h"
+#include "bars.h"
 #include "sliders.h"
 #include "checkboxes.h"
+#include "music.h"
 
 /**
  * @file main.c
@@ -36,9 +34,16 @@
 
 int main(int argc, char **argv)
 {
+    V2f mouseCoord = {0};
+    int mouseInputFlag = 0;
+    int prevMouseInput = 0;
+    size_t mark = temp_save();
+
     sdl_ctx_t *sdl_ctx = NULL;
+
+    level_t *level = NULL;
     player_t *player = NULL;
-    objs level = {0};
+    bullets bullet_arr = {0};
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
@@ -72,25 +77,6 @@ int main(int argc, char **argv)
                     10.0f * sdl_ctx->screenRatio,
                     20.0f * sdl_ctx->screenRatio);
 
-    V2f mouseCoord = {0};
-    int mouseInputFlag = 0;
-    int prevMouseInput = 0;
-
-    bullets bullet_arr = {0};
-    entities e_bundle = {0};
-
-#if (1)
-    Uint32 test1 = SDL_GetTicks();
-    Uint32 test2;
-    for (int i = 0; i < 20; ++i) {
-        Uint32 test1 = SDL_GetTicks();
-        printf("%u since last entity\n", test1 - test2);
-        float offset = 25.0f * i;
-        da_append(&e_bundle, (createEntity(&sdl_ctx, E_FILTH, (V2f){700.0f + offset * 2, 200.0f - offset})));
-        test2 = test1;
-    }
-#endif
-
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
     int frameCounter = 0;
@@ -100,7 +86,6 @@ int main(int argc, char **argv)
     float healthBarTest = 0;
     bool addition = true;
 
-    size_t mark = temp_save();
     SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND);
 
     // Updates the event queue and internal input device state
@@ -175,9 +160,7 @@ int main(int argc, char **argv)
         }
 
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
-        renderText_Ex(sdl_ctx, temp_sprintf("bullets: %zu", bullet_arr.count), WHITE, (V2f){10.0f, 40.0f});
-        renderText_Ex(sdl_ctx, temp_sprintf("Player: {%.1f, %.1f}", getBB(player)->x, getBB(player)->y), WHITE,
-                      (V2f){10.0f, 80.0f});
+        renderRoom(sdl_ctx, level);
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
@@ -208,16 +191,11 @@ int main(int argc, char **argv)
         else
             healthBarTest -= 10 * deltaTime;
     }
-    // destroying all the SDL textures to avoid memory leaks
-    da_foreach (obj, it, &level) {
-        free(it->boundingBox);
-        SDL_DestroyTexture(it->texture);
-    }
-    free(level.items);
 
     destroyBar(&hpBar);
     destroySliders(&sTest);
     destroyCheckbox(&cTest);
+    destroyLevel(&level);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);
