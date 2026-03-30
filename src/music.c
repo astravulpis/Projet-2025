@@ -14,11 +14,10 @@
 #include "sdl_ctx.h"
 #include "common.h"
 
-bool Mix_Init()
+bool Mix_Init(const char * path)
 {
     MIX_Mixer * mixer = NULL;
     MIX_Track * track = NULL;
-    char *path = NULL;
     MIX_Audio * audio = NULL;
 
 
@@ -35,7 +34,6 @@ bool Mix_Init()
     }
 
     /* load a sound file */
-    path = "./assets/audio/SneakySnitch.mp3";
     audio = MIX_LoadAudio(mixer, path, false);
     if (!audio) {
         SDL_Log("Couldn't load %s: %s", path, SDL_GetError());

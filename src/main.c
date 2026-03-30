@@ -41,10 +41,6 @@ int main(int argc, char **argv)
     player_t *player = NULL;
     objs level = {0};
 
-    if (!Mix_Init()) {
-        return 1;
-    }
-
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
     movePlayer(player, (V2f){200.0f, 200.0f});

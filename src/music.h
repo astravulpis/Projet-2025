@@ -13,5 +13,5 @@ void resumeMusic(MIX_Track * track);
 void cleanupMusic(MIX_Mixer * mixer);
 */
 
-bool Mix_Init();
+bool Mix_Init(const char * path);
 #endif
