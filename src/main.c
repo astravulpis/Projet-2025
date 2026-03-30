@@ -107,6 +107,7 @@ int main(int argc, char **argv)
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
             createBullet(&bullet_arr, startingPos, vel);
+            sfx("./assets/audio/SFX/Shoot1.mp3");
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
         // {

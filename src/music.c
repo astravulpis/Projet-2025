@@ -59,7 +59,7 @@ bool Mix_Init(const char * path, sdl_ctx_t * ctx)
     return true;
 }
 
-bool dash(){
+bool sfx(const char * path){
     MIX_Mixer * mixer = NULL;
     MIX_Audio * audio = NULL;
 
@@ -69,14 +69,13 @@ bool dash(){
         return false;
     }
 
-    /* load a sound file */#
-    const char * path = "./assets/audio/SFX/dash.mp3";
     audio = MIX_LoadAudio(mixer, path, false);
     if (!audio) {
         SDL_Log("Couldn't load %s: %s", path, SDL_GetError());
         return false;
     }
     MIX_PlayAudio(mixer, audio);
+    return true;
 }
 
 /*
