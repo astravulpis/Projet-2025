@@ -71,4 +71,17 @@ bool renderText_Ex(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, V2f po
  */
 void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color);
 
+/**
+ * @fn keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
+ * @param[in] r The SDL rect given to check
+ * @param[in] minX Minimum X bound
+ * @param[in] minY Minimum Y bound
+ * @param[in] maxX Maximum X bound
+ * @param[in] maxY Maximum Y bound
+ * @brief keep rectangle in the given bounds
+ *
+ * Takes the location of the rect we are moving then compares it to the bounds given.
+ */
+void keepRectInbounds(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
+
 #endif // SDL_HELPER_H_

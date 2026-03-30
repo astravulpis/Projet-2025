@@ -93,3 +93,12 @@ void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color)
     SDL_RenderFillRect(renderer, rect);
     SDL_SetRenderDrawColor(renderer, prev.r, prev.g, prev.b, prev.a);
 }
+
+void keepRectInbounds(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
+{
+    if (r == NULL) return;
+    if (r->x < minX) r->x = minX;               // Left
+    if (r->y < minY) r->y = minY;               // Down
+    if (r->x + r->w > maxX) r->x = maxX - r->w; // Right
+    if (r->y + r->h > maxY) r->y = maxY - r->h; // Up
+}

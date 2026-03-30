@@ -10,13 +10,14 @@
  **/
 
 #include "entity.h"
+#include "player.h"
 
 static struct entityBaseAttributs {
     entity_type type;
     entity_attributs stats;
     V2f size;
 } baseStats[E_TYPE_COUNT] = {
-    {.type = E_FILTH, .stats = {}, .size = (V2f){80, 100}},
+    {.type = E_FILTH, .stats = {}, .size = (V2f){60, 100}},
     {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
     {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
     {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},
@@ -58,7 +59,7 @@ entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
         return NULL;
     }
 
-    e->tex = getEntityTex(*sdl_ctx, type);
+    e->texture = getEntityTex(*sdl_ctx, type);
     e->type = type;
     e->ctx = sdl_ctx;
 
@@ -164,8 +165,8 @@ objs collision_test_entity(entity_t *e, objs *tiles)
     return collisions;
 }
 
-void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
-                  // void (*behaviour_func)(entity_t *, player_t *, bullets *, objs *, float))
+void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime)
+                  // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     float gravity = 28.0f;
     SDL_FRect *rect = getBB(e);
@@ -190,21 +191,21 @@ void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *obj
     e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
-    keepPlayerInbound(e->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    keepRectInbounds(e->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
-void updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime)
 {
     da_foreach (entity_t *, e, entities) {
-        updateEntity((*e), player, projectiles, objects, deltaTime);
+        updateEntity((*e), player, objects, deltaTime);
     }
 }
 
 void renderEntity(entity_t *e)
 {
     SDL_FlipMode flip = (getAngle(e) >= 180.0f) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    SDL_RenderTextureRotated((*e->ctx)->renderer, e->tex, NULL, e->boundingBox, 0.0f, NULL, flip);
+    SDL_RenderTextureRotated((*e->ctx)->renderer, e->texture, NULL, e->boundingBox, 0.0f, NULL, flip);
 }
 
 void renderEntities(entities *entities)
@@ -222,8 +223,8 @@ void destroyEntity(entity_t **e)
         (*e)->boundingBox = NULL;
 
         // Texture
-        SDL_DestroyTexture((*e)->tex);
-        (*e)->tex = NULL;
+        SDL_DestroyTexture((*e)->texture);
+        (*e)->texture = NULL;
     }
 
     free(*e);

@@ -10,6 +10,7 @@ typedef struct {
     objs structures;
     entities e_waves[MAX_WAVE_COUNT];
     V2f startPos;
+    int currWaveIdx;
 
     int roomID;
 } room_t;
@@ -33,6 +34,10 @@ void renderRoom(sdl_ctx_t *ctx, level_t *level);
 
 objs *getRoomObjects(level_t *level);
 
+room_t *getLoadedRoom(level_t *level);
+
+entities *getCurrentEntityWave(level_t *level);
+
 level_t *createLevel(char *title, int id);
 
 void assignRoomToLevel(level_t *level, room_t *room);
@@ -41,7 +46,7 @@ void assignObject_Ex(room_t *room, obj object);
 
 void assignObject(room_t *room, sdl_ctx_t *ctx, const char *path, float x, float y, float w, float h);
 
-void assignEntityToWave(room_t *room, sdl_ctx_t *ctx, entity_type type, V2f basePos, int wave_id);
+void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, entity_type type, V2f basePos, int wave_id);
 
 void destroyObjects(objs *objects);
 

@@ -1,5 +1,7 @@
 #include "bullets.h"
 #include "common.h"
+#include "entity.h"
+#include "level.h"
 #include "player.h"
 #include "sdl_helpers.h"
 
@@ -15,28 +17,25 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel)
     return true;
 }
 
-void checkBulletLevelCollisions(bullets *arr, objs *level)
+bool checkCollision(bullet *bullet, level_t *level)
 {
-    size_t i = 0;
-    while (i < arr->count) {
-        bullet *b = &arr->items[i];
-        bool collided = false;
-        da_foreach (obj, tile, level) {
-            if (SDL_HasRectIntersectionFloat(getBB(b), getBB(tile))) {
-                collided = true;
-                break;
-            }
-        }
-        if (collided) {
-            free(getBB(b));
-            da_remove_unordered(arr, i);
-        } else {
-            i += 1;
+    room_t *currRoom = level->items[level->currentLoadedRoomID];
+    da_foreach (obj, tile, &currRoom->structures) {
+        if (SDL_HasRectIntersectionFloat(getBB(bullet), getBB(tile))) {
+            return true;
         }
     }
+
+    da_foreach (entity_t *, entity, &currRoom->e_waves[currRoom->currWaveIdx]) {
+        if (SDL_HasRectIntersectionFloat(getBB(bullet), getBB(*entity))) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-void updateBulletState(bullets *arr, float deltaTime)
+void updateBulletState(bullets *arr, level_t *level, float deltaTime)
 {
     da_foreach (bullet, it, arr) {
         getBB(it)->x += it->velocity.x * deltaTime;
@@ -47,7 +46,7 @@ void updateBulletState(bullets *arr, float deltaTime)
     while (i < arr->count) {
         bullet *it = &arr->items[i];
         if ((getBB(it)->x < -64 || getBB(it)->x >= WINDOW_WIDTH * 2) ||
-            (getBB(it)->y < -64 || getBB(it)->y >= WINDOW_HEIGHT * 2)) {
+            (getBB(it)->y < -64 || getBB(it)->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level)) {
             deleteBullet(&it);
             da_remove_unordered(arr, i);
             i -= 1;

@@ -20,6 +20,7 @@
 #include "file_parsing.h"
 #include "level.h"
 #include "player.h"
+#include "entity.h"
 #include "bullets.h"
 #include "gui.h"
 #include "bars.h"
@@ -44,11 +45,13 @@ int main(int argc, char **argv)
     level_t *level = NULL;
     player_t *player = NULL;
     bullets bullet_arr = {0};
+    room_t *curr = NULL;
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
     parseFlag(argc, argv, sdl_ctx, &level);
-    movePlayer(player, level->items[level->currentLoadedRoomID]->startPos);
+    curr = getLoadedRoom(level);
+    movePlayer(player, curr->startPos);
 
     bar *hpBar = NULL;
     if (!createBar(
@@ -86,6 +89,11 @@ int main(int argc, char **argv)
     float healthBarTest = 0;
     bool addition = true;
 
+    for (int i = 0; i < 5; ++i) {
+        float offset = 25.0f * i;
+        assignEntityToWave(level->items[1], &sdl_ctx, E_FILTH, (V2f){900.0f + offset * 2, 400.0f - offset}, 0);
+    }
+
     SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND);
 
     // Updates the event queue and internal input device state
@@ -117,6 +125,7 @@ int main(int argc, char **argv)
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
+        renderRoom(sdl_ctx, level);
 
         if (!sdl_ctx->paused &&
             (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
@@ -141,8 +150,9 @@ int main(int argc, char **argv)
         prevMouseInput = mouseInputFlag;
 
         if (!sdl_ctx->paused) {
-            updatePlayer(player, &level, deltaTime);
-            updateEntities(&e_bundle, player, &bullet_arr, &level, deltaTime);
+            updateBulletState(&bullet_arr, level, deltaTime);
+            updateEntities(getCurrentEntityWave(level), player, getRoomObjects(level), deltaTime);
+            updatePlayer(player, getRoomObjects(level), deltaTime);
         }
 
         renderPlayer(player);
@@ -162,7 +172,6 @@ int main(int argc, char **argv)
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
 
         // Render the currently loaded level
-        renderRoom(sdl_ctx, level);
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});

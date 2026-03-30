@@ -19,26 +19,6 @@
 #include <string.h>
 #include "music.h"
 
-/**
- * @fn keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
- * @param[in] r The SDL rect given to check
- * @param[in] minX Minimum X bound
- * @param[in] minY Minimum Y bound
- * @param[in] maxX Maximum X bound
- * @param[in] maxY Maximum Y bound
- * @brief keep rectangle in the given bounds
- *
- * Takes the location of the rect we are moving then compares it to the bounds given.
- */
-void keepPlayerInbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
-{
-    if (r == NULL) return;
-    if (r->x < minX) r->x = minX;               // Left
-    if (r->y < minY) r->y = minY;               // Down
-    if (r->x + r->w > maxX) r->x = maxX - r->w; // Right
-    if (r->y + r->h > maxY) r->y = maxY - r->h; // Up
-}
-
 void movePlayer(player_t *p, V2f newPos)
 {
     p->boundingBox->x = newPos.x;
@@ -208,7 +188,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
     if (!p->flight) p->velocity.y = MIN(100.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
-    keepPlayerInbound(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    keepRectInbounds(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void renderPlayer(player_t *p)

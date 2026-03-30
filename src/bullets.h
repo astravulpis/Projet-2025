@@ -1,7 +1,8 @@
-#include "common.h"
-
 #ifndef BULLETS_H_
 #define BULLETS_H_
+
+#include "common.h"
+#include "level.h"
 
 /**
  * @struct bullet
@@ -45,7 +46,7 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel);
  *
  * moves all bullets according to delta time
  */
-void updateBulletState(bullets *arr, float deltaTime);
+void updateBulletState(bullets *arr, level_t *level, float deltaTime);
 
 /**
  * @fn checkBulletLevelCollisions(bullets *arr, objs *level)

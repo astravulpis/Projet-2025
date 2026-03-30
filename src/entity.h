@@ -12,7 +12,6 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "bullets.h"
 #include "common.h"
 #include "player.h"
 #include "sdl_helpers.h"
@@ -56,9 +55,9 @@ typedef struct {
 } entity_attributs;
 
 typedef struct {
-    sdl_ctx_t **ctx;
     SDL_FRect *boundingBox;
-    SDL_Texture *tex;
+    SDL_Texture *texture;
+    sdl_ctx_t **ctx;
     entity_type type;
     entity_attributs attributs;
     V2f velocity;
@@ -91,13 +90,13 @@ void renderEntities(entities *entities);
  * @fn updateEntity(entity_t e, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
  * @brief updates the attributs and behaviour of the entity
  */
-void updateEntity(entity_t *e, player_t *player, bullets *projectiles, objs *objects, float deltaTime);
+void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime);
 
 /**
  * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
  * @brief wrapper for the update in a for-loop of each entity in the current level
  */
-void updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime);
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime);
 
 #define setEntityAttributs(e, ...) _setEntityAttributs((e), (entity_attributs){__VA_ARGS__});
 void _setEntityAttributs(entity_t *e, entity_attributs attributs);

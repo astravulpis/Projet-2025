@@ -1,5 +1,6 @@
 #include "level.h"
-#include "player.h"
+#include "common.h"
+#include "entity.h"
 
 room_t *createRoom(int id)
 {
@@ -13,6 +14,7 @@ room_t *createRoom(int id)
     memset(&r->structures, 0, sizeof(objs)); // Delete the trash values in the structures
     memset(&r->e_waves, 0, sizeof(entities) * MAX_WAVE_COUNT); // Delete the trash values in the waves
     memset(&r->startPos, 0, sizeof(V2f)); // set start pos at 0, 0
+    r->currWaveIdx = 0;
 
     return r;
 }
@@ -35,9 +37,13 @@ void loadRoom(level_t *level, int id)
 void renderRoom(sdl_ctx_t *ctx, level_t *level)
 {
     if (level->count > 0 && level->currentLoadedRoomID >= 0) {
-        room_t *currRoom = level->items[level->currentLoadedRoomID];
+        room_t *currRoom = getLoadedRoom(level);
         da_foreach (obj, it, &currRoom->structures) {
             renderImage(ctx, it->texture, it->boundingBox);
+        }
+
+        da_foreach (entity_t *, e, getCurrentEntityWave(level)) {
+            renderEntity(*e);
         }
     }
 }
@@ -45,6 +51,16 @@ void renderRoom(sdl_ctx_t *ctx, level_t *level)
 objs *getRoomObjects(level_t *level)
 {
     return &level->items[level->currentLoadedRoomID]->structures;
+}
+
+room_t *getLoadedRoom(level_t *level)
+{
+    return level->items[level->currentLoadedRoomID];
+}
+
+entities *getCurrentEntityWave(level_t *level)
+{
+    return &level->items[level->currentLoadedRoomID]->e_waves[level->items[level->currentLoadedRoomID]->currWaveIdx];
 }
 
 level_t *createLevel(char *title, int id)
@@ -87,9 +103,9 @@ void assignObject(room_t *room, sdl_ctx_t *ctx, const char *path, float x, float
     obj_create(&room->structures, ctx, path, x, y, w, h);
 }
 
-void assignEntityToWave(room_t *room, sdl_ctx_t *ctx, entity_type type, V2f basePos, int wave_id)
+void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, entity_type type, V2f basePos, int wave_id)
 {
-    entity_t *e = createEntity(&ctx, type, basePos);
+    entity_t *e = createEntity(ctx, type, basePos);
     da_append(&room->e_waves[(assert(wave_id >= 0 && wave_id < MAX_WAVE_COUNT), wave_id)], e);
 }
 
