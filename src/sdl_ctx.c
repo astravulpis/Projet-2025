@@ -69,15 +69,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return false;
     }
 
-    sdl_ctx->font = loadFont("./assets/font/VCR_OSD_MONO_1.001.ttf", 24.0f, TTF_STYLE_NORMAL, 0);
-    if (sdl_ctx->font == NULL) {
-        nob_log(ERROR, "%s:%d: Failed to load font. See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return 1;
-    }
-
-    SDL_SetWindowFullscreen(sdl_ctx->window, true);
-
-    // ratio mis dans le context SDL
+    //ratio mis dans le context SDL
     int num_displays;
     SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
     if (displays == NULL) {
@@ -94,6 +86,14 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
 
     sdl_ctx->screenRatio = (float)screenInformation->h / (float)WINDOW_HEIGHT;
     SDL_free(displays);
+
+    sdl_ctx->font = loadFont("./assets/font/VCR_OSD_MONO_1.001.ttf", 28.0f * sdl_ctx->screenRatio, TTF_STYLE_NORMAL, 0);
+    if (sdl_ctx->font == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to load font. See error: %s", __FILE__, __LINE__, SDL_GetError());
+        return 1;
+    }
+
+    SDL_SetWindowFullscreen(sdl_ctx->window, true);
 
 defer:
     if (result == false) {
