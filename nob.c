@@ -194,7 +194,8 @@ int main(int argc, char **argv)
     da_append(&modules, "gui");
     da_append(&modules, "bullets");
     da_append(&modules, "entity");
-    if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);
+    da_append(&modules, "music");
+    if (!compile_submodules(&modules)) return_defer(1);
 
     // IMPORTANT: `Tests` cannot be run with other commands.
     if (*tests || *rec) {
