@@ -23,22 +23,29 @@ typedef struct {
     size_t capacity;
 } targets;
 
+typedef struct {
+    const char *include;
+    const char *lib;
+    const char *linking;
+} library;
 
-#define add_sdl_libraries(cmd)                                                                                               \
-    do {                                                                                                                     \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER SDL_FOLDER));                                            \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER SDL_FOLDER));                                                \
-        cmd_append((cmd), "-lSDL3");                                                                                         \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_Image/"));                                          \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_Image/"));                                              \
-        cmd_append((cmd), "-lSDL3_image");                                                                                   \
-        cmd_append((cmd), temp_sprintf("-I%sinclude", VENDOR_FOLDER "SDL_ttf/"));                                            \
-        cmd_append((cmd), temp_sprintf("-L%slib", VENDOR_FOLDER "SDL_ttf/"));                                                \
-        cmd_append((cmd), "-lSDL3_ttf");                                                                                     \
-        cmd_append((cmd), temp_sprintf("-Wl,-rpath,%slib:%slib:%slib", VENDOR_FOLDER SDL_FOLDER, VENDOR_FOLDER "SDL_Image/", \
-                                       VENDOR_FOLDER "SDL_ttf/"));                                                           \
-        cmd_append((cmd), "-lm");                                                                                            \
-    } while (0)
+typedef struct {
+    library *items;
+    size_t count;
+    size_t capacity;
+
+    String_Builder rpath;
+} SDL_Libraries;
+
+void add_library(SDL_Libraries *libs, const char *path, const char *linkingName)
+{
+    library lib = {.include = temp_sprintf("-I%s%sinclude", VENDOR_FOLDER, path),
+                   .lib = temp_sprintf("-L%s%slib", VENDOR_FOLDER, path),
+                   .linking = temp_sprintf("-l%s", linkingName)};
+
+    sb_appendf(&libs->rpath, "%s%slib:", VENDOR_FOLDER, path);
+    da_append(libs, lib);
+}
 
 bool delete_walk_entry(Walk_Entry entry)
 {
@@ -50,8 +57,9 @@ bool delete_directory_recursively(const char *dir_path)
     return walk_dir(dir_path, delete_walk_entry, .post_order = true);
 }
 
-bool compile(const char *test_name)
+bool compile(const char *test_name, SDL_Libraries *libs)
 {
+
     bool result = true;
     Cmd cmd = {0};
     char *src_path = temp_sprintf("%s%s.c", TEST_FOLDER, test_name);
@@ -60,15 +68,23 @@ bool compile(const char *test_name)
     nob_log(INFO, "------ Testing: `%s` ------", test_name);
 
     // Compile the test
-    nob_cc(&cmd);
-    nob_cc_flags(&cmd);
+    cmd_append(&cmd, "cc");
+    cmd_append(&cmd, "-Wall");
+    cmd_append(&cmd, "-Wextra");
     cmd_append(&cmd, "-fsanitize=address");
-    nob_cc_output(&cmd, bin_path);
-    nob_cc_inputs(&cmd, src_path);
-    cmd_append(&cmd, LIBPATH);
-    add_sdl_libraries(&cmd);
-    cmd_append(&cmd, "-lm");
+    cmd_append(&cmd, "-g");
     cmd_append(&cmd, "-ggdb");
+    cmd_append(&cmd, "-o", bin_path);
+    cmd_append(&cmd, src_path);
+    cmd_append(&cmd, LIBPATH);
+
+    da_foreach (library, lib, libs) {
+        cmd_append(&cmd, lib->include);
+        cmd_append(&cmd, lib->lib);
+        cmd_append(&cmd, lib->linking);
+    }
+    cmd_append(&cmd, temp_sprintf("-Wl,-rpath,%s", libs->rpath.items));
+    cmd_append(&cmd, "-lm");
     if (!nob_cmd_run(&cmd)) return_defer(1);
 
 defer:
@@ -142,6 +158,7 @@ int main(int argc, char *argv[])
     bool record = false;
     UNUSED(shift(argv, argc));
     targets test_targets = {0};
+    SDL_Libraries libs = {0};
 
     if (argc > 0) {
         char *flag = shift(argv, argc);
@@ -157,13 +174,21 @@ int main(int argc, char *argv[])
 
     if (!mkdir_if_not_exists(BUILD_FOLDER TEST_FOLDER)) return_defer(1);
     minimal_log_level = INFO;
+    add_library(&libs, SDL_FOLDER, "SDL3");
+    add_library(&libs, "SDL_Image/", "SDL3_image");
+    add_library(&libs, "SDL_ttf/", "SDL3_ttf");
+    add_library(&libs, "SDL_Mixer/", "SDL3_mixer");
+
+    libs.rpath.count--; // Remove the last ':'
+    sb_append_null(&libs.rpath); // To finalize the rpath with a '\0'
 
     da_append(&test_targets, ((target){.name = "load_sdl3"}));
     da_append(&test_targets, ((target){.name = "is_Player_inbounds"}));
     da_append(&test_targets, ((target){.name = "parseFile", .args = "--level-path=./tests/parseFile_test_level.txt"}));
-    da_foreach(target, it, &test_targets) {
+    da_append(&test_targets, ((target){.name = "createLevel", .args = "--level-path=./tests/createLevel_test_level.txt"}));
+    da_foreach (target, it, &test_targets) {
         mark = nob_temp_save();
-        if (!compile(it->name)) return_defer(1);
+        if (!compile(it->name, &libs)) return_defer(1);
         if (!run_test(it, record)) return_defer(1);
         temp_rewind(mark);
     }

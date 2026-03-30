@@ -1,0 +1,15 @@
+info "test level" 0
+room 0
+obj "./assets/img/white.png" 0 400 200 400
+obj "./assets/img/white.png" 0 0 15 800
+obj "./assets/img/white.png" 400 0 15 800
+obj "./assets/img/white.png" 0 -5 400 15
+room 1
+obj "./assets/img/white.png" 0 400 200 400
+obj "./assets/img/white.png" 0 0 15 800
+obj "./assets/img/white.png" 400 0 15 800
+obj "./assets/img/white.png" 0 -5 400 15
+obj "./assets/img/white.png" 0 300 125 100
+obj "./assets/img/white.png" 0 0 275 250
+room 2
+obj "./assets/img/white.png" 0 400 200 400

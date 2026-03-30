@@ -1,0 +1,7 @@
+Created room id: 0
+Assigning room no.0 to level 0
+Created room id: 1
+Assigning room no.1 to level 0
+Created room id: 2
+Assigning room no.2 to level 0
+everything went well
