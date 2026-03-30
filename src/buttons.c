@@ -30,6 +30,11 @@ bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect re
     (*b)->hoverImg = IMG_LoadTexture(sdl_ctx->renderer, hoverImgPath);
     (*b)->clickImg = IMG_LoadTexture(sdl_ctx->renderer, clickImgPath);
 
+    // j'ai mis cela car sinon le rendu lisse l'image, alors que moi, j'aime les pixels
+    SDL_SetTextureScaleMode((*b)->baseImg, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode((*b)->hoverImg, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode((*b)->clickImg, SDL_SCALEMODE_NEAREST);
+
     (*b)->isHovered = false;
     (*b)->isLeftClicked = false;
     (*b)->isRightClicked = false;
@@ -92,12 +97,21 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b)
     V2f buttonPos = {(b->buttonBox)->x + XCentering, (b->buttonBox)->y + YCentering};
 
     if (b->isLeftClicked || b->isRightClicked) {
-        renderImage(sdl_ctx, b->clickImg, b->buttonBox);
+        if (b->clickImg == NULL)// si l'image n'a pa été chargée avec succès un rectangle s'affiche par défaut
+            renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){20, 20, 20, 255});
+        else
+            renderImage(sdl_ctx, b->clickImg, b->buttonBox);
     } else if (b->isHovered) {
-        renderImage(sdl_ctx, b->hoverImg, b->buttonBox);
+        if (b->hoverImg == NULL)
+            renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){80, 80, 80, 255});
+        else
+            renderImage(sdl_ctx, b->hoverImg, b->buttonBox);
     } else {
         // rendu de la'arrière plan du bouton
-        renderImage(sdl_ctx, b->baseImg, b->buttonBox);
+        if (b->baseImg == NULL)
+            renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){60, 60, 60, 255});
+        else
+            renderImage(sdl_ctx, b->baseImg, b->buttonBox);
     }
     renderText_Ex(sdl_ctx, temp_sprintf("%s", b->buttonText), WHITE, buttonPos);
 }

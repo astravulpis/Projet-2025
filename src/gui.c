@@ -40,26 +40,26 @@ gui_menu *createMenu(SDL_Color bgColor, size_t count, ...)
 
 gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 {
-    SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio,
-                                      (WINDOW_HEIGHT / 2.0f - 37.5f - 90.0f) * sdl_ctx->screenRatio,
-                                      300.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
+    SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 128.0f) * sdl_ctx->screenRatio,
+                                      (WINDOW_HEIGHT / 2.0f - 32.0f - 90.0f) * sdl_ctx->screenRatio,
+                                      256.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
 
-    SDL_FRect boxOptions = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio,
-                                       (WINDOW_HEIGHT / 2.0f - 37.5f) * sdl_ctx->screenRatio, 300.0f * sdl_ctx->screenRatio,
+    SDL_FRect boxOptions = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 128.0f) * sdl_ctx->screenRatio,
+                                       (WINDOW_HEIGHT / 2.0f - 32.0f) * sdl_ctx->screenRatio, 256.0f * sdl_ctx->screenRatio,
                                        75.0f * sdl_ctx->screenRatio};
 
-    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio,
-                                    (WINDOW_HEIGHT / 2.0f - 37.5f + 90.0f) * sdl_ctx->screenRatio,
-                                    300.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
+    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 128.0f) * sdl_ctx->screenRatio,
+                                    (WINDOW_HEIGHT / 2.0f - 32.0f + 90.0f) * sdl_ctx->screenRatio,
+                                    256.0f * sdl_ctx->screenRatio, 75.0f * sdl_ctx->screenRatio};
 
     button *resumeButton = NULL;
-    createButton(sdl_ctx, &resumeButton, "resume", boxResume, "./assets/img/buttons/BTest.png", "./assets/img/buttons/HTest.png", "./assets/img/buttons/CTest.png");
+    createButton(sdl_ctx, &resumeButton, "resume", boxResume, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     button *optionsButton = NULL;
-    createButton(sdl_ctx, &optionsButton, "options", boxOptions, "./assets/img/buttons/BTest.png", "./assets/img/buttons/HTest.png", "./assets/img/buttons/CTest.png");
+    createButton(sdl_ctx, &optionsButton, "options", boxOptions, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     button *quitButton = NULL;
-    createButton(sdl_ctx, &quitButton, "quit", boxQuit, "./assets/img/buttons/BTest.png", "./assets/img/buttons/HTest.png", "./assets/img/buttons/CTest.png");
+    createButton(sdl_ctx, &quitButton, "quit", boxQuit, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120}, 3, resumeButton, optionsButton, quitButton);
 
