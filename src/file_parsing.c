@@ -104,7 +104,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
                 sv_chop_right(&bgTemp, 1);
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 printf("%s\n", path);
-                if (!Mix_Init(path)) return false;
+                if (!Mix_Init(path, ctx)) return false;
             }
             else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));

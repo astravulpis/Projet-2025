@@ -13,5 +13,6 @@ void resumeMusic(MIX_Track * track);
 void cleanupMusic(MIX_Mixer * mixer);
 */
 
-bool Mix_Init(const char * path);
+bool Mix_Init(const char * path, sdl_ctx_t * ctx);
+bool dash();
 #endif

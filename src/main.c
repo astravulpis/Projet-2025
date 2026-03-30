@@ -147,6 +147,7 @@ int main(int argc, char **argv)
         if (sdl_ctx->paused == true) {
             updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
             renderMenu(sdl_ctx, pauseMenu);
+            MIX_PauseTrack(sdl_ctx->track);
         }
 
         SDL_RenderPresent(sdl_ctx->renderer);

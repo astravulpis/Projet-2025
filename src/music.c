@@ -14,7 +14,7 @@
 #include "sdl_ctx.h"
 #include "common.h"
 
-bool Mix_Init(const char * path)
+bool Mix_Init(const char * path, sdl_ctx_t * ctx)
 {
     MIX_Mixer * mixer = NULL;
     MIX_Track * track = NULL;
@@ -50,11 +50,33 @@ bool Mix_Init(const char * path)
     }
     MIX_SetTrackAudio(track, audio);
 
+    ctx->track=track;
+
     /* start the audio playing! */
     MIX_PlayTrack(track, 0);  /* no extra options this time, so a zero for the second argument. */
 
     /* we don't save `audio`; SDL_mixer will clean it up for us during MIX_Quit(). */
     return true;
+}
+
+bool dash(){
+    MIX_Mixer * mixer = NULL;
+    MIX_Audio * audio = NULL;
+
+    mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    if (!mixer) {
+        SDL_Log("Couldn't create mixer on default device: %s", SDL_GetError());
+        return false;
+    }
+
+    /* load a sound file */#
+    const char * path = "./assets/audio/SFX/dash.mp3";
+    audio = MIX_LoadAudio(mixer, path, false);
+    if (!audio) {
+        SDL_Log("Couldn't load %s: %s", path, SDL_GetError());
+        return false;
+    }
+    MIX_PlayAudio(mixer, audio);
 }
 
 /*

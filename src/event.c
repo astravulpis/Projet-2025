@@ -50,6 +50,7 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
 
     if (state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
         sdl_ctx->paused = !sdl_ctx->paused;
+        MIX_ResumeTrack(sdl_ctx->track);
     }
     memcpy(prev, state, SDL_SCANCODE_COUNT);
 }

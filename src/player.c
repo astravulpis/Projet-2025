@@ -17,6 +17,7 @@
 #include "common.h"
 #include "sdl_helpers.h"
 #include <string.h>
+#include "music.h"
 
 /**
  * @fn keep_player_inbound(SDL_FRect *r, float minX, float minY, float maxX, float maxY)
@@ -127,6 +128,7 @@ V2f inputUpdate(player_t *p, const float dt)
         if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 4) * dt;
         if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 4) * dt;
         p->dashAmount -= 1;
+        dash();
     }
 
     // Vertical movement
