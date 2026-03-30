@@ -99,16 +99,16 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
     }
     else if(s->focused) {
         float difference = mouseCoord.x - s->prevX;// prevX est normalement toujours différent de -1 si on est arrivé ici
-        s->prevX = mouseCoord.x;
         float step = roundf(difference / s->cursorBox->w) * s->cursorBox->w;
-        float minX = s->sliderBox->x + (s->borderSize);
-        float maxX = s->sliderBox->x + s->sliderBox->w - s->cursorBox->w - (s->borderSize);
+
+        if (step != 0) {
+        float minX = s->sliderBox->x + s->borderSize;
+        float maxX = s->sliderBox->x + s->sliderBox->w - s->cursorBox->w - s->borderSize;
 
         FRect_Change_x(s->cursorBox, step, minX, maxX);
-
-        //s->currentValue = s->cursorBox->x ; // current value est un int
-        //s->currentValue = roundf(difference / s->cursorBox->w); // current value est un int
-        s->currentValue = roundf(((s->cursorBox->x + s->cursorBox->w) - (s->sliderBox->x  + s->borderSize)) / s->cursorBox->w);
+        s->currentValue = roundf(((s->cursorBox->x + s->cursorBox->w) - (s->sliderBox->x + s->borderSize)) / s->cursorBox->w);
+        s->prevX = mouseCoord.x;
+        }
     }
     else {
         s->hovered = false;
