@@ -11,11 +11,56 @@
  **/
 
 #include "music.h"
-#include "SDL3_mixer/SDL_mixer.h"
 #include "sdl_ctx.h"
 #include "common.h"
 
-static void freeMusicResources(MIX_Track * track, MIX_Audio * audio)
+bool Mix_Init()
+{
+    MIX_Mixer * mixer = NULL;
+    MIX_Track * track = NULL;
+    char *path = NULL;
+    MIX_Audio * audio = NULL;
+
+
+    if (!MIX_Init()) {
+        nob_log(ERROR, "%s:%d: Failed to initialise MIX", __FILE__, __LINE__);
+        return false;
+    }
+
+    /* Create a mixer on the default audio device. Don't care about the specific audio format. */
+    mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    if (!mixer) {
+        SDL_Log("Couldn't create mixer on default device: %s", SDL_GetError());
+        return false;
+    }
+
+    /* load a sound file */
+    path = "./assets/audio/SneakySnitch.mp3";
+    audio = MIX_LoadAudio(mixer, path, false);
+    if (!audio) {
+        SDL_Log("Couldn't load %s: %s", path, SDL_GetError());
+        return false;
+    }
+
+    /* we need a track on the mixer to play the audio. Each track has audio assigned to it, and
+       all playing tracks are mixed together for the final output. */
+
+    track = MIX_CreateTrack(mixer);
+    if (!track) {
+        SDL_Log("Couldn't create a mixer track: %s", SDL_GetError());
+        return false;
+    }
+    MIX_SetTrackAudio(track, audio);
+
+    /* start the audio playing! */
+    MIX_PlayTrack(track, 0);  /* no extra options this time, so a zero for the second argument. */
+
+    /* we don't save `audio`; SDL_mixer will clean it up for us during MIX_Quit(). */
+    return true;
+}
+
+/*
+void freeMusicResources(MIX_Track * track, MIX_Audio * audio)
 {
     if (track != NULL) {
         MIX_DestroyTrack(track);
@@ -23,7 +68,7 @@ static void freeMusicResources(MIX_Track * track, MIX_Audio * audio)
     }
 
     if (audio != NULL) {
-        MIX_FreeAudio(audio);
+        SDL_free(audio);
         audio = NULL;
     }
 }
@@ -56,10 +101,9 @@ bool playMusic(const char *path, bool loop, MIX_Mixer * mixer, MIX_Audio * audio
 {
     if (mixer == NULL) {
         nob_log(ERROR, "%s:%d: Audio mixer is not initialized.", __FILE__, __LINE__);
+        freeMusicResources(track, audio);
         return false;
     }
-
-    freeMusicResources(track, audio);
 
     audio = MIX_LoadAudio(mixer, path, true);
     if (audio == NULL) {
@@ -134,5 +178,5 @@ void cleanupMusic(MIX_Mixer * mixer)
 
     MIX_Quit();
 }
-
+*/
 
