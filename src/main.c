@@ -26,6 +26,7 @@
 #include "gui.h"
 #include "music.h"
 #include "health_bar.h"
+#include "sliders.h"
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -58,6 +59,9 @@ int main(int argc, char **argv)
 
     SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
                            150 * sdl_ctx->screenRatio};
+
+    slider *sTest = NULL;
+    createSlider(sdl_ctx, &sTest, (SDL_FRect){20, 200, 512, 64}, "/", "/", 40,  10);
 
     V2f mouseCoord = {0};
     int mouseInputFlag = 0;
@@ -158,6 +162,10 @@ int main(int argc, char **argv)
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
         healthBarRender(sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
 
+        // test de slider
+        updateSliderStates(sTest, mouseCoord, mouseInputFlag, sdl_ctx);
+        renderSlider(sdl_ctx, sTest);
+
         // Update and render the menu at the very end
         if (sdl_ctx->paused == true) {
             updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
@@ -187,6 +195,7 @@ int main(int argc, char **argv)
 
     destroyEntity(&filth);
     destroyHealthBar(&hpBar);
+    destroySliders(&sTest);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);
