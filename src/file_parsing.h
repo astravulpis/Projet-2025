@@ -15,6 +15,9 @@
 #define FILE_PARSING_H
 
 #include "common.h"
+#include "level.h"
+#include "sdl_ctx.h"
+#include "sdl_helpers.h"
 
 /**
  * @fn parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
@@ -24,7 +27,7 @@
  * @param[in] level level object
  * @brief Parse the arguments given when calling the main function.
  */
-bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level);
+bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, level_t **level);
 
 /**
  * @fn parseFile(const char *path, sdl_ctx_t *ctx, objs *level)
@@ -33,6 +36,6 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level);
  * @param[in] level Array of objects that will be filled with the level's objects
  * @brief Parse a level file to get each object out and constructed into the array `level`
  */
-bool parseFile(char *path, sdl_ctx_t *ctx, objs *level);
+bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level);
 
 #endif // FILE_PARSING_H

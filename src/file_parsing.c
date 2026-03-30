@@ -14,10 +14,10 @@
 #include "file_parsing.h"
 #include "common.h"
 #include "sdl_ctx.h"
-#include "sdl_helpers.h"
 #include "music.h"
+#include "level.h"
 
-bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
+bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, level_t **level)
 {
     char *path = NULL;
     flag_str_var(&path, "-level-path", NULL, "Defines the path to the file where a level or room is stored at");
@@ -31,7 +31,7 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, objs *level)
     return true;
 }
 
-bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
+bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
 {
     String_Builder sb = {0};
     bool result = true;
@@ -60,14 +60,47 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
     String_View sv = sb_to_sv(sb);
 
     float rect[4] = {0};
+
+    // Its own context
+    {
+        String_View line = sv_chop_by_delim(&sv, '\n');
+        String_View header = sv_chop_by_delim(&line, ' ');
+        if (sv_eq(header, sv_from_cstr("info"))) {
+            // header title         level_index
+            // info   "debug level" 0
+            (void)sv_chop_by_delim(&line, '"'); // Remove the left most '"'
+            String_View title = sv_chop_by_delim(&line, '"');
+
+            int level_id = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+            *level = createLevel((char *)nob_temp_sv_to_cstr(title), level_id);
+        } else {
+            nob_log(ERROR, "INFO LABEL IS NOT SET. EXITING...");
+            exit(1);
+        }
+        temp_rewind(mark); // Title was strdup'd in the creation of the level
+    }
+
+    room_t *room = NULL;
+
     while (sv.count > 0) {
         temp_rewind(mark);
         String_View line = sv_chop_by_delim(&sv, '\n');
         while (line.count > 0) {
             String_View header = sv_chop_by_delim(&line, ' ');
 
-            // If line header is "obj"
-            if (sv_eq(header, sv_from_cstr("obj"))) {
+            // Create the room
+            if (sv_eq(header, sv_from_cstr("room"))) {
+                if (room != NULL) {
+                    assignRoomToLevel((*level), room);
+                    room = NULL;
+                }
+                int room_id = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                room = createRoom(room_id);
+                nob_log(INFO, "Created room id: %d", room_id);
+
+            // Insert objects in the room
+            } else if (sv_eq(header, sv_from_cstr("obj"))) {
+
                 // Path to image
                 String_View temp = sv_chop_by_delim(&line, ' ');
                 if (!sv_eq(temp, sv_from_cstr("")) && !sv_eq(temp, sv_from_cstr("NULL"))) {
@@ -90,11 +123,10 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
                     }
                     continue;
                 }
+                nob_log(INFO, "Inserting rect inside of room id: %d", room->roomID);
+                assignObject(room, ctx, path, rect[0], rect[1], rect[2], rect[3]);
 
-                // Creating the object into the level itself
-                obj_create(level, ctx, path, rect[0], rect[1], rect[2], rect[3]);
-            }
-            else if (sv_eq(header, sv_from_cstr("bg"))) {
+            } else if (sv_eq(header, sv_from_cstr("bg"))) {
                 String_View bgTemp = sv_chop_by_delim(&line, ' ');
                 sv_chop_left(&bgTemp, 1);
 #ifdef _WIN32
@@ -112,12 +144,15 @@ bool parseFile(char *path, sdl_ctx_t *ctx, objs *level)
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 printf("%s\n", path);
                 if (!Mix_Init(path, ctx)) return false;
-            }
-            else {
+            } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
             }
         }
+    }
+    if (room != NULL) {
+        assignRoomToLevel((*level), room);
+        loadRoom((*level), 0);
     }
 
 defer:
@@ -129,3 +164,4 @@ defer:
     }
     return result;
 }
+// TODO(2026-03-30 08:08:45): parse entity from a file
