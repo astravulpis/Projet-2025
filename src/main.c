@@ -115,6 +115,7 @@ int main(int argc, char **argv)
         // }
 
         updateBulletState(&bullet_arr, deltaTime);
+        checkBulletLevelCollisions(&bullet_arr, &level); //collision check between the bullets and env + enemies
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
 
@@ -150,7 +151,6 @@ int main(int argc, char **argv)
             renderMenu(sdl_ctx, pauseMenu);
             MIX_PauseTrack(sdl_ctx->track);
         }
-
         SDL_RenderPresent(sdl_ctx->renderer);
         frameCounter++;
     }

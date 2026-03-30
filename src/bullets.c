@@ -15,6 +15,27 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel)
     return true;
 }
 
+void checkBulletLevelCollisions(bullets *arr, objs *level)
+{
+    size_t i = 0;
+    while (i < arr->count) {
+        bullet *b = &arr->items[i];
+        bool collided = false;
+        da_foreach (obj, tile, level) {
+            if (SDL_HasRectIntersectionFloat(getBB(b), getBB(tile))) {
+                collided = true;
+                break;
+            }
+        }
+        if (collided) {
+            free(getBB(b));
+            da_remove_unordered(arr, i);
+        } else {
+            i += 1;
+        }
+    }
+}
+
 void updateBulletState(bullets *arr, float deltaTime)
 {
     da_foreach (bullet, it, arr) {

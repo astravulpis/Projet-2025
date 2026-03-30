@@ -3,26 +3,26 @@
 #ifndef MUSIC_H_
 #define MUSIC_H_
 
-typedef enum {
-    JUMP = 0,
-    DASH = 1,
-    SHOOT = 2,
-    SOUND_COUNT
-} sound_type_t;
 
-extern const char* sound_paths[SOUND_COUNT];
-
-/*
-void freeMusicResources(MIX_Track * track, MIX_Audio * audio);
-bool initMusic(MIX_Mixer * mixer);
-bool playMusic(const char *path, bool loop, MIX_Mixer * mixer, MIX_Audio * audio, MIX_Track * track);
-void stopMusic(MIX_Track * track);
-void pauseMusic(MIX_Track * track);
-void resumeMusic(MIX_Track * track);
-void cleanupMusic(MIX_Mixer * mixer);
-*/
-
+/**
+ * @fn Mix_Init(const char * path, sdl_ctx_t * ctx)
+ * @param[in] path pointer pointer to the player itself
+ * @param[in] ctx our own sdl context variable
+ * @brief initialises the level music
+ *
+ * takes the path to the music obtained in the level parsing. this is then fed into SDL_Mixer to 
+ * start playing music for the level
+ */
 bool Mix_Init(const char * path, sdl_ctx_t * ctx);
+
+/**
+ * @fn sfx(const char * path)
+ * @param[in] path pointer pointer to the player itself
+ * @brief plays sound effects
+ *
+ * we feed this the path to the sound effect wanted in a case-by-case basis 
+ * with the sound effect being played without any need for tracks
+ * this overlaps without issues with the level song
+ */
 bool sfx(const char * path);
-bool initSounds(sdl_ctx_t * sdl_ctx);
 #endif

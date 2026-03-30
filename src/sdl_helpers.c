@@ -14,6 +14,8 @@
 #include "sdl_helpers.h"
 #include "common.h"
 #include <stdlib.h>
+#include "bullets.h"
+
 
 SDL_FRect *createRect(float x, float y, float width, float height)
 {
