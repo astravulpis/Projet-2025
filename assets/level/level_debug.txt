@@ -1,4 +1,5 @@
 info "debug level" 0
+bg "./assets/img/flare.jpg"
 room 0
 player 800 10
 obj "./assets/img/white.png" 0 0 760 1080

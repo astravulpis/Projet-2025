@@ -117,6 +117,7 @@ int main(int argc, char **argv)
 
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
+
         if (!sdl_ctx->paused &&
             (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
             V2f startingPos = (V2f){player->boundingBox->x + player->boundingBox->w / 2.0f,
