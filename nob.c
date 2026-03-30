@@ -196,6 +196,7 @@ int main(int argc, char **argv)
     da_append(&modules, "entity");
     da_append(&modules, "music");
     da_append(&modules, "health_bar");
+    da_append(&modules, "sliders");
     if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);
 
     // IMPORTANT: `Tests` cannot be run with other commands.
