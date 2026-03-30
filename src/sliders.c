@@ -95,10 +95,10 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
         else
             s->clicked = false;
 
-        s->prevX = s->cursorBox->x;
+        s->prevX = mouseCoord.x;
     }
     else if(s->focused) {
-        int difference = mouseCoord.x - s->prevX;// prevX est normalement toujours différent de -1 si on est arrivé ici
+        float difference = mouseCoord.x - s->prevX;// prevX est normalement toujours différent de -1 si on est arrivé ici
         s->prevX = mouseCoord.x;
         float step = roundf(difference / s->cursorBox->w) * s->cursorBox->w;
         float minX = s->sliderBox->x + (s->borderSize);
