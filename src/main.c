@@ -61,8 +61,7 @@ int main(int argc, char **argv)
                            150 * sdl_ctx->screenRatio};
 
     slider *sTest = NULL;
-    createSlider(sdl_ctx, &sTest, (SDL_FRect){20, 200, 512, 64}, "/", "/", 40,  10);
-
+    createSlider(sdl_ctx, &sTest, (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio, 64 * sdl_ctx->screenRatio}, "/", "/", 40,  10.0f * sdl_ctx->screenRatio);
     V2f mouseCoord = {0};
     int mouseInputFlag = 0;
     int prevMouseInput = 0;
