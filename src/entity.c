@@ -11,15 +11,32 @@
 
 #include "entity.h"
 
+static struct entityBaseAttributs {
+    entity_type type;
+    entity_attributs stats;
+    V2f size;
+} baseStats[E_TYPE_COUNT] = {
+    {.type = E_FILTH, .stats = {}, .size = (V2f){80, 100}},
+    {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
+    {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
+    {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},
+    {.type = E_VERTU, .stats = {}, .size = (V2f){128, 128}},
+    {.type = E_MAURICE, .stats = {}, .size = (V2f){118, 128}},
+    {.type = E_MINOS_PRIME, .stats = {}, .size = (V2f){120, 180}},
+    {.type = E_SISYPHUS, .stats = {}, .size = (V2f){140, 200}},
+};
+
 SDL_Texture *entity_textures[E_TYPE_COUNT] = {0};
 
 void loadEntityTex(sdl_ctx_t *ctx)
 {
+    // See TODO(2026-03-30 08:14:05)
+    // See TODO(2026-03-30 08:14:40)
     const char *texPaths[E_TYPE_COUNT] = {
         "./assets/img/filth.png",
     };
 
-    for (size_t i = 0; i < 1; ++i) {
+    for (size_t i = 0; i < ARRAY_LEN(texPaths); ++i) {
         entity_textures[i] = IMG_LoadTexture(ctx->renderer, texPaths[i]);
     }
 }
@@ -30,20 +47,18 @@ SDL_Texture *getEntityTex(sdl_ctx_t *ctx, int index)
         loadEntityTex(ctx);
     }
     return entity_textures[index];
-    ;
 }
 
 entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
 {
+    // See TODO(2026-03-30 08:15:26)
     entity_t *e = calloc(1, sizeof(entity_t));
     if (e == NULL) {
         nob_log(ERROR, "%s:%d: Failed to allocate space for an entity", __FILE__, __LINE__);
         return NULL;
     }
 
-    // See TODO(2026-03-29 18:13:39)
     e->tex = getEntityTex(*sdl_ctx, type);
-
     e->type = type;
     e->ctx = sdl_ctx;
 
@@ -51,38 +66,38 @@ entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
     case E_FILTH: {
-        e->boundingBox = createRect_Ex((SDL_FRect){basePos.x, basePos.y, 45, 100});
+        e->boundingBox = createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
         setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f);
         break;
     }
-    // case E_STRAY: {
-    //     TODO("skism");
-    //     break;
-    // }
-    // case E_SWORDSMACHINE: {
-    //     TODO("swordmachine");
-    //     break;
-    // }
-    // case E_PROVIDENCE: {
-    //     TODO("providence");
-    //     break;
-    // }
-    // case E_ANGEL: {
-    //     TODO("angel");
-    //     break;
-    // }
-    // case E_MAURICE: {
-    //     TODO("maurice");
-    //     break;
-    // }
-    // case E_MINOS_PRIME: {
-    //     TODO("thy end is now");
-    //     break;
-    // }
-    // case E_SISYPHUS: {
-    //     TODO("you cannot escape");
-    //     break;
-    // }
+    case E_STRAY: {
+        TODO("stray");
+        break;
+    }
+    case E_SWORDSMACHINE: {
+        TODO("swordmachine");
+        break;
+    }
+    case E_PROVIDENCE: {
+        TODO("providence");
+        break;
+    }
+    case E_VERTU: {
+        TODO("vertu");
+        break;
+    }
+    case E_MAURICE: {
+        TODO("maurice");
+        break;
+    }
+    case E_MINOS_PRIME: {
+        TODO("thy end is now");
+        break;
+    }
+    case E_SISYPHUS: {
+        TODO("you cannot escape");
+        break;
+    }
     default:
         UNREACHABLE("entity_type");
         break;
@@ -108,6 +123,7 @@ void setEntitySpeed(entity_t *e, float speed)
 
 void _setEntityAttributs(entity_t *e, entity_attributs attrib)
 {
+    // See TODO(2026-03-30 08:17:02)
     if (attrib.entity_speed > 0) setEntitySpeed(e, attrib.entity_speed);
 
     if (attrib.maxHP > 0) setMaxHP(e, attrib.maxHP);
@@ -223,4 +239,9 @@ void destroyEntities(entities *entities)
 
     free(entities->items);
 }
-// TODO(2026-03-29 18:13:39): Make the bundle of entity take an array of loaded texture instead of loading one for each entity
+// TODO(2026-03-30 08:14:05): Create test for loading every image, when every image will be added
+// TODO(2026-03-30 08:14:40): Change the entity_textures to take arrays of texture for when the animation part of the project
+// comes into mind
+// TODO(2026-03-30 08:15:26): Create test to test the creation of a valid entity, wrongly typed entity, with both bad and good
+// position (test with keepInbounds)
+// TODO(2026-03-30 08:17:02): Test exhausively this function

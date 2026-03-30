@@ -24,7 +24,7 @@ typedef enum {
     E_STRAY,
     E_SWORDSMACHINE,
     E_PROVIDENCE,
-    E_ANGEL,
+    E_VERTU,
     E_MAURICE,
     E_MINOS_PRIME,
     E_SISYPHUS,
