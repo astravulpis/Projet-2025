@@ -27,6 +27,7 @@
 #include "music.h"
 #include "health_bar.h"
 #include "sliders.h"
+#include "checkboxes.h"
 
 #define rad2deg(deg) (((deg) / 180) * M_PI))
 #define deg2rad(rad) (((rad) / M_PI) * 180))
@@ -65,6 +66,15 @@ int main(int argc, char **argv)
                  (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio,
                              64 * sdl_ctx->screenRatio},
                  NULL, NULL, 10, 10.0f * sdl_ctx->screenRatio);
+
+    checkbox *cTest = NULL;
+    createCheckbox(sdl_ctx, &cTest,
+                    (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio},
+                    (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio},
+                    NULL, NULL, NULL,
+                    10.0f * sdl_ctx->screenRatio,
+                    20.0f * sdl_ctx->screenRatio);
+
     V2f mouseCoord = {0};
     int mouseInputFlag = 0;
     int prevMouseInput = 0;
@@ -168,6 +178,10 @@ int main(int argc, char **argv)
         updateSliderStates(sTest, mouseCoord, mouseInputFlag, sdl_ctx);
         renderSlider(sdl_ctx, sTest);
 
+        // test de checkbox
+        updateCheckboxStates(cTest, mouseCoord, mouseInputFlag);
+        renderCheckbox(sdl_ctx, cTest, "checkbox test");
+
         // Update and render the menu at the very end
         if (sdl_ctx->paused == true) {
             updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
@@ -195,6 +209,7 @@ int main(int argc, char **argv)
     destroyEntity(&filth);
     destroyHealthBar(&hpBar);
     destroySliders(&sTest);
+    destroyCheckbox(&cTest);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);
