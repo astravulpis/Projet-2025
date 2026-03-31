@@ -18,6 +18,12 @@
 
 #define BASE_SPEED 250
 
+/**
+ * @enum entity_type
+ * @brief entity types
+ *
+ * enum containing a list of all entities
+ */
 typedef enum {
     E_FILTH,
     E_STRAY,
@@ -33,12 +39,24 @@ typedef enum {
 
 extern SDL_Texture *entity_textures[E_TYPE_COUNT];
 
+/**
+ * @enum entity_state
+ * @brief entity states
+ *
+ * enum containing the current state of the associated entity
+ */
 typedef enum {
     STATE_IDLE,
     STATE_PURSUING,
     // STATE_ATTACKING,
 } entity_state;
 
+/**
+ * @struct entity_t
+ * @brief entity attributes
+ *
+ * contains all the attributes one entity can have such as speed and jump force
+ */
 typedef struct {
     float entity_speed;
     float projectile_speed;
@@ -54,6 +72,12 @@ typedef struct {
     entity_state state;
 } entity_attributs;
 
+/**
+ * @struct entity_t
+ * @brief entity data
+ *
+ * contains all the relevant and corresponding entity information
+ */
 typedef struct {
     SDL_FRect *boundingBox;
     SDL_Texture *texture;
@@ -88,27 +112,94 @@ void renderEntities(entities *entities);
 
 /**
  * @fn updateEntity(entity_t e, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+ * @param[in] e one specific entity
+ * @param[in] player does nothing?
+ * @param[in] objects list of all level objects that we iterate through
+ * @param[in] deltaTime time interval used to control the enemy speeds
  * @brief updates the attributs and behaviour of the entity
+ * 
+ * takes one entity and tests it for collisions against all elements of the level
+ * and updates its related information
  */
 void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime);
 
 /**
  * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
+ * @param[in] entities array of entities
+ * @param[in] player does nothing still?
+ * @param[in] objects list of all level objects that we iterate through
+ * @param[in] deltaTime time interval used to control the enemy speeds
  * @brief wrapper for the update in a for-loop of each entity in the current level
+ * 
+ * goes through a loop to check on every entity by then calling the updateEntity function
  */
 void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime);
 
 #define setEntityAttributs(e, ...) _setEntityAttributs((e), (entity_attributs){__VA_ARGS__});
+
+/**
+ * @fn _setEntityAttributs(entity_t *e, entity_attributs attributs)
+ * @param[in] e structure of 1 entity
+ * @param[in] attributs enemy attributes
+ * @brief sets corresponding enemy attributes#
+ * 
+ * takes one entity and gives it all the necesary attributes
+ */
 void _setEntityAttributs(entity_t *e, entity_attributs attributs);
 
+/**
+ * @fn setEntityState(entity_t *e, entity_state state)
+ * @param[in] e structure of 1 entity
+ * @param[in] state entity state
+ * @brief sets the state of the enemy
+ */
 void setEntityState(entity_t *e, entity_state state);
+
+/**
+ * @fn getEntityState(entity_t *e)
+ * @param[in] e structure of 1 entity
+ * @brief gets the state of the enemy
+ */
 entity_state getEntityState(entity_t *e);
 
+/**
+ * @fn setMaxHP(entity_t *e, float maxHP)
+ * @param[in] e structure of 1 entity
+ * @param[in] maxHP total HP given to the enemy
+ * @brief sets the max HP of the enemy
+ */
 void setMaxHP(entity_t *e, float maxHP);
+
+/**
+ * @fn setHP(entity_t *e, float HP)
+ * @param[in] e structure of 1 entity
+ * @param[in] HP current HP
+ * @brief sets the current HP of the enemy
+ */
 void setHP(entity_t *e, float HP);
+
+/**
+ * @fn setEntitySpeed(entity_t *e, float speed)
+ * @param[in] e structure of 1 entity
+ * @param[in] speed corresponding speed
+ * @brief sets the current speed of the entity
+ */
 void setEntitySpeed(entity_t *e, float speed);
 
+/**
+ * @fn destroyEntity(entity_t **e)
+ * @param[in] e structure of 1 entity
+ * @brief destroys one entity
+ */
 void destroyEntity(entity_t **e);
+
+/**
+ * @fn destroyEntity(entity_t **e)
+ * @param[in] e structure of the entities
+ * @brief destorys all entities
+ * 
+ * Goes through the list of all entities and destroys them one by one by calling the destroyEntity function
+ */
 void destroyEntities(entities *entities);
 
 #endif // ENTITY_H_
