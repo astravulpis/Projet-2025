@@ -19,3 +19,6 @@ obj "./assets/img/white.png" 450 500 300 50
 obj "./assets/img/white.png" 585 260 165 65
 obj "./assets/img/white.png" 520 260 180 25
 obj "./assets/img/white.png" 0 375 345 55
+entity FILTH 840 200 0
+entity FILTH 900 250 0
+entity FILTH 960 300 0

@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
     if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
-    parseFlag(argc, argv, sdl_ctx, &level);
+    parseFlag(argc, argv, &sdl_ctx, &level);
     curr = getLoadedRoom(level);
     movePlayer(player, curr->startPos);
 

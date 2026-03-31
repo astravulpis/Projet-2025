@@ -13,12 +13,12 @@
 
 #include "file_parsing.h"
 #include "common.h"
-#include "sdl_ctx.h"
 #include "music.h"
+#include "entity.h"
 #include "level.h"
 #include "sdl_ctx.h"
 
-bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, level_t **level)
+bool parseFlag(int xs_sz, char **xs, sdl_ctx_t **ctx, level_t **level)
 {
     char *path = NULL;
     flag_str_var(&path, "-level-path", NULL, "Defines the path to the file where a level or room is stored at");
@@ -32,7 +32,7 @@ bool parseFlag(int xs_sz, char **xs, sdl_ctx_t *ctx, level_t **level)
     return true;
 }
 
-bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
+bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
 {
     String_Builder sb = {0};
     bool result = true;
@@ -66,8 +66,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
         String_View line = sv_chop_by_delim(&sv, '\n');
         String_View header = sv_chop_by_delim(&line, ' ');
         if (sv_eq(header, sv_from_cstr("info"))) {
-            // header title         level_index
-            // info   "debug level" 0
+            // info "[LEVEL_NAME]" [LEVEL_INDEX]
             (void)sv_chop_by_delim(&line, '"'); // Remove the left most '"'
             String_View title = sv_chop_by_delim(&line, '"');
 
@@ -90,17 +89,21 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
 
             // Create the room
             if (sv_eq(header, sv_from_cstr("room"))) {
+
+                // room [INDEX]
+                // When at least one room has been parsed
                 if (room != NULL) {
                     assignRoomToLevel((*level), room);
                     room = NULL;
                 }
+
                 int room_id = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 room = createRoom(room_id);
 
             // Insert objects in the room
             } else if (sv_eq(header, sv_from_cstr("obj"))) {
 
-                // Path to image
+                // obj "[PATH_TO_IMAGE]" [X_POS] [Y_POS] [WIDTH] [HEIGHT]
                 String_View temp = sv_chop_by_delim(&line, ' ');
                 if (!sv_eq(temp, sv_from_cstr("")) && !sv_eq(temp, sv_from_cstr("NULL"))) {
                     sv_chop_left(&temp, 1);
@@ -111,7 +114,7 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
                 // The rectangle's position, width and height based on screen/FHD ratio
                 for (int i = 0; i < 4; ++i) {
                     float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                    rect[i] = val * ctx->screenRatio;
+                    rect[i] = val * (*ctx)->screenRatio;
                 }
 
                 // Removing unwanted values
@@ -122,9 +125,11 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
                     }
                     continue;
                 }
-                assignObject(room, ctx, path, rect[0], rect[1], rect[2], rect[3]);
+                assignObject(room, (*ctx), path, rect[0], rect[1], rect[2], rect[3]);
 
             } else if (sv_eq(header, sv_from_cstr("bg"))) {
+
+                // bg "[PATH_TO_IMG]"
                 String_View bgTemp = sv_chop_by_delim(&line, ' ');
                 sv_chop_left(&bgTemp, 1);
 #ifdef _WIN32
@@ -133,9 +138,10 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
                 sv_chop_right(&bgTemp, 1);
 #endif
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
-                if (!loadBackgroundImage(ctx, path)) return false;
-            }
-            else if (sv_eq(header, sv_from_cstr("mus"))) {
+                if (!loadBackgroundImage((*ctx), path)) return false;
+
+            // get the music to play in the background
+            } else if (sv_eq(header, sv_from_cstr("mus"))) {
                 String_View bgTemp = sv_chop_by_delim(&line, ' ');
                 sv_chop_left(&bgTemp, 1);
                 sv_chop_right(&bgTemp, 1);
@@ -145,13 +151,46 @@ bool parseFile(char *path, sdl_ctx_t *ctx, level_t **level)
 
             // start position of the player when switching room (debug mode)
             } else if (sv_eq(header, sv_from_cstr("player"))) {
+
+                // player [X_POS] [Y_POS]
                 int x_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 int y_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 room->startPos = (V2f){x_pos, y_pos};
 
-            // entities (TO BE DONE)
-            } else if (sv_eq(header, sv_from_cstr("entity"))) { // See TODO(2026-03-30 08:08:45)
-                TODO("entity parsing");
+            // entities
+            } else if (sv_eq(header, sv_from_cstr("entity"))) {
+
+                // entity [TYPE] [X_POS] [Y_POS] [WAVE_INDEX]
+                String_View type = sv_chop_by_delim(&line, ' ');
+                float x_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                float y_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                int waveIdx = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+
+                nob_log(INFO, "Creating an entity at pos {%.2f, %.2f}, for wave no.%d", x_pos, y_pos, waveIdx);
+
+                // Might consider to just abs(waveIdx) but the fact that a waveIdx can be <0 is just wrong
+                assert(waveIdx >= 0 && "the wave index should be zero or positive ");
+
+                // Compare the type written with the different type
+                // nb 1: a switch case would have been so blessed but it doesn't exist with strings
+                // nb 2: I wish that I could just have done: `types["type_name"] = type` so that I can
+                //       just have one statement because the following is actual cancer
+                if (sv_eq(type, sv_from_cstr("FILTH"))) assignEntityToWave(room, ctx, E_FILTH, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("STRAY")))
+                    assignEntityToWave(room, ctx, E_STRAY, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("SWORDSMACHINE")))
+                    assignEntityToWave(room, ctx, E_SWORDSMACHINE, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("PROVIDENCE")))
+                    assignEntityToWave(room, ctx, E_PROVIDENCE, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("VERTU")))
+                    assignEntityToWave(room, ctx, E_VERTU, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("MAURICE")))
+                    assignEntityToWave(room, ctx, E_MAURICE, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("MINOS_PRIME")))
+                    assignEntityToWave(room, ctx, E_MINOS_PRIME, (V2f){x_pos, y_pos}, waveIdx);
+                else if (sv_eq(type, sv_from_cstr("SISYPHUS")))
+                    assignEntityToWave(room, ctx, E_SISYPHUS, (V2f){x_pos, y_pos}, waveIdx);
+
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
@@ -172,4 +211,3 @@ defer:
     }
     return result;
 }
-// TODO(2026-03-30 08:08:45): parse entity from a file
