@@ -48,12 +48,12 @@ int main(int argc, char **argv)
     parseFlag(argc, argv, sdl_ctx, &level);
 
     health_bar *hpBar = NULL;
-    if (!createHealthBar(&hpBar,
-                        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio, 450 * sdl_ctx->screenRatio, 60.0f * sdl_ctx->screenRatio},
-                        (SDL_Color){20, 20, 20, 255},
-                        (SDL_Color){178, 19, 19, 255},
-                        (SDL_Color){255, 255, 255, 255},
-                        100.0f, 10.0f)) return 1;
+    if (!createHealthBar(
+            &hpBar,
+            (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio,
+                        450 * sdl_ctx->screenRatio, 60.0f * sdl_ctx->screenRatio},
+            (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255}, 100.0f, 10.0f))
+        return 1;
 
     gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
 
@@ -61,7 +61,10 @@ int main(int argc, char **argv)
                            150 * sdl_ctx->screenRatio};
 
     slider *sTest = NULL;
-    createSlider(sdl_ctx, &sTest, (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio, 64 * sdl_ctx->screenRatio}, "/", "/", 40,  10.0f * sdl_ctx->screenRatio);
+    createSlider(sdl_ctx, &sTest,
+                 (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio,
+                             64 * sdl_ctx->screenRatio},
+                 NULL, NULL, 10, 10.0f * sdl_ctx->screenRatio);
     V2f mouseCoord = {0};
     int mouseInputFlag = 0;
     int prevMouseInput = 0;
@@ -175,13 +178,10 @@ int main(int argc, char **argv)
         SDL_RenderPresent(sdl_ctx->renderer);
 
         frameCounter++;
-        if (healthBarTest < 0 && !addition)
-            addition = true;
-        if (healthBarTest > 100 && addition)
-            addition = false;
+        if (healthBarTest < 0 && !addition) addition = true;
+        if (healthBarTest > 100 && addition) addition = false;
 
-        if (addition)
-            healthBarTest += 10 * deltaTime;
+        if (addition) healthBarTest += 10 * deltaTime;
         else
             healthBarTest -= 10 * deltaTime;
     }

@@ -53,13 +53,16 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
                                     384.0f * sdl_ctx->screenRatio, 96.0f * sdl_ctx->screenRatio};
 
     button *resumeButton = NULL;
-    createButton(sdl_ctx, &resumeButton, "resume", boxResume, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &resumeButton, "RESUME", boxResume, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     button *optionsButton = NULL;
-    createButton(sdl_ctx, &optionsButton, "options", boxOptions, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &optionsButton, "OPTIONS", boxOptions, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     button *quitButton = NULL;
-    createButton(sdl_ctx, &quitButton, "quit", boxQuit, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &quitButton, "QUIT", boxQuit, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
+                 "./assets/img/buttons/click128.png");
 
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120}, 3, resumeButton, optionsButton, quitButton);
 

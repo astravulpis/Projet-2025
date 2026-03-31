@@ -69,7 +69,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return false;
     }
 
-    //ratio mis dans le context SDL
+    // ratio mis dans le context SDL
     int num_displays;
     SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
     if (displays == NULL) {

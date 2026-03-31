@@ -15,7 +15,8 @@
 #include "common.h"
 #include "sdl_helpers.h"
 
-bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect rect, char * baseImgPath, char * hoverImgPath, char * clickImgPath)
+bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect rect, char *baseImgPath, char *hoverImgPath,
+                  char *clickImgPath)
 {
     *b = calloc(1, sizeof(button));
     if ((*b) == NULL) {
@@ -97,19 +98,17 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b)
     V2f buttonPos = {(b->buttonBox)->x + XCentering, (b->buttonBox)->y + YCentering};
 
     if (b->isLeftClicked || b->isRightClicked) {
-        if (b->clickImg == NULL)// si l'image n'a pa été chargée avec succès un rectangle s'affiche par défaut
+        if (b->clickImg == NULL) // si l'image n'a pa été chargée avec succès un rectangle s'affiche par défaut
             renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){20, 20, 20, 255});
         else
             renderImage(sdl_ctx, b->clickImg, b->buttonBox);
     } else if (b->isHovered) {
-        if (b->hoverImg == NULL)
-            renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){80, 80, 80, 255});
+        if (b->hoverImg == NULL) renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){80, 80, 80, 255});
         else
             renderImage(sdl_ctx, b->hoverImg, b->buttonBox);
     } else {
         // rendu de la'arrière plan du bouton
-        if (b->baseImg == NULL)
-            renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){60, 60, 60, 255});
+        if (b->baseImg == NULL) renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){60, 60, 60, 255});
         else
             renderImage(sdl_ctx, b->baseImg, b->buttonBox);
     }

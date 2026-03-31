@@ -27,7 +27,7 @@ typedef struct {
     float dashTimer;
     float jumpForce;
     uint8_t lastKey;
-    bool onGround;          //!< State to tell whenever the player is on the ground or not
+    bool onGround; //!< State to tell whenever the player is on the ground or not
 
     bool flight;
     bool noclip;

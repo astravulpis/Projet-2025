@@ -21,11 +21,12 @@ typedef struct health_bar {
     SDL_Color fillColor;
     SDL_Color cursorColor;
 
-    float maxHp; // pour avoir le bon ratio dans la jauge
-    float barPadding; //proportion que la jauge prend dans healthBarBox
+    float maxHp;      // pour avoir le bon ratio dans la jauge
+    float barPadding; // proportion que la jauge prend dans healthBarBox
 } health_bar;
 
-bool createHealthBar(health_bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float maxHp, float barPadding);
+bool createHealthBar(health_bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float maxHp,
+                     float barPadding);
 void destroyHealthBar(health_bar **h);
 
 void healthBarRender(sdl_ctx_t *sdl_ctx, health_bar *h, float hpValue, int s_intensity, int l_intensity, int ls_opacity);

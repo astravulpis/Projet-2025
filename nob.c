@@ -44,7 +44,6 @@ typedef struct {
     String_Builder rpath;
 } SDL_Libraries;
 
-
 bool debug = false;
 
 void usage(FILE *stream)
