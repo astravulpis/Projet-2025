@@ -58,7 +58,7 @@ void destroySliders(slider **s)
     s = NULL;
 }
 
-// incrémente le X d'un FRect, selon un step, et permet de limiter la valeur dans un interval
+// incrémente le X d'un FRect, selon un step, et permet de limiter la valeur dans une intervale
 void FRect_Change_x(SDL_FRect *rect, float step, float minLimit, float maxLimit)
 {
     bool inLimits = ((rect->x + step) >= minLimit) && ((rect->x + step) <= maxLimit);
@@ -104,12 +104,17 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
 
         s->prevX = mouseCoord.x;
     } else if (s->focused) {
-        float difference = mouseCoord.x - s->prevX; // prevX est normalement toujours différent de -1 si on est arrivé ici
+        // prevX est normalement toujours différent de -1 si on est arrivé ici
+        // difference représente la distance entre la dernière position X de la souris et l'actuelle
+        float difference = mouseCoord.x - s->prevX;
+        // step est la largeur d'une valeur dans la représentation du slider
         float step = (s->sliderBox->w - (2 * s->borderSize) - s->cursorBox->w) / (float)(s->nbValue - 1);
 
+        // si la différence est supérieure a une largeur de valeur, alors on bouge le curseur en fonction de cela
         if (fabsf(difference) >= step) {
+            // arrondi utile pour avoir un 'snap' des différentes valeurs, cela empêche le curseur de se trouver n'importe ou sur le slider
             float moveStep = roundf(difference / step);
-            float move = moveStep * step;
+            float move = moveStep * step; // déplacement que va subir le curseur ->  cursorBox.x + move (négatif ou positif)
 
             if (move != 0) {
                 float minX = s->sliderBox->x + s->borderSize;
@@ -148,11 +153,11 @@ void renderSlider(sdl_ctx_t *sdl_ctx, slider *s)
     } else
         renderImage(sdl_ctx, s->backgroundImg, s->cursorBox);
 
-    // Calculates the center of the button
+    // Calculates the center of the slider
     static int sliderTextWidth = 0;
     static int sliderTextHeight = 0;
 
-    // Measure the width of the button's text
+    // Measure the width of the slider text
     TTF_GetStringSize(sdl_ctx->font, temp_sprintf("value = %i", s->currentValue), 0, &sliderTextWidth, &sliderTextHeight);
 
     float XCentering = (s->sliderBox->w / 2.0f) - sliderTextWidth / 2.0f;
