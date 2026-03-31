@@ -194,7 +194,7 @@ int main(int argc, char **argv)
     da_append(&modules, "bullets");
     da_append(&modules, "entity");
     da_append(&modules, "music");
-    da_append(&modules, "health_bar");
+    da_append(&modules, "bars");
     da_append(&modules, "sliders");
     da_append(&modules, "checkboxes");
     if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);

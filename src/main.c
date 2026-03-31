@@ -20,12 +20,12 @@
 #include "event.h"
 #include "file_parsing.h"
 #include "gui.h"
+#include "bars.h"
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "gui.h"
 #include "music.h"
-#include "health_bar.h"
 #include "sliders.h"
 #include "checkboxes.h"
 
@@ -48,8 +48,8 @@ int main(int argc, char **argv)
     movePlayer(player, (V2f){200.0f, 200.0f});
     parseFlag(argc, argv, sdl_ctx, &level);
 
-    health_bar *hpBar = NULL;
-    if (!createHealthBar(
+    bar *hpBar = NULL;
+    if (!createBar(
             &hpBar,
             (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio,
                         450 * sdl_ctx->screenRatio, 60.0f * sdl_ctx->screenRatio},
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
-        healthBarRender(sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
+        barRender(sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
 
         // test de slider
         updateSliderStates(sTest, mouseCoord, mouseInputFlag, sdl_ctx);
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
     free(level.items);
 
     destroyEntity(&filth);
-    destroyHealthBar(&hpBar);
+    destroyBar(&hpBar);
     destroySliders(&sTest);
     destroyCheckbox(&cTest);
     deleteBullets(&bullet_arr);
