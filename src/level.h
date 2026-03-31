@@ -40,8 +40,8 @@ typedef struct {
  * @fn createRoom(int id)
  * @param[in] id level ID
  * @brief creates a room
- * 
- * returns a fully allocated and set room_t structure
+ *
+ * returns a fully allocated but empty room_t structure with only its id set.
  */
 room_t *createRoom(int id);
 
@@ -50,8 +50,8 @@ room_t *createRoom(int id);
  * @param[in] level level structure
  * @param[in] id level ID
  * @brief loads a room
- * 
- * loads the room in the level with the corresponding ID
+ *
+ * Sets the current loaded room id to the room's id if it exists
  */
 void loadRoom(level_t *level, int id);
 
@@ -60,29 +60,29 @@ void loadRoom(level_t *level, int id);
  * @param[in] ctx our own sdl context variable
  * @param[in] level level structure
  * @brief renders a room
- * 
- * renders a room by going through all of its objects
+ *
+ * renders a room by going through all of its objects and entity for the current wave of entity
  */
 void renderRoom(sdl_ctx_t *ctx, level_t *level);
 
 /**
  * @fn getRoomObjects(level_t *level)
  * @param[in] level level structure
- * @brief returns the list of all level objects
+ * @brief helper function to return the list of all level objects
  */
 objs *getRoomObjects(level_t *level);
 
 /**
  * @fn getLoadedRoom(level_t *level)
  * @param[in] level level structure
- * @brief returns the currently loaded room
+ * @brief helper function to return the currently loaded room
  */
 room_t *getLoadedRoom(level_t *level);
 
 /**
  * @fn getCurrentEntityWave(level_t *level)
  * @param[in] level level structure
- * @brief returns the ongoing wave
+ * @brief helper function to return the ongoing wave of entities
  */
 entities *getCurrentEntityWave(level_t *level);
 
@@ -90,7 +90,7 @@ entities *getCurrentEntityWave(level_t *level);
  * @fn createLevel(char *title, int id)
  * @param[in] title level title
  * @param[in] id level ID
- * @brief creates and allocates a level
+ * @brief creates and allocates an empty level
  */
 level_t *createLevel(char *title, int id);
 
@@ -120,7 +120,7 @@ void assignObject_Ex(room_t *room, obj object);
  * @param[in] w width
  * @param[in] h height
  * @brief assigns an object to a room
- * 
+ *
  * assigns an object to a room with it's texture, position, width and height
  */
 void assignObject(room_t *room, sdl_ctx_t *ctx, const char *path, float x, float y, float w, float h);
@@ -140,7 +140,7 @@ void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, entity_type type, V2f bas
  * @fn destroyObjects(objs *objects)
  * @param[in] objects
  * @brief destroys an object
- * 
+ *
  * destorys all objects given in the array
  */
 void destroyObjects(objs *objects);
@@ -149,7 +149,7 @@ void destroyObjects(objs *objects);
  * @fn destroyRoom(room_t **room)
  * @param[in] room
  * @brief destroys a room
- * 
+ *
  * destorys all elements of a room by going through every object
  */
 void destroyRoom(room_t **room);
@@ -158,7 +158,7 @@ void destroyRoom(room_t **room);
  * @fn destroyLevel(level_t **level)
  * @param[in] level
  * @brief destroys a level
- * 
+ *
  * destorys all elements of a level by going through every room
  */
 void destroyLevel(level_t **level);

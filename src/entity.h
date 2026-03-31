@@ -113,11 +113,11 @@ void renderEntities(entities *entities);
 /**
  * @fn updateEntity(entity_t e, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
  * @param[in] e one specific entity
- * @param[in] player does nothing?
+ * @param[in] player does nothing (for now...)
  * @param[in] objects list of all level objects that we iterate through
  * @param[in] deltaTime time interval used to control the enemy speeds
  * @brief updates the attributs and behaviour of the entity
- * 
+ *
  * takes one entity and tests it for collisions against all elements of the level
  * and updates its related information
  */
@@ -126,11 +126,11 @@ void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime)
 /**
  * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
  * @param[in] entities array of entities
- * @param[in] player does nothing still?
+ * @param[in] player does nothing (for now...)
  * @param[in] objects list of all level objects that we iterate through
  * @param[in] deltaTime time interval used to control the enemy speeds
  * @brief wrapper for the update in a for-loop of each entity in the current level
- * 
+ *
  * goes through a loop to check on every entity by then calling the updateEntity function
  */
 void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime);
@@ -140,10 +140,10 @@ void updateEntities(entities *entities, player_t *player, objs *objects, float d
 /**
  * @fn _setEntityAttributs(entity_t *e, entity_attributs attributs)
  * @param[in] e structure of 1 entity
- * @param[in] attributs enemy attributes
- * @brief sets corresponding enemy attributes#
- * 
- * takes one entity and gives it all the necesary attributes
+ * @param[in] attributs enemy attributs
+ * @brief sets corresponding enemy attributs
+ *
+ * takes one entity and gives it all the necessary attributs
  */
 void _setEntityAttributs(entity_t *e, entity_attributs attributs);
 
@@ -197,7 +197,7 @@ void destroyEntity(entity_t **e);
  * @fn destroyEntity(entity_t **e)
  * @param[in] e structure of the entities
  * @brief destorys all entities
- * 
+ *
  * Goes through the list of all entities and destroys them one by one by calling the destroyEntity function
  */
 void destroyEntities(entities *entities);
