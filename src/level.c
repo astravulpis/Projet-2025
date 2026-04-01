@@ -127,7 +127,7 @@ void destroyRoom(room_t **room)
 {
     if (*room != NULL) {
         destroyObjects(&(*room)->structures);
-
+        destroyTriggers(&(*room)->triggers);
         for (int i = 0; i < MAX_WAVE_COUNT; ++i) {
             destroyEntities(&(*room)->e_waves[i]);
         }
@@ -153,4 +153,20 @@ void destroyLevel(level_t **level)
     free((*level)->items);
     free(*level);
     *level = NULL;
+}
+
+void createTrigger(room_t *room, float x, float y, float w, float h)
+{
+    trigg_create(&room->triggers, x, y, w, h);
+}
+
+void destroyTriggers(triggers_t *triggers)
+{
+    da_foreach (trigger_t, it, triggers) {
+        free(it->boundingBox);
+        it->boundingBox = NULL;
+    }
+
+    free(triggers->items);
+    triggers = NULL;
 }

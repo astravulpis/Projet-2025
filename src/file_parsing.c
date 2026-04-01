@@ -13,9 +13,9 @@
 
 #include "file_parsing.h"
 #include "common.h"
-#include "music.h"
 #include "entity.h"
 #include "level.h"
+#include "music.h"
 #include "sdl_ctx.h"
 
 bool parseFlag(int xs_sz, char **xs, sdl_ctx_t **ctx, level_t **level)
@@ -60,6 +60,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
     String_View sv = sb_to_sv(sb);
 
     float rect[4] = {0};
+    float trigger_rect[4] = {0};
 
     // Its own context
     {
@@ -148,7 +149,6 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 printf("%s\n", path);
                 if (!Mix_Init(path, ctx)) return false;
-
             // start position of the player when switching room (debug mode)
             } else if (sv_eq(header, sv_from_cstr("player"))) {
 

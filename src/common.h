@@ -24,8 +24,8 @@
 
 #include "SDL3/SDL.h"
 #include "SDL3_image/SDL_image.h"
-#include "SDL3_ttf/SDL_ttf.h"
 #include "SDL3_mixer/SDL_mixer.h"
+#include "SDL3_ttf/SDL_ttf.h"
 
 #include <assert.h>
 
@@ -72,7 +72,7 @@ struct sdl_context_s {
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
     bool paused;            //!< Global state to stop the game running or not
-    MIX_Track * track;
+    MIX_Track *track;
 };
 
 typedef struct {
@@ -108,7 +108,18 @@ typedef struct {
     size_t capacity;
 } objs;
 
+typedef struct {
+    SDL_FRect *boundingBox;
+} trigger_t;
+
+typedef struct {
+    trigger_t *items;
+    size_t count;
+    size_t capacity;
+} triggers_t;
+
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \
     da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
 
+#define trigg_create(array, x, y, width, height) da_append((array), ((trigger_t){createRect((x), (y), (width), (height))}));
 #endif // COMMON_H_
