@@ -3,26 +3,25 @@
 #ifndef MUSIC_H_
 #define MUSIC_H_
 
-
 /**
  * @fn Mix_Init(const char * path, sdl_ctx_t * ctx)
  * @param[in] path pointer pointer to the player itself
  * @param[in] ctx our own sdl context variable
  * @brief initialises the level music
  *
- * takes the path to the music obtained in the level parsing. this is then fed into SDL_Mixer to 
+ * takes the path to the music obtained in the level parsing. this is then fed into SDL_Mixer to
  * start playing music for the level
  */
-bool Mix_Init(const char * path, sdl_ctx_t * ctx);
+bool Mix_Init(const char *path, sdl_ctx_t **ctx);
 
 /**
  * @fn sfx(const char * path)
  * @param[in] path pointer pointer to the player itself
  * @brief plays sound effects
  *
- * we feed this the path to the sound effect wanted in a case-by-case basis 
+ * we feed this the path to the sound effect wanted in a case-by-case basis
  * with the sound effect being played without any need for tracks
  * this overlaps without issues with the level song
  */
-bool sfx(const char * path);
+bool sfx(const char *path);
 #endif

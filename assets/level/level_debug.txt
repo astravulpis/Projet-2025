@@ -23,4 +23,5 @@ entity FILTH 840 200 0
 entity FILTH 900 250 0
 entity FILTH 960 300 0
 trigger 0 0 100 100
-trigger 500 500 200 200
+trigger 0 500 500 200 200
+mus "./assets/audio/OST/SneakySnitch.mp3"

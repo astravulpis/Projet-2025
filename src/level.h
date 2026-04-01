@@ -70,6 +70,7 @@ void renderRoom(sdl_ctx_t *ctx, level_t *level);
  * @fn getRoomObjects(level_t *level)
  * @param[in] level level structure
  * @brief helper function to return the list of all level objects
+ */
 objs *getRoomObjects(level_t *level);
 
 /**
@@ -83,7 +84,7 @@ room_t *getLoadedRoom(level_t *level);
  * @fn getCurrentEntityWave(level_t *level)
  * @param[in] level level structure
  * @brief helper function to return the ongoing wave of entities
-
+ */
 entities *getCurrentEntityWave(level_t *level);
 
 /**

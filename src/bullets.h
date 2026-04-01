@@ -49,14 +49,14 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel);
 void updateBulletState(bullets *arr, level_t *level, float deltaTime);
 
 /**
- * @fn checkBulletLevelCollisions(bullets *arr, objs *level)
+ * @fn checkCollision(bullets *arr, objs *level)
  * @param[in] arr pointer to the bullets array
  * @param[in] level pointer to the level objects
  * @brief checks collisions between bullets and level pieces
  *
  * goes through all the bullets and removes any that are colliding with elements of the level
  */
-void checkBulletLevelCollisions(bullets *arr, objs *level);
+bool checkCollision(bullet *arr, level_t *level);
 
 /**
  * @fn renderBullets(sdl_ctx_t *ctx, bullets *arr)

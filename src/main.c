@@ -144,8 +144,6 @@ int main(int argc, char **argv)
         // }
 
         updateBulletState(&bullet_arr, level, deltaTime);
-        checkBulletLevelCollisions(&bullet_arr, &level); // collision check between the bullets and env + enemies
-        updateBulletState(&bullet_arr, level, deltaTime);
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
 
@@ -156,14 +154,14 @@ int main(int argc, char **argv)
         }
 
         renderPlayer(player);
-        renderEntities(&e_bundle);
+        renderEntities(getCurrentEntityWave(level));
 
         // Render level textures
-        da_foreach (obj, it, &level) {
+        da_foreach (obj, it, level) {
             renderImage(sdl_ctx, it->texture, it->boundingBox);
         }
         // Render the level bounding boxes
-        da_foreach (obj, it, &level) {
+        da_foreach (obj, it, level) {
             if (SDL_HasRectIntersectionFloat(player->boundingBox, it->boundingBox)) {
                 renderText_Ex(sdl_ctx, "true", WHITE, (V2f){150.0f, 10.0f});
             }

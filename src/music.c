@@ -11,15 +11,14 @@
  **/
 
 #include "music.h"
-#include "sdl_ctx.h"
 #include "common.h"
+#include "sdl_ctx.h"
 
-bool Mix_Init(const char * path, sdl_ctx_t * ctx)
+bool Mix_Init(const char *path, sdl_ctx_t **ctx)
 {
-    MIX_Mixer * mixer = NULL;
-    MIX_Track * track = NULL;
-    MIX_Audio * audio = NULL;
-
+    MIX_Mixer *mixer = NULL;
+    MIX_Track *track = NULL;
+    MIX_Audio *audio = NULL;
 
     if (!MIX_Init()) {
         nob_log(ERROR, "%s:%d: Failed to initialise MIX", __FILE__, __LINE__);
@@ -50,7 +49,7 @@ bool Mix_Init(const char * path, sdl_ctx_t * ctx)
     }
     MIX_SetTrackAudio(track, audio);
 
-    ctx->track=track;
+    (*ctx)->track = track;
 
     /* start the audio playing! */
     MIX_PlayTrack(track, 0);  /* no extra options this time, so a zero for the second argument. */
@@ -59,9 +58,10 @@ bool Mix_Init(const char * path, sdl_ctx_t * ctx)
     return true;
 }
 
-bool sfx(const char * path){
-    MIX_Mixer * mixer = NULL;
-    MIX_Audio * audio = NULL;
+bool sfx(const char *path)
+{
+    MIX_Mixer *mixer = NULL;
+    MIX_Audio *audio = NULL;
 
     mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
     if (!mixer) {
@@ -198,4 +198,3 @@ void cleanupMusic(MIX_Mixer * mixer)
     MIX_Quit();
 }
 */
-

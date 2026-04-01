@@ -142,14 +142,6 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 if (!loadBackgroundImage((*ctx), path)) return false;
 
             // get the music to play in the background
-            } else if (sv_eq(header, sv_from_cstr("mus"))) {
-                String_View bgTemp = sv_chop_by_delim(&line, ' ');
-                sv_chop_left(&bgTemp, 1);
-                sv_chop_right(&bgTemp, 1);
-                const char *path = nob_temp_sv_to_cstr(bgTemp);
-                printf("%s\n", path);
-                if (!Mix_Init(path, ctx)) return false;
-            // start position of the player when switching room (debug mode)
             } else if (sv_eq(header, sv_from_cstr("player"))) {
 
                 // player [X_POS] [Y_POS]
@@ -190,6 +182,34 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 else if (sv_eq(type, sv_from_cstr("SISYPHUS")))
                     assignEntityToWave(room, ctx, E_SISYPHUS, (V2f){x_pos, y_pos}, waveIdx);
 
+            } else if (sv_eq(header, sv_from_cstr("trigger"))) {
+
+                // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT]
+                String_View temp = sv_chop_by_delim(&line, ' ');
+                int waveIdx = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                // the trigger's position adapted to the screen ratio
+                for (int i = 0; i < 4; ++i) {
+                    float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                    trigger_rect[i] = val * (*ctx)->screenRatio;
+                }
+
+                // Removing unwanted values
+                if (line.count > 0) {
+                    while (line.count > 0) {
+                        String_View unwanted = sv_chop_by_delim(&line, ' ');
+                        nob_log(WARNING, "%s:%d: |" SV_Fmt "| <-- This should be empty", __FILE__, __LINE__, SV_Arg(unwanted));
+                    }
+                    continue;
+                }
+                createTrigger(room, trigger_rect[0], trigger_rect[1], trigger_rect[2], trigger_rect[3], waveIdx);
+
+            } else if (sv_eq(header, sv_from_cstr("mus"))) {
+                String_View bgTemp = sv_chop_by_delim(&line, ' ');
+                sv_chop_left(&bgTemp, 1);
+                sv_chop_right(&bgTemp, 1);
+                const char *path = nob_temp_sv_to_cstr(bgTemp);
+                printf("%s\n", path);
+                if (!Mix_Init(path, ctx)) return false;
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
