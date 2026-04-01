@@ -13,20 +13,20 @@
  **/
 
 #include "../shared.h"
+#include "bars.h"
+#include "bullets.h"
+#include "checkboxes.h"
 #include "common.h"
-#include "sdl_ctx.h"
-#include "sdl_helpers.h"
+#include "entity.h"
 #include "event.h"
 #include "file_parsing.h"
-#include "level.h"
-#include "player.h"
-#include "entity.h"
-#include "bullets.h"
 #include "gui.h"
-#include "bars.h"
-#include "sliders.h"
-#include "checkboxes.h"
+#include "level.h"
 #include "music.h"
+#include "player.h"
+#include "sdl_ctx.h"
+#include "sdl_helpers.h"
+#include "sliders.h"
 
 /**
  * @file main.c
@@ -54,11 +54,11 @@ int main(int argc, char **argv)
     movePlayer(player, curr->startPos);
 
     bar *hpBar = NULL;
-    if (!createBar(
-            &hpBar,
-            (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio,
-                        450 * sdl_ctx->screenRatio, 60.0f * sdl_ctx->screenRatio},
-            (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255}, 100.0f, 10.0f))
+    if (!createBar(&hpBar,
+                   (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio,
+                               (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio, 450 * sdl_ctx->screenRatio,
+                               60.0f * sdl_ctx->screenRatio},
+                   (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255}, 100.0f, 10.0f))
         return 1;
 
     gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
@@ -74,11 +74,11 @@ int main(int argc, char **argv)
 
     checkbox *cTest = NULL;
     createCheckbox(sdl_ctx, &cTest,
-                    (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio},
-                    (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio},
-                    NULL, NULL, NULL,
-                    10.0f * sdl_ctx->screenRatio,
-                    20.0f * sdl_ctx->screenRatio);
+                   (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio,
+                               256 * sdl_ctx->screenRatio},
+                   (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio,
+                               216 * sdl_ctx->screenRatio},
+                   NULL, NULL, NULL, 10.0f * sdl_ctx->screenRatio, 20.0f * sdl_ctx->screenRatio);
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -143,16 +143,16 @@ int main(int argc, char **argv)
         //     printf("Right Clicked\n");
         // }
 
-        updateBulletState(&bullet_arr, deltaTime);
-        checkBulletLevelCollisions(&bullet_arr, &level); //collision check between the bullets and env + enemies
-        updateBulletState(&bullet_arr, deltaTime);
+        updateBulletState(&bullet_arr, level, deltaTime);
+        checkBulletLevelCollisions(&bullet_arr, &level); // collision check between the bullets and env + enemies
+        updateBulletState(&bullet_arr, level, deltaTime);
         renderBullets(sdl_ctx, &bullet_arr);
         prevMouseInput = mouseInputFlag;
 
         if (!sdl_ctx->paused) {
             updateBulletState(&bullet_arr, level, deltaTime);
             updateEntities(getCurrentEntityWave(level), player, getRoomObjects(level), deltaTime);
-            updatePlayer(player, getRoomObjects(level), deltaTime);
+            updatePlayer(player, getRoomObjects(level), deltaTime, getRoomTriggers(level), &curr->currWaveIdx);
         }
 
         renderPlayer(player);

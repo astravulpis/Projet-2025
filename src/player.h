@@ -70,7 +70,7 @@ void destroyPlayer(player_t **p);
  *
  * updates the player position and checks for collisions with all other textures on the map
  */
-void updatePlayer(player_t *p, objs *arr, float deltaTime);
+void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_array, int *activeWave);
 
 /**
  * @fn renderPlayer(player_t *p)

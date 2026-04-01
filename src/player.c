@@ -15,9 +15,9 @@
 #include "SDL3/SDL_scancode.h"
 #include "SDL3/SDL_surface.h"
 #include "common.h"
+#include "music.h"
 #include "sdl_helpers.h"
 #include <string.h>
-#include "music.h"
 
 void movePlayer(player_t *p, V2f newPos)
 {
@@ -136,7 +136,19 @@ objs collision_test_player(player_t *p, objs *tiles)
     return collisions;
 }
 
-void updatePlayer(player_t *p, objs *arr, float deltaTime)
+triggers_t collision_test_player_trigg(player_t *p, triggers_t *triggers_array)
+{
+    triggers_t collisions = {0};
+    da_foreach (trigger_t, tile, triggers_array) {
+        if ((tile->has_been_touched = SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) == true) {
+            da_append(&collisions, *tile);
+        }
+    }
+
+    return collisions;
+}
+
+void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_array, int *activeWave)
 {
     float gravity = 28.0f;
     SDL_FRect *rect = getBB(p);
@@ -156,6 +168,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
     rect->x += frame_movement.x;
     if (!p->noclip) {
         objs collisions = collision_test_player(p, arr);
+        triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.x > 0) {
@@ -165,12 +178,23 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
                 rect->x = Right(tile) + 0.01f; // Set the player's left edge to the tile's right edge
             }
         }
+        da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
+            SDL_FRect *tile = it->boundingBox;
+            if (it->waveId >= 0 && activeWave != NULL) {
+                *activeWave = it->waveId;
+                printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
+            } else {
+                printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
+            }
+        }
         free(collisions.items);
+        free(trigg_collision.items);
     }
 
     rect->y += frame_movement.y;
     if (!p->noclip) {
         objs collisions = collision_test_player(p, arr);
+        triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.y > 0) {
@@ -182,7 +206,17 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
             }
             p->velocity.y = 0;
         }
+        da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
+            SDL_FRect *tile = it->boundingBox;
+            if (it->waveId >= 0 && activeWave != NULL) {
+                *activeWave = it->waveId;
+                printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
+            } else {
+                printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
+            }
+        }
         free(collisions.items);
+        free(trigg_collision.items);
     }
 
     if (!p->flight) p->velocity.y = MIN(100.0f, p->velocity.y + (gravity * deltaTime));

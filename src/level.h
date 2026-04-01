@@ -160,17 +160,18 @@ void destroyRoom(room_t **room);
 void destroyLevel(level_t **level);
 
 /**
- * @fn createTrigger(room_t *room, float x, float y, float w, float h)
+ * @fn createTrigger(room_t *room, float x, float y, float w, float h, int waveID)
  * @param[in] room
  * @param[in] x X position
  * @param[in] y Y position
  * @param[in] w width
  * @param[in] h height
+ * @param[in] waveID wave index to activate when trigger is hit
  * @brief creates a trigger
  *
  * creates a trigger in a room_t room without a texture like the boxes since we never need to see this
  */
-void createTrigger(room_t *room, float x, float y, float w, float h);
+void createTrigger(room_t *room, float x, float y, float w, float h, int waveID);
 
 /**
  * @fn destroyTriggers(triggers_t *triggers)
@@ -180,5 +181,7 @@ void createTrigger(room_t *room, float x, float y, float w, float h);
  * goes through triggers_t to destory each individual trigger
  */
 void destroyTriggers(triggers_t *triggers);
+
+triggers_t *getRoomTriggers(level_t *level);
 
 #endif // LEVEL_H_

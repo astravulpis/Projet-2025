@@ -159,7 +159,6 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
 
             // entities
             } else if (sv_eq(header, sv_from_cstr("entity"))) {
-
                 // entity [TYPE] [X_POS] [Y_POS] [WAVE_INDEX]
                 String_View type = sv_chop_by_delim(&line, ' ');
                 float x_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));

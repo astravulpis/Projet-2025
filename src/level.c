@@ -155,9 +155,9 @@ void destroyLevel(level_t **level)
     *level = NULL;
 }
 
-void createTrigger(room_t *room, float x, float y, float w, float h)
+void createTrigger(room_t *room, float x, float y, float w, float h, int waveID)
 {
-    trigg_create(&room->triggers, x, y, w, h);
+    trigg_create(&room->triggers, x, y, w, h, waveID, true);
 }
 
 void destroyTriggers(triggers_t *triggers)
@@ -169,4 +169,9 @@ void destroyTriggers(triggers_t *triggers)
 
     free(triggers->items);
     triggers = NULL;
+}
+
+triggers_t *getRoomTriggers(level_t *level)
+{
+    return &level->items[level->currentLoadedRoomID]->triggers;
 }
