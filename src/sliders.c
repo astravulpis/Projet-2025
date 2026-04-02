@@ -51,8 +51,12 @@ bool createSlider(sdl_ctx_t *sdl_ctx, slider **s, SDL_FRect rect, char *bgImg_Pa
 
 void destroySliders(slider **s)
 {
-    SDL_DestroyTexture((*s)->backgroundImg);
-    SDL_DestroyTexture((*s)->cursorImg);
+    if ((*s) != NULL) {
+        free((*s)->sliderBox);
+        free((*s)->cursorBox);
+        SDL_DestroyTexture((*s)->backgroundImg);
+        SDL_DestroyTexture((*s)->cursorImg);
+    }
 
     free(*s);
     s = NULL;
@@ -112,7 +116,8 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
 
         // si la différence est supérieure a une largeur de valeur, alors on bouge le curseur en fonction de cela
         if (fabsf(difference) >= step) {
-            // arrondi utile pour avoir un 'snap' des différentes valeurs, cela empêche le curseur de se trouver n'importe ou sur le slider
+            // arrondi utile pour avoir un 'snap' des différentes valeurs, cela empêche le curseur de se trouver n'importe ou
+            // sur le slider
             float moveStep = roundf(difference / step);
             float move = moveStep * step; // déplacement que va subir le curseur ->  cursorBox.x + move (négatif ou positif)
 

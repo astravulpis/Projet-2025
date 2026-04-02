@@ -129,6 +129,7 @@ void closeCtx(sdl_ctx_t **sdl_ctx)
     // Freeing a NULL is fine
     free(*sdl_ctx);
 
+    MIX_Quit();
     TTF_Quit();
     SDL_Quit();
 }

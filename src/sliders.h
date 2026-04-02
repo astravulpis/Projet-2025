@@ -24,7 +24,8 @@ typedef struct slider {
     SDL_Texture *cursorImg;
 
     int nbValue; // pour avoir le bon ratio dans la jauge
-    float borderSize; // n'augmente pas la taille des bordures, cela réduit la taille du contenu du slider -> donc les bordure prennent plus de place
+    float borderSize; // n'augmente pas la taille des bordures, cela réduit la taille du contenu du slider -> donc les bordure
+                      // prennent plus de place
     int currentValue;
     float prevX;
 

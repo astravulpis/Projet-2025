@@ -156,20 +156,7 @@ int main(int argc, char **argv)
         renderPlayer(player);
         renderEntities(getCurrentEntityWave(level));
 
-        // Render level textures
-        da_foreach (obj, it, level) {
-            renderImage(sdl_ctx, it->texture, it->boundingBox);
-        }
-        // Render the level bounding boxes
-        da_foreach (obj, it, level) {
-            if (SDL_HasRectIntersectionFloat(player->boundingBox, it->boundingBox)) {
-                renderText_Ex(sdl_ctx, "true", WHITE, (V2f){150.0f, 10.0f});
-            }
-        }
-
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
-
-        // Render the currently loaded level
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
@@ -209,6 +196,5 @@ int main(int argc, char **argv)
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
-    MIX_Quit();
     return 0;
 }

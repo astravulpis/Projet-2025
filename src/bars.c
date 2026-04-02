@@ -3,7 +3,7 @@
 #include "sdl_helpers.h"
 
 bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float maxHp,
-                     float barPadding)
+               float barPadding)
 {
     *h = calloc(1, sizeof(bar));
     if ((*h) == NULL) {
@@ -31,7 +31,7 @@ void destroyBar(bar **h)
 }
 
 void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l_intensity,
-                     int ls_opacity) // s = shadow et l = ligth
+               int ls_opacity) // s = shadow et l = ligth
 {
     int textWidth = 0;
     int textHeight = 0;

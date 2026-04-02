@@ -14,9 +14,9 @@
 #include "gui.h"
 #include "buttons.h"
 #include "common.h"
+#include "music.h"
 #include "sdl_helpers.h"
 #include <stdarg.h>
-#include "music.h"
 
 gui_menu *createMenu(SDL_Color bgColor, size_t count, ...)
 {
@@ -72,7 +72,7 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 {
 
-    if (menu->items[0]->isLeftClicked == true){
+    if (menu->items[0]->isLeftClicked == true) {
         sdl_ctx->paused = false;
         MIX_ResumeTrack(sdl_ctx->track);
     }
