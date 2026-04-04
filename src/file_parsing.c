@@ -141,7 +141,6 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 if (!loadBackgroundImage((*ctx), path)) return false;
 
-            // get the music to play in the background
             } else if (sv_eq(header, sv_from_cstr("player"))) {
 
                 // player [X_POS] [Y_POS]
@@ -201,12 +200,14 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 }
                 createTrigger(room, trigger_rect[0], trigger_rect[1], trigger_rect[2], trigger_rect[3], waveIdx);
 
+            // get the music to play in the background
             } else if (sv_eq(header, sv_from_cstr("mus"))) {
-                String_View bgTemp = sv_chop_by_delim(&line, ' ');
-                sv_chop_left(&bgTemp, 1);
-                sv_chop_right(&bgTemp, 1);
-                const char *path = nob_temp_sv_to_cstr(bgTemp);
-                if (!loadTrack(*ctx, path)) return false;
+                String_View temp = sv_chop_by_delim(&line, ' ');
+                sv_chop_left(&temp, 1);
+                sv_chop_right(&temp, 1);
+                const char *path = nob_temp_sv_to_cstr(temp);
+                if (!loadTrack(*ctx, BACKGROUND_MUSIC, path)) return false;
+                playTrack(*ctx, BACKGROUND_MUSIC);
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;

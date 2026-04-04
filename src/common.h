@@ -48,6 +48,13 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (y) : (x))
 
+typedef enum {
+    BACKGROUND_MUSIC,
+    SFX,
+} tracks;
+
+#define TRACK_COUNT 2
+
 /**
  * @typedef struct sdl_ctx_t
  * @brief shorter abreviation for @ref sdl_context_s
@@ -73,7 +80,7 @@ struct sdl_context_s {
     bool quit;              //!< Global state to keep the application running or not
     bool paused;            //!< Global state to stop the game running or not
     MIX_Mixer *mixer;
-    MIX_Track *track;
+    MIX_Track *tracks[TRACK_COUNT];
 };
 
 typedef struct {

@@ -23,9 +23,9 @@ typedef struct {
  * takes the path to the music obtained in the level parsing. this is then fed into SDL_Mixer to
  * start playing music for the level
  */
-bool loadTrack(sdl_ctx_t *ctx, const char *path);
+bool loadTrack(sdl_ctx_t *ctx, int trackIdx, const char *path);
 
-void playTrack(sdl_ctx_t *ctx);
+void playTrack(sdl_ctx_t *ctx, int trackIdx);
 
 /**
  * @fn loadSfx(sdl_ctx_t *sdl_ctx, const char * path)
@@ -42,8 +42,8 @@ void playTrack(sdl_ctx_t *ctx);
  */
 void loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, char *name, const char *path);
 
-bool playSfx(sdl_ctx_t *ctx, sfxs *audios, const char *sfx_name);
-bool __playSfx(sdl_ctx_t *sdl_ctx, MIX_Audio *audio);
+void playSfx(sdl_ctx_t *ctx, sfxs *audios, const char *sfx_name);
+void __playSfx(sdl_ctx_t *sdl_ctx, MIX_Audio *audio);
 
 void destroySfx(sfx **sfx);
 void destroySfxs(sfxs *sfxs);

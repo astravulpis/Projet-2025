@@ -13,6 +13,7 @@
  **/
 
 #include "../shared.h"
+#include "SDL3_mixer/SDL_mixer.h"
 #include "bars.h"
 #include "bullets.h"
 #include "checkboxes.h"
@@ -172,7 +173,7 @@ int main(int argc, char **argv)
         if (sdl_ctx->paused == true) {
             updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
             renderMenu(sdl_ctx, pauseMenu);
-            MIX_PauseTrack(sdl_ctx->track);
+            MIX_PauseAllTracks(sdl_ctx->mixer);
         }
 
         SDL_RenderPresent(sdl_ctx->renderer);

@@ -74,7 +74,7 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 
     if (menu->items[0]->isLeftClicked == true) {
         sdl_ctx->paused = false;
-        MIX_ResumeTrack(sdl_ctx->track);
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
     }
     if (menu->items[2]->isLeftClicked == true) sdl_ctx->quit = true;
 }

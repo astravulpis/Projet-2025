@@ -12,6 +12,7 @@
  **/
 
 #include "sdl_ctx.h"
+#include "common.h"
 #include "sdl_helpers.h"
 
 bool createCtx(sdl_ctx_t **ctx)
@@ -98,14 +99,19 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    sdl_ctx->mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    SDL_AudioSpec spec;
+    spec.freq = 44100;
+    spec.format = SDL_AUDIO_S16;
+    spec.channels = 2;
+    sdl_ctx->mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
     if (!sdl_ctx->mixer) {
         nob_log(ERROR, "%s:%d: Couldn't create mixer on default device: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
 
-    sdl_ctx->track = MIX_CreateTrack(sdl_ctx->mixer);
-    if (!sdl_ctx->track) {
+    sdl_ctx->tracks[BACKGROUND_MUSIC] = MIX_CreateTrack(sdl_ctx->mixer);
+    sdl_ctx->tracks[SFX] = MIX_CreateTrack(sdl_ctx->mixer);
+    if (!sdl_ctx->tracks[BACKGROUND_MUSIC] || !sdl_ctx->tracks[SFX]) {
         nob_log(ERROR, "%s:%d: Couldn't create a mixer track: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
@@ -124,6 +130,8 @@ void closeCtx(sdl_ctx_t **sdl_ctx)
 {
     if ((*sdl_ctx) != NULL) {
         sdl_ctx_t *c = (*sdl_ctx);
+
+        MIX_StopAllTracks(c->mixer, 0);
 
         clearContextSurface(c);
         free(c->bgRect);
