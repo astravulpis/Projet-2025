@@ -69,19 +69,19 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return false;
     }
 
-    // ratio mis dans le context SDL
+    // Calculate the screen's ratio to make everything on screen fit.
     int num_displays;
     SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
     if (displays == NULL) {
         nob_log(ERROR, "%s:%d: Failed to use SDL_GetDisplays(). See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return 1;
+        return_defer(false);
     }
 
     const SDL_DisplayMode *screenInformation = SDL_GetCurrentDisplayMode(*displays);
 
     if (screenInformation == NULL) {
         nob_log(ERROR, "%s:%d: Failed to use SDL_GetCurrentDisplayMode(). See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return 1;
+        return_defer(false);
     }
 
     sdl_ctx->screenRatio = (float)screenInformation->h / (float)WINDOW_HEIGHT;
@@ -90,7 +90,24 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
     sdl_ctx->font = loadFont("./assets/font/VCR_OSD_MONO_1.001.ttf", 28.0f * sdl_ctx->screenRatio, TTF_STYLE_NORMAL, 0);
     if (sdl_ctx->font == NULL) {
         nob_log(ERROR, "%s:%d: Failed to load font. See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return 1;
+        return_defer(false);
+    }
+
+    if (!MIX_Init()) {
+        nob_log(ERROR, "%s:%d: Failed to initialise MIX", __FILE__, __LINE__);
+        return_defer(false);
+    }
+
+    sdl_ctx->mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    if (!sdl_ctx->mixer) {
+        nob_log(ERROR, "%s:%d: Couldn't create mixer on default device: %s", __FILE__, __LINE__, SDL_GetError());
+        return_defer(false);
+    }
+
+    sdl_ctx->track = MIX_CreateTrack(sdl_ctx->mixer);
+    if (!sdl_ctx->track) {
+        nob_log(ERROR, "%s:%d: Couldn't create a mixer track: %s", __FILE__, __LINE__, SDL_GetError());
+        return_defer(false);
     }
 
     SDL_SetWindowFullscreen(sdl_ctx->window, true);
@@ -107,6 +124,7 @@ void closeCtx(sdl_ctx_t **sdl_ctx)
 {
     if ((*sdl_ctx) != NULL) {
         sdl_ctx_t *c = (*sdl_ctx);
+
         clearContextSurface(c);
         free(c->bgRect);
         c->bgRect = NULL;

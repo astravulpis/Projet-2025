@@ -89,11 +89,6 @@ int main(int argc, char **argv)
     float healthBarTest = 0;
     bool addition = true;
 
-    for (int i = 0; i < 5; ++i) {
-        float offset = 25.0f * i;
-        assignEntityToWave(level->items[1], &sdl_ctx, E_FILTH, (V2f){900.0f + offset * 2, 400.0f - offset}, 0);
-    }
-
     SDL_SetRenderDrawBlendMode(sdl_ctx->renderer, SDL_BLENDMODE_BLEND);
 
     // Updates the event queue and internal input device state
@@ -136,7 +131,7 @@ int main(int argc, char **argv)
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
             createBullet(&bullet_arr, startingPos, vel);
-            sfx("./assets/audio/SFX/Shoot1.mp3");
+            sfx(sdl_ctx, "./assets/audio/SFX/piercer.wav");
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
         // {

@@ -72,6 +72,7 @@ struct sdl_context_s {
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
     bool paused;            //!< Global state to stop the game running or not
+    MIX_Mixer *mixer;
     MIX_Track *track;
 };
 

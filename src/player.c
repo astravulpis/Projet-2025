@@ -108,14 +108,14 @@ V2f inputUpdate(player_t *p, const float dt)
         if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 4) * dt;
         if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 4) * dt;
         p->dashAmount -= 1;
-        sfx("./assets/audio/SFX/Dodge.mp3");
+        sfx((*p->ctx), "./assets/audio/SFX/dash.wav");
     }
 
     // Vertical movement
     if ((keyboard_state[SDL_SCANCODE_SPACE] && (!previous_state[SDL_SCANCODE_LCTRL] || !previous_state[SDL_SCANCODE_SPACE])) &&
         p->onGround) {
         p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
-        sfx("./assets/audio/SFX/Jump.ogg");
+        sfx((*p->ctx), "./assets/audio/SFX/jump.wav");
     } else if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }

@@ -157,8 +157,6 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 float y_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 int waveIdx = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
 
-                nob_log(INFO, "Creating an entity at pos {%.2f, %.2f}, for wave no.%d", x_pos, y_pos, waveIdx);
-
                 // Might consider to just abs(waveIdx) but the fact that a waveIdx can be <0 is just wrong
                 assert(waveIdx >= 0 && "the wave index should be zero or positive ");
 
@@ -184,8 +182,8 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
 
             } else if (sv_eq(header, sv_from_cstr("trigger"))) {
 
-                // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT]
-                String_View temp = sv_chop_by_delim(&line, ' ');
+                // trigger [WAVE_IDX] [X_POS] [Y_POS] [WIDTH] [HEIGHT]
+
                 int waveIdx = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 // the trigger's position adapted to the screen ratio
                 for (int i = 0; i < 4; ++i) {
@@ -208,8 +206,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 sv_chop_left(&bgTemp, 1);
                 sv_chop_right(&bgTemp, 1);
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
-                printf("%s\n", path);
-                if (!Mix_Init(path, ctx)) return false;
+                if (!loadTrack(*ctx, path)) return false;
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
