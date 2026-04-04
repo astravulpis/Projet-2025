@@ -42,21 +42,26 @@ void playTrack(sdl_ctx_t *ctx)
     MIX_PlayTrack(ctx->track, 0);  /* no extra options this time, so a zero for the second argument. */
 }
 
-bool sfx(sdl_ctx_t *sdl_ctx, const char *path)
+void(sdl_ctx_t *sdl_ctx, sfxs *audios, char *name, const char *path)
 {
-    MIX_Audio *audio = NULL;
+    MIX_Audio *audio = MIX_LoadAudio(sdl_ctx->mixer, path, false);
 
-    // sdl_ctx->mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
-    // if (!sdl_ctx->mixer) {
-    //     SDL_Log("Couldn't create mixer on default device: %s", SDL_GetError());
-    //     return false;
-    // }
-
-    audio = MIX_LoadAudio(sdl_ctx->mixer, path, false);
     if (!audio) {
-        SDL_Log("Couldn't load %s: %s", path, SDL_GetError());
-        return false;
+        nob_log(ERROR, "See error: %s", SDL_GetError());
+        return;
     }
-    MIX_PlayAudio(sdl_ctx->mixer, audio);
-    return true;
+
+    da_append(audios, ((sfx){name, audio}));
+}
+
+bool playSfx(sdl_ctx_t *ctx, sfxs *audios, const char *sfx_name);
+{
+    da_foreach (sfx *, sfx, audios) {
+        if (strcmp(sfx, sfx_name) == 0) return __playSfx(ctx, sfx->ptr);
+    }
+}
+
+bool __playSfx(sdl_ctx_t *sdl_ctx, MIX_Audio *audio)
+{
+    return MIX_
 }

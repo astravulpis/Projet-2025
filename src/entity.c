@@ -17,7 +17,7 @@ static struct entityBaseAttributs {
     entity_attributs stats;
     V2f size;
 } baseStats[E_TYPE_COUNT] = {
-    {.type = E_FILTH, .stats = {}, .size = (V2f){60, 100}},
+    {.type = E_FILTH, .stats = {.maxHP = 0.5f, .entity_speed = 300.0f}, .size = (V2f){60, 100}},
     {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
     {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
     {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},

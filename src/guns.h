@@ -2,6 +2,9 @@
 #define GUNS_H_
 
 #include "common.h"
+#include "music.h"
+
+#define GUN_COUNT 6
 
 typedef struct {
     // bulletPattern pattern;
@@ -10,16 +13,18 @@ typedef struct {
     SDL_Texture associatedImage;
     size_t lmbCD;
     size_t rmbCD;
+    int idx;
 } Gun;
 
 typedef struct {
-    Gun arsenal[6];
+    Gun arsenal[GUN_COUNT];
     int selectedGun;
 } Guns;
 
 // SFX
 const char *getGunSfx(Gun *gun);
-void setGunSfx(Gun *gun);
+void setGunSfx(Gun *gun, const char *path);
+void loadGunSfx(Gun *gun);
 
 // Image
 const char *getGunImage(Gun *gun);
@@ -33,5 +38,9 @@ bool isRmbOnCd(Gun *gun);
 // Current gun
 int getCurrentGun(Guns *guns);
 void setCurrentGun(Guns *guns, int idx);
+
+// Destroy functions
+void destroyGun(Gun **gun);
+void destroyGuns(Guns **guns);
 
 #endif // GUNS_H_
