@@ -40,9 +40,12 @@ void playTrack(sdl_ctx_t *ctx);
  * and the neat part is that MIX_Quit() handles the destroying part as each
  * loaded audio has its own reference count handled automatically
  */
-void *loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, char *name, const char *path);
+void loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, char *name, const char *path);
 
 bool playSfx(sdl_ctx_t *ctx, sfxs *audios, const char *sfx_name);
 bool __playSfx(sdl_ctx_t *sdl_ctx, MIX_Audio *audio);
+
+void destroySfx(sfx **sfx);
+void destroySfxs(sfxs *sfxs);
 
 #endif

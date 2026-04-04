@@ -44,6 +44,7 @@ int main(int argc, char **argv)
 
     level_t *level = NULL;
     player_t *player = NULL;
+    sfxs audios = {0};
     bullets bullet_arr = {0};
     room_t *curr = NULL;
 
@@ -52,6 +53,8 @@ int main(int argc, char **argv)
     parseFlag(argc, argv, &sdl_ctx, &level);
     curr = getLoadedRoom(level);
     movePlayer(player, curr->startPos);
+
+    loadSfx(sdl_ctx, &audios, "piercerPrimary", "./assets/audio/SFX/piercer.wav");
 
     bar *hpBar = NULL;
     if (!createBar(&hpBar,
@@ -131,7 +134,7 @@ int main(int argc, char **argv)
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
             createBullet(&bullet_arr, startingPos, vel);
-            sfx(sdl_ctx, "./assets/audio/SFX/piercer.wav");
+            playSfx(sdl_ctx, &audios, "piercerPrimary");
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
         // {
@@ -187,6 +190,7 @@ int main(int argc, char **argv)
     destroySliders(&sTest);
     destroyCheckbox(&cTest);
     destroyLevel(&level);
+    destroySfxs(&audios);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
     destroyPlayer(&player);

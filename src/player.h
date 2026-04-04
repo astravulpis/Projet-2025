@@ -14,11 +14,15 @@
 #define PLAYER_H_
 
 #include "common.h"
+#include "music.h"
+#include "sdl_helpers.h"
+#include <string.h>
 
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB
     SDL_Texture *tex;       //!< Player's texture
+    sfxs audios;
     float speed;            //!< Value may depend on preference
     V2f velocity;
     // bool stunned;           //!< State used to avoid key mashing
@@ -27,8 +31,8 @@ typedef struct {
     float dashTimer;
     float jumpForce;
     uint8_t lastKey;
-    bool onGround; //!< State to tell whenever the player is on the ground or not
 
+    bool onGround; //!< State to tell whenever the player is on the ground or not
     bool flight;
     bool noclip;
 } player_t;

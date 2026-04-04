@@ -12,12 +12,6 @@
  **/
 
 #include "player.h"
-#include "SDL3/SDL_scancode.h"
-#include "SDL3/SDL_surface.h"
-#include "common.h"
-#include "music.h"
-#include "sdl_helpers.h"
-#include <string.h>
 
 void movePlayer(player_t *p, V2f newPos)
 {
@@ -43,7 +37,9 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->ctx = sdl_ctx;
     p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
+    memset(&p->audios, 0, sizeof(sfxs));
 
+    // Initialising base values
     p->speed = 325.0f;
     p->jumpForce = -685.0f;
     p->velocity = (V2f){0.0f, 0.0f};
@@ -53,6 +49,11 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->lastKey = SDL_SCANCODE_UNKNOWN;
     p->flight = false;
     p->noclip = false;
+
+    // Loading audios sfx
+    loadSfx((*sdl_ctx), &p->audios, "jump", "./assets/audio/SFX/jump.wav");
+    loadSfx((*sdl_ctx), &p->audios, "hardFall", "./assets/audio/SFX/hardFall.wav");
+    loadSfx((*sdl_ctx), &p->audios, "dash", "./assets/audio/SFX/dash.wav");
 
 defer:
     return result;
@@ -66,6 +67,8 @@ void destroyPlayer(player_t **p)
 
         SDL_DestroyTexture((*p)->tex);
         (*p)->boundingBox = NULL;
+
+        destroySfxs(&(*p)->audios);
     }
 
     free(*p);
@@ -108,14 +111,14 @@ V2f inputUpdate(player_t *p, const float dt)
         if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 4) * dt;
         if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 4) * dt;
         p->dashAmount -= 1;
-        sfx((*p->ctx), "./assets/audio/SFX/dash.wav");
+        playSfx(*p->ctx, &p->audios, "dash");
     }
 
     // Vertical movement
     if ((keyboard_state[SDL_SCANCODE_SPACE] && (!previous_state[SDL_SCANCODE_LCTRL] || !previous_state[SDL_SCANCODE_SPACE])) &&
         p->onGround) {
         p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
-        sfx((*p->ctx), "./assets/audio/SFX/jump.wav");
+        playSfx(*p->ctx, &p->audios, "jump");
     } else if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }
@@ -155,6 +158,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
     V2f movement = inputUpdate(p, deltaTime);
     V2f frame_movement = {movement.x + p->velocity.x, movement.y + p->velocity.y};
     p->onGround = false;
+    static bool wasOnGround = false;
 
     if (p->dashAmount < 3) {
         if (p->dashTimer > 0) {
@@ -200,6 +204,9 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
             if (frame_movement.y > 0) {
                 rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
                 p->onGround = true;
+                if (p->onGround && !wasOnGround) {
+                    playSfx(*p->ctx, &p->audios, "hardFall");
+                }
             }
             if (frame_movement.y < 0) {
                 rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
@@ -218,6 +225,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
         free(collisions.items);
         free(trigg_collision.items);
     }
+    wasOnGround = p->onGround;
 
     if (!p->flight) p->velocity.y = MIN(100.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
