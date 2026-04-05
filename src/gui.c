@@ -18,6 +18,14 @@
 #include "sdl_helpers.h"
 #include <stdarg.h>
 
+void boxToScale(SDL_FRect *rect, float scale)
+{
+    rect->x *= scale;
+    rect->y *= scale;
+    rect->w *= scale;
+    rect->h *= scale;
+}
+
 gui_menu *createMenu(SDL_Color bgColor, size_t count, ...)
 {
     gui_menu *menu = calloc(1, sizeof(gui_menu));
@@ -38,6 +46,7 @@ gui_menu *createMenu(SDL_Color bgColor, size_t count, ...)
     return menu;
 }
 
+// ******************* PAUSE MENU ***********************
 gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 {
     SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f) * sdl_ctx->screenRatio,
@@ -72,11 +81,41 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 {
 
+    // Resume button
     if (menu->items[0]->isLeftClicked == true) {
         sdl_ctx->paused = false;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
     }
+    // Options button
+    if (menu->items[1]->isLeftClicked == true) {
+        sdl_ctx->inOptions = true;
+    }
+
+    // Quit button
     if (menu->items[2]->isLeftClicked == true) sdl_ctx->quit = true;
+}
+
+// ******************* OPTIONS MENU ***********************
+gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx)
+{
+    SDL_FRect goBackBox = (SDL_FRect){100.f, WINDOW_HEIGHT - 350.f, 384.f, 96.f};
+    boxToScale(&goBackBox, sdl_ctx->screenRatio);
+
+    button *goBackButton = NULL;
+    createButton(sdl_ctx, &goBackButton, "RESUME", goBackBox, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120}, 1, goBackButton);
+
+    return menu;
+}
+
+void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+{
+    // Go back button
+    if (menu->items[0]->isLeftClicked == true) {
+        sdl_ctx->inOptions = false;
+    }
 }
 
 void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu,

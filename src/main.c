@@ -67,23 +67,24 @@ int main(int argc, char **argv)
         return 1;
 
     gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
+    gui_menu *optionsMenu = createOptionsMenu(sdl_ctx);
 
     SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
                            150 * sdl_ctx->screenRatio};
 
-    slider *sTest = NULL;
-    createSlider(sdl_ctx, &sTest,
-                 (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio,
-                             64 * sdl_ctx->screenRatio},
-                 NULL, NULL, 10, 10.0f * sdl_ctx->screenRatio);
+    // slider *sTest = NULL;
+    // createSlider(sdl_ctx, &sTest,
+    //              (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio,
+    //                          64 * sdl_ctx->screenRatio},
+    //              NULL, NULL, 100, 10.0f * sdl_ctx->screenRatio);
 
-    checkbox *cTest = NULL;
-    createCheckbox(sdl_ctx, &cTest,
-                   (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio,
-                               256 * sdl_ctx->screenRatio},
-                   (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio,
-                               216 * sdl_ctx->screenRatio},
-                   NULL, NULL, NULL, 10.0f * sdl_ctx->screenRatio, 20.0f * sdl_ctx->screenRatio);
+    // checkbox *cTest = NULL;
+    // createCheckbox(sdl_ctx, &cTest,
+    //                (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio,
+    //                            256 * sdl_ctx->screenRatio},
+    //                (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio,
+    //                            216 * sdl_ctx->screenRatio},
+    //                NULL, NULL, NULL, 10.0f * sdl_ctx->screenRatio, 20.0f * sdl_ctx->screenRatio);
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -167,18 +168,22 @@ int main(int argc, char **argv)
         barRender(sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
 
         // test de slider
-        updateSliderStates(sTest, mouseCoord, mouseInputFlag, sdl_ctx);
-        renderSlider(sdl_ctx, sTest);
+        // updateSliderStates(sTest, mouseCoord, mouseInputFlag, sdl_ctx);
+        // renderSlider(sdl_ctx, sTest);
 
         // test de checkbox
-        updateCheckboxStates(cTest, mouseCoord, mouseInputFlag);
-        renderCheckbox(sdl_ctx, cTest, "checkbox test");
+        // updateCheckboxStates(cTest, mouseCoord, mouseInputFlag);
+        // renderCheckbox(sdl_ctx, cTest, "checkbox test");
 
         // Update and render the menu at the very end
         if (sdl_ctx->paused == true) {
-            updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
-            renderMenu(sdl_ctx, pauseMenu);
-            MIX_PauseAllTracks(sdl_ctx->mixer);
+            if (sdl_ctx->inOptions) {
+                updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, optionsMenu, updateOptionsMenu);
+                renderMenu(sdl_ctx, optionsMenu);
+            } else {
+                updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, pauseMenu, updatePauseMenu);
+                renderMenu(sdl_ctx, pauseMenu);
+            }
         }
 
         SDL_RenderPresent(sdl_ctx->renderer);
@@ -193,12 +198,13 @@ int main(int argc, char **argv)
     }
 
     destroyBar(&hpBar);
-    destroySliders(&sTest);
-    destroyCheckbox(&cTest);
+    // destroySliders(&sTest);
+    // destroyCheckbox(&cTest);
     destroyLevel(&level);
     destroySfxs(&audios);
     deleteBullets(&bullet_arr);
     destroyMenu(&pauseMenu);
+    destroyMenu(&optionsMenu);
     destroyPlayer(&player);
     closeCtx(&sdl_ctx);
     return 0;

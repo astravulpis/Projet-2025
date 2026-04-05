@@ -36,4 +36,8 @@ void destroyMenu(gui_menu **menu);
 gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx);
 void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
 
+// Options menu related
+gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx);
+void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
+
 #endif // GUI_H_

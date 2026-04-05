@@ -28,6 +28,7 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player)
 
     if (state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
         sdl_ctx->paused = !sdl_ctx->paused;
+        MIX_PauseAllTracks(sdl_ctx->mixer);
     }
     if (state[SDL_SCANCODE_Q] && !prev[SDL_SCANCODE_Q]) {
         level->currentLoadedRoomID =
