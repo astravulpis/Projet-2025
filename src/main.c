@@ -13,6 +13,7 @@
  **/
 
 #include "../shared.h"
+#include "SDL3/SDL_pixels.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "bars.h"
 #include "bullets.h"
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
     curr = getLoadedRoom(level);
     movePlayer(player, curr->startPos);
 
-    loadSfx(sdl_ctx, &audios, "piercerPrimary", "./assets/audio/SFX/piercer.wav");
+    loadSfx(sdl_ctx, &audios, SFX_PLAYER_GUNS, "piercerPrimary", "./assets/audio/SFX/piercer.wav");
 
     bar *hpBar = NULL;
     if (!createBar(&hpBar,
@@ -125,6 +126,9 @@ int main(int argc, char **argv)
         SDL_RenderClear(sdl_ctx->renderer);
         renderBackground(sdl_ctx);
         renderRoom(sdl_ctx, level);
+        da_foreach (trigger_t, trigger, &getLoadedRoom(level)->triggers) {
+            renderFillRect(sdl_ctx->renderer, trigger->boundingBox, (SDL_Color){0xFF, 0x7F, 0x7f, 0x7F});
+        }
 
         if (!sdl_ctx->paused &&
             (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
@@ -156,6 +160,7 @@ int main(int argc, char **argv)
         renderEntities(getCurrentEntityWave(level));
 
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("Stamina: %.2f", player->stamina), WHITE, (V2f){10.0f, 10.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});

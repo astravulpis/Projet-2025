@@ -109,11 +109,12 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    sdl_ctx->tracks[BACKGROUND_MUSIC] = MIX_CreateTrack(sdl_ctx->mixer);
-    sdl_ctx->tracks[SFX] = MIX_CreateTrack(sdl_ctx->mixer);
-    if (!sdl_ctx->tracks[BACKGROUND_MUSIC] || !sdl_ctx->tracks[SFX]) {
-        nob_log(ERROR, "%s:%d: Couldn't create a mixer track: %s", __FILE__, __LINE__, SDL_GetError());
-        return_defer(false);
+    for (size_t i = 0; i < TRACK_COUNT; ++i) {
+        sdl_ctx->tracks[i] = MIX_CreateTrack(sdl_ctx->mixer);
+        if (!sdl_ctx->tracks[i]) {
+            nob_log(ERROR, "%s:%d: Couldn't create a mixer track: %s", __FILE__, __LINE__, SDL_GetError());
+            return_defer(false);
+        }
     }
 
     SDL_SetWindowFullscreen(sdl_ctx->window, true);

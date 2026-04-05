@@ -38,7 +38,7 @@ void playTrack(sdl_ctx_t *ctx, int trackIdx)
     MIX_PlayTrack(ctx->tracks[trackIdx], 0);  /* no extra options this time, so a zero for the second argument. */
 }
 
-void loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, char *name, const char *path)
+void loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, size_t track_name, char *name, const char *path)
 {
     MIX_Audio *audio = MIX_LoadAudio(sdl_ctx->mixer, path, false);
 
@@ -55,6 +55,7 @@ void loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, char *name, const char *path)
 
     s->name = strdup(name);
     s->ptr = audio;
+    s->track_idx = track_name;
 
     da_append(audios, s);
 }
@@ -63,16 +64,16 @@ void playSfx(sdl_ctx_t *ctx, sfxs *audios, const char *sfx_name)
 {
     da_foreach (sfx *, sfx, audios) {
         if (strcmp((*sfx)->name, sfx_name) == 0) {
-            __playSfx(ctx, (*sfx)->ptr);
+            __playSfx(ctx, (*sfx)->track_idx, (*sfx)->ptr);
             break;
         }
     }
 }
 
-void __playSfx(sdl_ctx_t *sdl_ctx, MIX_Audio *audio)
+void __playSfx(sdl_ctx_t *sdl_ctx, size_t track_idx, MIX_Audio *audio)
 {
-    MIX_SetTrackAudio(sdl_ctx->tracks[SFX], audio);
-    playTrack(sdl_ctx, SFX);
+    MIX_SetTrackAudio(sdl_ctx->tracks[track_idx], audio);
+    playTrack(sdl_ctx, track_idx);
 }
 
 void destroySfx(sfx **sfx)

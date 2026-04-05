@@ -12,6 +12,7 @@
  **/
 
 #include "player.h"
+#include "common.h"
 
 void movePlayer(player_t *p, V2f newPos)
 {
@@ -44,16 +45,18 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->jumpForce = -685.0f;
     p->velocity = (V2f){0.0f, 0.0f};
     p->onGround = false;
-    p->dashTimer = 1.0f;
-    p->dashAmount = 3;
+    p->stamina = 3.0f;
     p->lastKey = SDL_SCANCODE_UNKNOWN;
     p->flight = false;
     p->noclip = false;
 
     // Loading audios sfx
-    loadSfx((*sdl_ctx), &p->audios, "jump", "./assets/audio/SFX/jump.wav");
-    loadSfx((*sdl_ctx), &p->audios, "hardFall", "./assets/audio/SFX/hardFall.wav");
-    loadSfx((*sdl_ctx), &p->audios, "dash", "./assets/audio/SFX/dash.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "jump", "./assets/audio/SFX/jump.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_FALL, "softFall", "./assets/audio/SFX/softFall.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_FALL, "hardFall", "./assets/audio/SFX/hardFall.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "dash", "./assets/audio/SFX/dash.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "notEnoughStamina", "./assets/audio/SFX/notEnoughStamina.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_INTERACTIONS, "staminaRegen", "./assets/audio/SFX/staminaRegen.wav");
 
 defer:
     return result;
@@ -107,11 +110,21 @@ V2f inputUpdate(player_t *p, const float dt)
         deltaPos.x += p->speed * dt;
         p->lastKey = SDL_SCANCODE_D;
     }
-    if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->dashAmount > 0) {
-        if (p->lastKey == SDL_SCANCODE_A || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x -= (p->speed * 4) * dt;
-        if (p->lastKey == SDL_SCANCODE_D) deltaPos.x += (p->speed * 4) * dt;
-        p->dashAmount -= 1;
+
+    // Dash
+    if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->stamina >= 1.0f) {
+        if (p->lastKey == SDL_SCANCODE_A) deltaPos.x -= (p->speed * 4) * dt;
+        if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x += (p->speed * 4) * dt;
+        p->stamina -= 1.0f;
         playSfx(*p->ctx, &p->audios, "dash");
+
+    // Not enough stamina sfx
+    } else if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->stamina < 1.0f) {
+        playSfx(*p->ctx, &p->audios, "notEnoughStamina");
+    }
+
+    if (keyboard_state[SDL_SCANCODE_U] && !previous_state[SDL_SCANCODE_U]) {
+        playSfx(*p->ctx, &p->audios, "staminaRegen");
     }
 
     // Vertical movement
@@ -119,7 +132,13 @@ V2f inputUpdate(player_t *p, const float dt)
         p->onGround) {
         p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
         playSfx(*p->ctx, &p->audios, "jump");
-    } else if ((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) {
+    } else if (((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) &&
+               !p->isSlamming) {
+        p->isSlamming = true;
+        MIX_StopTrack((*p->ctx)->tracks[SFX_PLAYER_MOVE], 5);
+    }
+
+    if (p->isSlamming) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }
 
@@ -160,13 +179,14 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
     p->onGround = false;
     static bool wasOnGround = false;
 
-    if (p->dashAmount < 3) {
-        if (p->dashTimer > 0) {
-            p->dashTimer -= 0.7 * deltaTime;
-        } else {
-            p->dashTimer = 1.0f;
-            p->dashAmount += 1;
-        }
+    if (p->stamina < 3.0f) {
+        p->stamina = (p->stamina < 2.99f) ? p->stamina + 0.7 * deltaTime : 3.0f;
+    }
+
+    // Play sfx when a bar of stamina is regenerated/recharged
+    if ((p->stamina >= 0.97f && p->stamina <= 1.01f) || (p->stamina >= 1.97f && p->stamina <= 2.01f) ||
+        (p->stamina >= 2.97f && p->stamina <= 2.99f)) {
+        playSfx(*p->ctx, &p->audios, "staminaRegen");
     }
 
     rect->x += frame_movement.x;
@@ -205,8 +225,11 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
                 rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
                 p->onGround = true;
                 if (p->onGround && !wasOnGround) {
-                    playSfx(*p->ctx, &p->audios, "hardFall");
+                    if (p->isSlamming) playSfx(*p->ctx, &p->audios, "hardFall");
+                    else
+                        playSfx(*p->ctx, &p->audios, "softFall");
                 }
+                p->isSlamming = false;
             }
             if (frame_movement.y < 0) {
                 rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge

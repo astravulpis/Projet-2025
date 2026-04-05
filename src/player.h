@@ -27,12 +27,12 @@ typedef struct {
     V2f velocity;
     // bool stunned;           //!< State used to avoid key mashing
     // float stunnedTimer;     //!< Float used as a timer for the amount of time stunned
-    int dashAmount;
-    float dashTimer;
+    float stamina;
     float jumpForce;
     uint8_t lastKey;
 
     bool onGround; //!< State to tell whenever the player is on the ground or not
+    bool isSlamming;
     bool flight;
     bool noclip;
 } player_t;

@@ -50,10 +50,15 @@
 
 typedef enum {
     BACKGROUND_MUSIC,
-    SFX,
-} tracks;
+    SFX_PLAYER_MOVE,
+    SFX_PLAYER_FALL,
+    SFX_PLAYER_GUNS,
+    SFX_PLAYER_INTERACTIONS,
+    SFX_ENEMY_MOVE,
+    SFX_ENEMY_INTERACTIONS,
 
-#define TRACK_COUNT 2
+    TRACK_COUNT = 8,
+} tracks;
 
 /**
  * @typedef struct sdl_ctx_t
