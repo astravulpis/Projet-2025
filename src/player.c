@@ -81,9 +81,11 @@ void destroyPlayer(player_t **p)
 V2f inputUpdate(player_t *p, const float dt)
 {
     V2f deltaPos = {0};
+    float dashSpeed = (p->speed * 1.25) * dt;
     const bool *keyboard_state = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
     static bool previous_state[SDL_SCANCODE_COUNT] = {0};
 
+    // Flight & pass-through modes
     if (keyboard_state[SDL_SCANCODE_LEFTBRACKET] && !previous_state[SDL_SCANCODE_LEFTBRACKET]) {
         p->noclip = !p->noclip;
     }
@@ -103,18 +105,28 @@ V2f inputUpdate(player_t *p, const float dt)
 
     // Horizontal movement
     if (keyboard_state[SDL_SCANCODE_A]) {
-        deltaPos.x -= p->speed * dt;
+        if (p->onWall && previous_state[SDL_SCANCODE_SPACE]) {
+            deltaPos.x += p->speed * dt;
+            deltaPos.y += p->jumpForce * dt;
+        } else {
+            deltaPos.x -= p->speed * dt;
+        }
         p->lastKey = SDL_SCANCODE_A;
     }
     if (keyboard_state[SDL_SCANCODE_D]) {
-        deltaPos.x += p->speed * dt;
+        if (p->onWall && previous_state[SDL_SCANCODE_SPACE]) {
+            deltaPos.x -= (p->speed * 5) * dt;
+            deltaPos.y += p->jumpForce * dt;
+        } else {
+            deltaPos.x += p->speed * dt;
+        }
         p->lastKey = SDL_SCANCODE_D;
     }
 
     // Dash
     if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->stamina >= 1.0f) {
-        if (p->lastKey == SDL_SCANCODE_A) deltaPos.x -= (p->speed * 4) * dt;
-        if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) deltaPos.x += (p->speed * 4) * dt;
+        if (p->lastKey == SDL_SCANCODE_A) p->velocity.x = -dashSpeed;
+        if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) p->velocity.x = dashSpeed;
         p->stamina -= 1.0f;
         playSfx(*p->ctx, &p->audios, "dash");
 
@@ -173,15 +185,20 @@ triggers_t collision_test_player_trigg(player_t *p, triggers_t *triggers_array)
 void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_array, int *activeWave)
 {
     float gravity = 28.0f;
+    float dragCoef = 15.f * deltaTime;
     SDL_FRect *rect = getBB(p);
     V2f movement = inputUpdate(p, deltaTime);
     V2f frame_movement = {movement.x + p->velocity.x, movement.y + p->velocity.y};
     p->onGround = false;
+    p->onWall = false;
     static bool wasOnGround = false;
 
     if (p->stamina < 3.0f) {
         p->stamina = (p->stamina < 2.99f) ? p->stamina + 0.7 * deltaTime : 3.0f;
     }
+    if (p->velocity.x > 0.0f) p->velocity.x -= dragCoef;
+    else if (p->velocity.x < 0.0f)
+        p->velocity.x += dragCoef;
 
     // Play sfx when a bar of stamina is regenerated/recharged
     if ((p->stamina >= 0.97f && p->stamina <= 1.01f) || (p->stamina >= 1.97f && p->stamina <= 2.01f) ||
@@ -195,6 +212,8 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
         triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
+            p->onWall = true;
+
             if (frame_movement.x > 0) {
                 rect->x = Left(tile) - rect->w - 0.01f; // Set the player's right edge to the tile's left edge
             }
@@ -250,7 +269,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
     }
     wasOnGround = p->onGround;
 
-    if (!p->flight) p->velocity.y = MIN(100.0f, p->velocity.y + (gravity * deltaTime));
+    if (!p->flight) p->velocity.y = MIN(50.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
     keepRectInbounds(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

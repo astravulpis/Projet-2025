@@ -32,6 +32,7 @@ typedef struct {
     uint8_t lastKey;
 
     bool onGround; //!< State to tell whenever the player is on the ground or not
+    bool onWall; //!< State to tell whenever the player is glued to a wall or not
     bool isSlamming;
     bool flight;
     bool noclip;

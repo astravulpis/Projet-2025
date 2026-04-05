@@ -161,7 +161,8 @@ int main(int argc, char **argv)
         renderEntities(getCurrentEntityWave(level));
 
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
-        renderText_Ex(sdl_ctx, temp_sprintf("Stamina: %.2f", player->stamina), WHITE, (V2f){10.0f, 10.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("Stamina: %.2f", player->stamina), WHITE, (V2f){10.0f, 30.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("IsSlamming %d", player->isSlamming), WHITE, (V2f){10.0f, 50.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
