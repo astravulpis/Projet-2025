@@ -82,4 +82,8 @@ void renderBackground(sdl_ctx_t *sdl_ctx);
  */
 TTF_Font *loadFont(char *path, float fontSize, int fontStyle, int outline);
 
+void setMasterTrackGain(sdl_ctx_t *ctx);
+void setMusicTrackGain(sdl_ctx_t *ctx);
+void setSfxTrackGain(sdl_ctx_t *ctx);
+
 #endif // SDL_CTX_H_

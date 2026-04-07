@@ -19,9 +19,7 @@ typedef struct slider {
     SDL_FRect *sliderBox;
     SDL_FRect *cursorBox; // calculé de manière automatique, par rapport a sliderBox
 
-    // ces 2 images peuvent être a NULL et la fonction de rendu affichera des rectangles a la place
-    SDL_Texture *backgroundImg;
-    SDL_Texture *cursorImg;
+    char *name;
 
     int nbValue; // pour avoir le bon ratio dans la jauge
     float borderSize; // n'augmente pas la taille des bordures, cela réduit la taille du contenu du slider -> donc les bordure
@@ -34,10 +32,9 @@ typedef struct slider {
     bool focused; // booléen a true quand un clic est maintenu sur le cursorBox sur plusieurs frames consécutive
 } slider;
 
-bool createSlider(sdl_ctx_t *sdl_ctx, slider **s, SDL_FRect rect, char *bgImg_Path, char *cursorImg_Path, float nbValue,
-                  float borderSize);
-void destroySliders(slider **s);
-void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl_ctx);
+bool createSlider(slider **s, SDL_FRect rect, float nbValue, float borderSize, float baseVal, const char *name);
+void destroySlider(slider **s);
+void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, float *val);
 void renderSlider(sdl_ctx_t *sdl_ctx, slider *s);
 
 #endif // SLIDERS_H_

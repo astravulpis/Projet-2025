@@ -82,8 +82,9 @@ void updateButtonState(button *b, V2f mouseCoord, int mouseFlag)
     }
 }
 
-void buttonRender(sdl_ctx_t *sdl_ctx, button *b)
+void renderButton(sdl_ctx_t *sdl_ctx, button *b)
 {
+    size_t mark = temp_save();
     static size_t pixelWidth = 0;
     static int buttonTextWidth = 0;
     static int buttonTextHeight = 0;
@@ -113,4 +114,5 @@ void buttonRender(sdl_ctx_t *sdl_ctx, button *b)
             renderImage(sdl_ctx, b->baseImg, b->buttonBox);
     }
     renderText_Ex(sdl_ctx, temp_sprintf("%s", b->buttonText), WHITE, buttonPos);
+    temp_rewind(mark);
 }

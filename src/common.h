@@ -60,6 +60,12 @@ typedef enum {
     TRACK_COUNT = 8,
 } tracks;
 
+typedef struct {
+    float masterVolume;
+    float musicVolume;
+    float sfxVolume;
+} options;
+
 /**
  * @typedef struct sdl_ctx_t
  * @brief shorter abreviation for @ref sdl_context_s
@@ -80,6 +86,7 @@ struct sdl_context_s {
     SDL_FRect *bgRect;      //!< SDL3 surface renderer rectangle
     TTF_Font *font;         //!< SDL3 ttf font
     SDL_Event event;        //!< Event struct to pull from
+    options opts;
     float screenRatio;      //!< Ratio for adaptative ui link the screen size
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not

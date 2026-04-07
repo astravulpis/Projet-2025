@@ -15,8 +15,7 @@
 #include "sdl_helpers.h"
 #include <math.h>
 
-bool createSlider(sdl_ctx_t *sdl_ctx, slider **s, SDL_FRect rect, char *bgImg_Path, char *cursorImg_Path, float nbValue,
-                  float borderSize)
+bool createSlider(slider **s, SDL_FRect rect, float nbValue, float borderSize, float baseVal, const char *name)
 {
     *s = calloc(1, sizeof(slider));
     if ((*s) == NULL) {
@@ -29,18 +28,11 @@ bool createSlider(sdl_ctx_t *sdl_ctx, slider **s, SDL_FRect rect, char *bgImg_Pa
     (*s)->cursorBox =
         createRect_Ex((SDL_FRect){rect.x + (borderSize), rect.y + (borderSize), cursorSize, ((rect.h - borderSize * 2))});
 
-    if (bgImg_Path != NULL) (*s)->backgroundImg = IMG_LoadTexture(sdl_ctx->renderer, bgImg_Path);
-    else
-        (*s)->backgroundImg = NULL;
-
-    if (cursorImg_Path != NULL) (*s)->cursorImg = IMG_LoadTexture(sdl_ctx->renderer, cursorImg_Path);
-    else
-        (*s)->cursorImg = NULL;
-
     (*s)->nbValue = nbValue;
     (*s)->borderSize = borderSize;
-    (*s)->currentValue = 1;
+    (*s)->currentValue = baseVal;
     (*s)->prevX = -1.0f;
+    (*s)->name = strdup(name);
 
     (*s)->hovered = false;
     (*s)->clicked = false;
@@ -49,13 +41,12 @@ bool createSlider(sdl_ctx_t *sdl_ctx, slider **s, SDL_FRect rect, char *bgImg_Pa
     return true;
 }
 
-void destroySliders(slider **s)
+void destroySlider(slider **s)
 {
     if ((*s) != NULL) {
         free((*s)->sliderBox);
         free((*s)->cursorBox);
-        SDL_DestroyTexture((*s)->backgroundImg);
-        SDL_DestroyTexture((*s)->cursorImg);
+        free((*s)->name);
     }
 
     free(*s);
@@ -86,26 +77,17 @@ void FRect_Change_x(SDL_FRect *rect, float step, float minLimit, float maxLimit)
     return;
 }
 
-void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl_ctx)
+void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, float *val)
 {
     SDL_FPoint coords = (SDL_FPoint){mouseCoord.x, mouseCoord.y};
 
     // vérification pour voir si le curseur subis un focus (cliqué précédemment, et encore en clic)
-    if (s->clicked && ((mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) || (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT))))
-        s->focused = true;
-    else
-        s->focused = false;
+    s->focused = s->clicked && mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 
     // mise a jour des autres booléens, et increment du x de cursor box si focused
     if (SDL_PointInRectFloat(&coords, s->cursorBox)) {
         s->hovered = true;
-
-        // Right or Left click, pas de distinction pour ce composant
-        if ((mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) || (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT))) {
-            s->clicked = true;
-        } else
-            s->clicked = false;
-
+        s->clicked = mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
         s->prevX = mouseCoord.x;
     } else if (s->focused) {
         // prevX est normalement toujours différent de -1 si on est arrivé ici
@@ -130,6 +112,7 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
 
                 // Calculate the current index
                 s->currentValue = roundf((s->cursorBox->x - minX) / step);
+                if (val != NULL) *val = s->currentValue;
                 s->prevX += move;
             }
         }
@@ -143,30 +126,25 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, sdl_ctx_t *sdl
 
 void renderSlider(sdl_ctx_t *sdl_ctx, slider *s)
 {
-    // vérifie qu'une image a été chargée pour le slider background
-    if (s->backgroundImg == NULL) renderFillRect(sdl_ctx->renderer, s->sliderBox, (SDL_Color){50, 50, 50, 255});
-    else
-        renderImage(sdl_ctx, s->backgroundImg, s->sliderBox);
+    size_t mark = temp_save();
+    renderFillRect(sdl_ctx->renderer, s->sliderBox, (SDL_Color){50, 50, 50, 255});
 
-    // vérifie qu'une image a été chargé pour le curseur
-    if (s->cursorImg == NULL) {
-        renderFillRect(sdl_ctx->renderer, s->cursorBox, (SDL_Color){250, 250, 250, 255});
-        renderFillRect(sdl_ctx->renderer, &(SDL_FRect){s->cursorBox->x, s->cursorBox->y, s->cursorBox->w, s->cursorBox->h / 5},
-                       (SDL_Color){200, 200, 200, 255});
+    renderFillRect(sdl_ctx->renderer, s->cursorBox, (SDL_Color){250, 250, 250, 255});
+    renderFillRect(sdl_ctx->renderer, &(SDL_FRect){s->cursorBox->x, s->cursorBox->y, s->cursorBox->w, s->cursorBox->h / 5},
+                   (SDL_Color){200, 200, 200, 255});
 
-        if (s->clicked) renderFillRect(sdl_ctx->renderer, s->cursorBox, (SDL_Color){50, 50, 50, 128});
-    } else
-        renderImage(sdl_ctx, s->backgroundImg, s->cursorBox);
+    if (s->clicked) renderFillRect(sdl_ctx->renderer, s->cursorBox, (SDL_Color){50, 50, 50, 128});
 
     // Calculates the center of the slider
     static int sliderTextWidth = 0;
     static int sliderTextHeight = 0;
 
     // Measure the width of the slider text
-    TTF_GetStringSize(sdl_ctx->font, temp_sprintf("value = %i", s->currentValue), 0, &sliderTextWidth, &sliderTextHeight);
+    TTF_GetStringSize(sdl_ctx->font, temp_sprintf("%s: %i", s->name, s->currentValue), 0, &sliderTextWidth, &sliderTextHeight);
 
     float XCentering = (s->sliderBox->w / 2.0f) - sliderTextWidth / 2.0f;
     float YCentering = (s->sliderBox->h / 2.0f) - sliderTextHeight / 2.0f;
     V2f textPos = {s->sliderBox->x + XCentering, s->sliderBox->y + YCentering};
-    renderText_Ex(sdl_ctx, temp_sprintf("value = %i", s->currentValue), WHITE, textPos);
+    renderText_Ex(sdl_ctx, temp_sprintf("%s: %i", s->name, s->currentValue), WHITE, textPos);
+    temp_rewind(mark);
 }

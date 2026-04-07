@@ -42,7 +42,7 @@ typedef struct button {
 bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect rect, char *baseImgPath, char *hoverImgPath,
                   char *clickImgPath);
 void updateButtonState(button *b, V2f mouseCoord, int mouseFlag);
-void buttonRender(sdl_ctx_t *sdl_ctx, button *b);
+void renderButton(sdl_ctx_t *sdl_ctx, button *b);
 void destroyButton(button **b);
 
 #endif // BUTTONS_H_

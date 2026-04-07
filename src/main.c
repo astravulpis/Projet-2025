@@ -13,11 +13,8 @@
  **/
 
 #include "../shared.h"
-#include "SDL3/SDL_pixels.h"
-#include "SDL3_mixer/SDL_mixer.h"
 #include "bars.h"
 #include "bullets.h"
-#include "checkboxes.h"
 #include "common.h"
 #include "entity.h"
 #include "event.h"
@@ -71,20 +68,6 @@ int main(int argc, char **argv)
 
     SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
                            150 * sdl_ctx->screenRatio};
-
-    // slider *sTest = NULL;
-    // createSlider(sdl_ctx, &sTest,
-    //              (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio,
-    //                          64 * sdl_ctx->screenRatio},
-    //              NULL, NULL, 100, 10.0f * sdl_ctx->screenRatio);
-
-    // checkbox *cTest = NULL;
-    // createCheckbox(sdl_ctx, &cTest,
-    //                (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio,
-    //                            256 * sdl_ctx->screenRatio},
-    //                (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio,
-    //                            216 * sdl_ctx->screenRatio},
-    //                NULL, NULL, NULL, 10.0f * sdl_ctx->screenRatio, 20.0f * sdl_ctx->screenRatio);
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -162,7 +145,7 @@ int main(int argc, char **argv)
 
         renderText_Ex(sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
         renderText_Ex(sdl_ctx, temp_sprintf("Stamina: %.2f", player->stamina), WHITE, (V2f){10.0f, 30.0f});
-        renderText_Ex(sdl_ctx, temp_sprintf("IsSlamming %d", player->isSlamming), WHITE, (V2f){10.0f, 50.0f});
+        renderText_Ex(sdl_ctx, temp_sprintf("%.2f", player->velocity.x), WHITE, (V2f){10.0f, 50.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
         renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});

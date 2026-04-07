@@ -12,6 +12,7 @@
  **/
 
 #include "sdl_ctx.h"
+#include "SDL3_mixer/SDL_mixer.h"
 #include "common.h"
 #include "sdl_helpers.h"
 
@@ -26,6 +27,30 @@ bool createCtx(sdl_ctx_t **ctx)
     if (!initCtx((*ctx))) return false;
 
     return true;
+}
+
+void initOptions(options *opts)
+{
+    opts->masterVolume = 50.0f;
+    opts->musicVolume = 25.0f;
+    opts->sfxVolume = 25.0f;
+}
+
+void setMasterTrackGain(sdl_ctx_t *ctx)
+{
+    MIX_SetMixerGain(ctx->mixer, ctx->opts.masterVolume / 100.f);
+}
+
+void setMusicTrackGain(sdl_ctx_t *ctx)
+{
+    MIX_SetTrackGain(ctx->tracks[BACKGROUND_MUSIC], ctx->opts.musicVolume / 100.f);
+}
+
+void setSfxTrackGain(sdl_ctx_t *ctx)
+{
+    for (int id = BACKGROUND_MUSIC + 1; id < TRACK_COUNT; ++id) {
+        MIX_SetTrackGain(ctx->tracks[id], ctx->opts.sfxVolume / 100.f);
+    }
 }
 
 bool initCtx(sdl_ctx_t *sdl_ctx)
@@ -116,6 +141,11 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
             return_defer(false);
         }
     }
+
+    initOptions(&sdl_ctx->opts);
+    setMasterTrackGain(sdl_ctx);
+    setMusicTrackGain(sdl_ctx);
+    setSfxTrackGain(sdl_ctx);
 
     SDL_SetWindowFullscreen(sdl_ctx->window, true);
 
