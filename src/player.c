@@ -12,6 +12,7 @@
  **/
 
 #include "player.h"
+#include "SDL3/SDL_scancode.h"
 #include "common.h"
 
 void movePlayer(player_t *p, V2f newPos)
@@ -78,74 +79,82 @@ void destroyPlayer(player_t **p)
     (*p) = NULL;
 }
 
+bool isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState)
+{
+    bool result = currState[scancode] && !prevState[scancode];
+    return result;
+}
+
+bool isKeyDown(SDL_Scancode scancode, const bool *currState)
+{
+    return currState[scancode];
+}
+
 V2f inputUpdate(player_t *p, const float dt)
 {
     V2f deltaPos = {0};
-    float dashSpeed = (p->speed * 1.25) * dt;
-    const bool *keyboard_state = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
-    static bool previous_state[SDL_SCANCODE_COUNT] = {0};
+    float dashSpeed = (p->speed * 1.65f) * dt;
+    float wallJumpStrenght = (p->speed * 1.3f) * dt;
+    const bool *currState = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
+    static bool prevState[SDL_SCANCODE_COUNT] = {0};
 
     // Flight & pass-through modes
-    if (keyboard_state[SDL_SCANCODE_LEFTBRACKET] && !previous_state[SDL_SCANCODE_LEFTBRACKET]) {
+    if (isKeyPressed(SDL_SCANCODE_LEFTBRACKET, currState, prevState)) {
         p->noclip = !p->noclip;
     }
 
-    if (keyboard_state[SDL_SCANCODE_RIGHTBRACKET] && !previous_state[SDL_SCANCODE_RIGHTBRACKET]) {
+    if (isKeyPressed(SDL_SCANCODE_RIGHTBRACKET, currState, prevState)) {
         p->flight = !p->flight;
     }
 
+    // Vertical movement
     if (p->flight) {
-        if (keyboard_state[SDL_SCANCODE_W]) {
+        if (isKeyDown(SDL_SCANCODE_W, currState)) {
             deltaPos.y -= p->speed * dt;
         }
-        if (keyboard_state[SDL_SCANCODE_S]) {
+        if (isKeyDown(SDL_SCANCODE_S, currState)) {
             deltaPos.y += p->speed * dt;
         }
     }
 
     // Horizontal movement
-    if (keyboard_state[SDL_SCANCODE_A]) {
-        if (p->onWall && previous_state[SDL_SCANCODE_SPACE]) {
-            deltaPos.x += p->speed * dt;
-            deltaPos.y += p->jumpForce * dt;
-        } else {
-            deltaPos.x -= p->speed * dt;
-        }
+    if (isKeyDown(SDL_SCANCODE_A, currState)) {
+        deltaPos.x -= p->speed * dt;
         p->lastKey = SDL_SCANCODE_A;
     }
-    if (keyboard_state[SDL_SCANCODE_D]) {
-        if (p->onWall && previous_state[SDL_SCANCODE_SPACE]) {
-            deltaPos.x -= (p->speed * 5) * dt;
-            deltaPos.y += p->jumpForce * dt;
-        } else {
-            deltaPos.x += p->speed * dt;
-        }
+
+    if (isKeyDown(SDL_SCANCODE_D, currState)) {
+        deltaPos.x += p->speed * dt;
         p->lastKey = SDL_SCANCODE_D;
     }
 
     // Dash
-    if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->stamina >= 1.0f) {
-        if (p->lastKey == SDL_SCANCODE_A) p->velocity.x = -dashSpeed;
-        if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) p->velocity.x = dashSpeed;
-        p->stamina -= 1.0f;
-        playSfx(*p->ctx, &p->audios, "dash");
-
-    // Not enough stamina sfx
-    } else if ((keyboard_state[SDL_SCANCODE_LSHIFT] && !previous_state[SDL_SCANCODE_LSHIFT]) && p->stamina < 1.0f) {
-        playSfx(*p->ctx, &p->audios, "notEnoughStamina");
+    if (isKeyPressed(SDL_SCANCODE_LSHIFT, currState, prevState)) {
+        if (p->stamina >= 1.0f) {
+            if (p->lastKey == SDL_SCANCODE_A) p->velocity.x = -dashSpeed;
+            if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) p->velocity.x = dashSpeed;
+            p->stamina -= 1.0f;
+            playSfx(*p->ctx, &p->audios, "dash");
+        } else {
+            playSfx(*p->ctx, &p->audios, "notEnoughStamina");
+        }
     }
 
-    if (keyboard_state[SDL_SCANCODE_U] && !previous_state[SDL_SCANCODE_U]) {
-        playSfx(*p->ctx, &p->audios, "staminaRegen");
-    }
-
-    // Vertical movement
-    if ((keyboard_state[SDL_SCANCODE_SPACE] && (!previous_state[SDL_SCANCODE_LCTRL] || !previous_state[SDL_SCANCODE_SPACE])) &&
-        p->onGround) {
-        p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
+    // Jump & slam
+    if (isKeyPressed(SDL_SCANCODE_SPACE, currState, prevState) && !prevState[SDL_SCANCODE_LCTRL]) {
+        float temp = 1.35f;
+        if (p->onWall) {
+            if (p->lastKey == SDL_SCANCODE_A) {
+                p->velocity.x = wallJumpStrenght * temp;
+            } else if (p->lastKey == SDL_SCANCODE_D) {
+                p->velocity.x = -wallJumpStrenght * temp;
+            }
+            p->velocity.y = -dashSpeed * temp;
+        } else if (p->onGround) {
+            p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
+        }
         playSfx(*p->ctx, &p->audios, "jump");
-    } else if (((keyboard_state[SDL_SCANCODE_LCTRL] && !previous_state[SDL_SCANCODE_LCTRL]) && !p->onGround) &&
-               !p->isSlamming) {
+    } else if ((isKeyPressed(SDL_SCANCODE_LCTRL, currState, prevState) && !p->onGround) && !p->isSlamming) {
         p->isSlamming = true;
         MIX_StopTrack((*p->ctx)->tracks[SFX_PLAYER_MOVE], 5);
     }
@@ -154,7 +163,7 @@ V2f inputUpdate(player_t *p, const float dt)
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }
 
-    memcpy(previous_state, keyboard_state, SDL_SCANCODE_COUNT);
+    memcpy(prevState, currState, SDL_SCANCODE_COUNT);
     return deltaPos;
 }
 
@@ -185,7 +194,8 @@ triggers_t collision_test_player_trigg(player_t *p, triggers_t *triggers_array)
 void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_array, int *activeWave)
 {
     float gravity = 28.0f;
-    float dragCoef = 15.f * deltaTime;
+    float dragCoef = 0.75f;
+    float epsi = 1e-6;
     SDL_FRect *rect = getBB(p);
     V2f movement = inputUpdate(p, deltaTime);
     V2f frame_movement = {movement.x + p->velocity.x, movement.y + p->velocity.y};
@@ -193,12 +203,9 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
     p->onWall = false;
     static bool wasOnGround = false;
 
-    if (p->stamina < 3.0f) {
-        p->stamina = (p->stamina < 2.99f) ? p->stamina + 0.7 * deltaTime : 3.0f;
-    }
-    if (p->velocity.x > 0.0f) p->velocity.x -= dragCoef;
-    else if (p->velocity.x < 0.0f)
-        p->velocity.x += dragCoef;
+    if (p->stamina < 3.0f) p->stamina = (p->stamina < 2.99f) ? p->stamina + 0.7 * deltaTime : 3.0f;
+
+    if (p->velocity.x < epsi || p->velocity.x > epsi) p->velocity.x = p->velocity.x * dragCoef;
 
     // Play sfx when a bar of stamina is regenerated/recharged
     if ((p->stamina >= 0.97f && p->stamina <= 1.01f) || (p->stamina >= 1.97f && p->stamina <= 2.01f) ||
