@@ -55,19 +55,38 @@ int main(int argc, char **argv)
 
     loadSfx(sdl_ctx, &audios, SFX_PLAYER_GUNS, "piercerPrimary", "./assets/audio/SFX/piercer.wav");
 
+    SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
+                           150 * sdl_ctx->screenRatio};
+
+    SDL_FRect cWeaponBox = {(WINDOW_WIDTH / 2 - 300) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 135) * sdl_ctx->screenRatio, 600 * sdl_ctx->screenRatio,
+                           120 * sdl_ctx->screenRatio};
+    
+    SDL_FRect styleMeterBox = {(WINDOW_WIDTH - 265) * sdl_ctx->screenRatio, (WINDOW_HEIGHT - 135) * sdl_ctx->screenRatio, 250 * sdl_ctx->screenRatio,
+                           120 * sdl_ctx->screenRatio};                           
+
     bar *hpBar = NULL;
-    if (!createBar(&hpBar,
-                   (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f) * sdl_ctx->screenRatio,
-                               (WINDOW_HEIGHT - 95.0f) * sdl_ctx->screenRatio, 450 * sdl_ctx->screenRatio,
-                               60.0f * sdl_ctx->screenRatio},
-                   (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255}, 100.0f, 10.0f))
-        return 1;
+    bar *dashBar1 = NULL;
+    bar *dashBar2 = NULL;
+    bar *dashBar3 = NULL;
+
+    createPlayerStatusBar(sdl_ctx, &dashBar1, &dashBar2, &dashBar3, &hpBar);
 
     gui_menu *pauseMenu = createPauseMenu(sdl_ctx);
     gui_menu *optionsMenu = createOptionsMenu(sdl_ctx);
 
-    SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio, WINDOW_WIDTH * sdl_ctx->screenRatio,
-                           150 * sdl_ctx->screenRatio};
+    // slider *sTest = NULL;
+    // createSlider(sdl_ctx, &sTest,
+    //              (SDL_FRect){20 * sdl_ctx->screenRatio, 200 * sdl_ctx->screenRatio, 512 * sdl_ctx->screenRatio,
+    //                          64 * sdl_ctx->screenRatio},
+    //              NULL, NULL, 100, 10.0f * sdl_ctx->screenRatio);
+
+    // checkbox *cTest = NULL;
+    // createCheckbox(sdl_ctx, &cTest,
+    //                (SDL_FRect){600 * sdl_ctx->screenRatio, 20 * sdl_ctx->screenRatio, 256 * sdl_ctx->screenRatio,
+    //                            256 * sdl_ctx->screenRatio},
+    //                (SDL_FRect){620 * sdl_ctx->screenRatio, 40 * sdl_ctx->screenRatio, 216 * sdl_ctx->screenRatio,
+    //                            216 * sdl_ctx->screenRatio},
+    //                NULL, NULL, NULL, 10.0f * sdl_ctx->screenRatio, 20.0f * sdl_ctx->screenRatio);
 
     Uint32 last = SDL_GetTicks();
     Uint32 frameStart = 0;
@@ -148,8 +167,15 @@ int main(int argc, char **argv)
         renderText_Ex(sdl_ctx, temp_sprintf("%.2f", player->velocity.x), WHITE, (V2f){10.0f, 50.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
-        renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 255});
-        barRender(sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
+        renderFillRect(sdl_ctx->renderer, &footerBox, (SDL_Color){45, 45, 45, 0});
+
+        renderFillRect(sdl_ctx->renderer, &cWeaponBox, (SDL_Color){0, 156, 156, 255});
+        renderText_Ex(sdl_ctx, temp_sprintf("current Weapon"), RED, (V2f){cWeaponBox.x, cWeaponBox.y});
+
+        renderFillRect(sdl_ctx->renderer, &styleMeterBox, (SDL_Color){0, 156, 156, 255});
+        renderText_Ex(sdl_ctx, temp_sprintf("style meter"), RED, (V2f){styleMeterBox.x, styleMeterBox.y});
+
+        renderPlayerStatusBar(sdl_ctx, player, dashBar1, dashBar2, dashBar3, hpBar);
 
         // test de slider
         // updateSliderStates(sTest, mouseCoord, mouseInputFlag, sdl_ctx);
@@ -181,7 +207,7 @@ int main(int argc, char **argv)
             healthBarTest -= 10 * deltaTime;
     }
 
-    destroyBar(&hpBar);
+    destroyPlayerStatusBar(&dashBar1, &dashBar2, &dashBar3, &hpBar);
     // destroySliders(&sTest);
     // destroyCheckbox(&cTest);
     destroyLevel(&level);

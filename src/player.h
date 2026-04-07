@@ -8,6 +8,7 @@
  *
  * * Contributors:
  * Liam B. <liam.berge72@gmail.com>
+ * François Rossignol <francois_rossignol@outlook.fr>
  **/
 
 #ifndef PLAYER_H_
@@ -17,6 +18,7 @@
 #include "music.h"
 #include "sdl_helpers.h"
 #include <string.h>
+#include "bars.h"
 
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
@@ -30,6 +32,8 @@ typedef struct {
     float stamina;
     float jumpForce;
     uint8_t lastKey;
+
+    float hp;
 
     bool onGround; //!< State to tell whenever the player is on the ground or not
     bool onWall; //!< State to tell whenever the player is glued to a wall or not
@@ -95,5 +99,11 @@ void renderPlayer(player_t *p);
  * moves the player's bounding box based on the new position
  */
 void movePlayer(player_t *p, V2f newPos);
+
+bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB);
+
+bool renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB);
+
+void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB);
 
 #endif // PLAYER_H_

@@ -48,6 +48,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->onGround = false;
     p->stamina = 3.0f;
     p->lastKey = SDL_SCANCODE_UNKNOWN;
+    p->hp = 100;
     p->flight = false;
     p->noclip = false;
 
@@ -287,4 +288,65 @@ void renderPlayer(player_t *p)
     SDL_FlipMode flipped =
         (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
+}
+
+// créé 3 bar, utilisé pour afficher la stamina du joueur (dash disponibles)
+bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB) {
+    // (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio correspond au y de la zone de footer, donc 150 est la hauteur du footer
+
+    if (!createBar(hpB,
+                   (SDL_FRect){15 * sdl_ctx->screenRatio,
+                               (((WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio) + 15) * sdl_ctx->screenRatio, 450 * sdl_ctx->screenRatio,
+                               54.5f * sdl_ctx->screenRatio},
+                   (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255}, 100.0f, 10.0f, 0, true))
+        return false;
+
+    if (!createBar(b1,
+                   (SDL_FRect){(15 + (5)) * sdl_ctx->screenRatio,
+                               (((WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio)  + 82.5f ) * sdl_ctx->screenRatio, 145 * sdl_ctx->screenRatio,
+                               37.5f * sdl_ctx->screenRatio},
+                   (SDL_Color){80, 80, 255, 255}, (SDL_Color){0, 0, 205, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
+        return false;
+
+    if (!createBar(b2,
+                   (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w,
+                               (*b1)->BarBox->y, (*b1)->BarBox->w,
+                               (*b1)->BarBox->h},
+                   (SDL_Color){207, 80, 255, 255}, (SDL_Color){127, 0, 205, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
+        return false;
+
+        if (!createBar(b3,
+                       (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w * 2,
+                                   (*b1)->BarBox->y, (*b1)->BarBox->w,
+                                   (*b1)->BarBox->h},
+                       (SDL_Color){255, 143, 226, 255}, (SDL_Color){253, 63, 146, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
+        return false;
+
+    return true;
+}
+
+bool renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB) {
+    SDL_FRect dashBgBox = {hpB->BarBox->x, b1->BarBox->y - ((13.0f / 2.0f) * sdl_ctx->screenRatio),
+                            ((b1->BarBox->w * 3) + 10.0f + b1->minCursorWidth) * sdl_ctx->screenRatio, hpB->BarBox->h - (3 * sdl_ctx->screenRatio)};
+
+    barRender(sdl_ctx, hpB, player->hp, 50, 50, 50);
+
+    // valeur de chacune des bars de dash
+    // le min est pris, car dash1 peut être supérieur a 1, ce que je ne veux pas !
+    float dash1 = fminf(player->stamina > 0 ? player->stamina : 0, 1.0f);
+    float dash2 = fminf(player->stamina - 1.0f > 0 ? player->stamina - 1 : 0, 1.0f);
+    float dash3 = fminf(player->stamina - 2.0f > 0 ? player->stamina - 2 : 0, 1.0f);
+
+    renderFillRect(sdl_ctx->renderer, &dashBgBox, (SDL_Color){20, 20, 20, 255});
+
+    barRender(sdl_ctx, b1, dash1, 50, 50, 50);
+    barRender(sdl_ctx, b2, dash2, 50, 50, 50);
+    barRender(sdl_ctx, b3, dash3, 50, 50, 50);
+}
+
+void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB) {
+    destroyBar(hpB);
+    destroyBar(b1);
+    destroyBar(b2);
+    destroyBar(b3);
 }
