@@ -101,3 +101,22 @@ void keepRectInbounds(SDL_FRect *r, float minX, float minY, float maxX, float ma
     if (r->x + r->w > maxX) r->x = maxX - r->w; // Right
     if (r->y + r->h > maxY) r->y = maxY - r->h; // Up
 }
+
+void boxToScale(SDL_FRect *rect, float scale)
+{
+    rect->x *= scale;
+    rect->y *= scale;
+    rect->w *= scale;
+    rect->h *= scale;
+}
+
+bool isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState)
+{
+    bool result = currState[scancode] && !prevState[scancode];
+    return result;
+}
+
+bool isKeyDown(SDL_Scancode scancode, const bool *currState)
+{
+    return currState[scancode];
+}

@@ -12,22 +12,11 @@
  **/
 
 #include "gui.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3_mixer/SDL_mixer.h"
 #include "buttons.h"
 #include "common.h"
-#include "music.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "sliders.h"
-
-void boxToScale(SDL_FRect *rect, float scale)
-{
-    rect->x *= scale;
-    rect->y *= scale;
-    rect->w *= scale;
-    rect->h *= scale;
-}
 
 gui_menu *createMenu(SDL_Color bgColor)
 {
@@ -92,12 +81,12 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 
     // Resume button
     if (menu->btns.items[0]->isLeftClicked == true) {
-        sdl_ctx->paused = false;
+        sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
     }
     // Options button
     if (menu->btns.items[1]->isLeftClicked == true) {
-        sdl_ctx->inOptions = true;
+        sdl_ctx->currMenu = OPTIONS_MENU;
     }
 
     // Quit button
@@ -147,7 +136,7 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 
     // Go back button
     if (menu->btns.items[0]->isLeftClicked == true) {
-        sdl_ctx->inOptions = false;
+        sdl_ctx->currMenu = PAUSE_MENU;
     }
 
     sdl_ctx->opts.masterVolume = menu->sliders.items[0]->currentValue;
@@ -176,15 +165,17 @@ void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu
 
 void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
 {
-    // Fill the background with a specific color
-    renderFillRect(sdl_ctx->renderer, &(SDL_FRect){0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}, menu->bgColor);
+    if (sdl_ctx->currMenu != NONE_MENU) {
+        // Fill the background with a specific color
+        renderFillRect(sdl_ctx->renderer, &(SDL_FRect){0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}, menu->bgColor);
 
-    // Render each button of the menu
-    da_foreach (button *, button, &menu->btns) {
-        renderButton(sdl_ctx, *button);
-    }
-    da_foreach (slider *, slider, &menu->sliders) {
-        renderSlider(sdl_ctx, *slider);
+        // Render each button of the menu
+        da_foreach (button *, button, &menu->btns) {
+            renderButton(sdl_ctx, *button);
+        }
+        da_foreach (slider *, slider, &menu->sliders) {
+            renderSlider(sdl_ctx, *slider);
+        }
     }
 }
 

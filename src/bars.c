@@ -3,13 +3,12 @@
 #include "sdl_helpers.h"
 #include <math.h>
 
-bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float maxHp,
+bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float baseVal,
                float barPadding, float minCursorWidth, bool displayHpValue)
 {
     *h = calloc(1, sizeof(bar));
     if ((*h) == NULL) {
         nob_log(ERROR, "%s:%d: Failed to allocate space for  bar", __FILE__, __LINE__);
-        return false;
     }
 
     (*h)->BarBox = createRect_Ex(rect);
@@ -17,7 +16,7 @@ bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, 
     (*h)->fillColor = fillColor;
     (*h)->cursorColor = cursorColor;
 
-    (*h)->maxHp = maxHp;
+    (*h)->val = baseVal;
     (*h)->barPadding = barPadding;
     (*h)->minCursorWidth = minCursorWidth; // doit avoir subis un ratio
 
@@ -41,7 +40,7 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
     // négative cela ne se fait que sur la jauge, pas le nombre affiché (cela me parraît utile d'avoir la vrai valeur qui
     // est mise en paramètre pour un potentiel debug)
     float hp = hpValue;
-    if (hpValue > h->maxHp) hp = h->maxHp;
+    if (hpValue > h->val) hp = h->val;
     else if (hpValue < 0)
         hp = 0;
 
@@ -49,13 +48,12 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
     // calculées en fonction de hp, représente la jauge de vie
     SDL_FRect fillBox = {(h->BarBox)->x + ((h->barPadding / 2) * sdl_ctx->screenRatio),
                          (h->BarBox)->y + ((h->barPadding / 2) * sdl_ctx->screenRatio),
-                         ((h->BarBox)->w - (h->barPadding * sdl_ctx->screenRatio)) / h->maxHp * hp,
+                         ((h->BarBox)->w - (h->barPadding * sdl_ctx->screenRatio)) / h->val * hp,
                          (h->BarBox)->h - (h->barPadding * sdl_ctx->screenRatio)};
 
     // Calcul de emptyFillBox, qui représente l'espace que ne prend pas fillBox
     SDL_FRect emptyFillBox = {fillBox.x + fillBox.w, fillBox.y,
-                              ((h->BarBox)->w - (h->barPadding * sdl_ctx->screenRatio)) / h->maxHp * (h->maxHp - hp),
-                              fillBox.h};
+                              ((h->BarBox)->w - (h->barPadding * sdl_ctx->screenRatio)) / h->val * (h->val - hp), fillBox.h};
     SDL_Color emptyBgColor = {(h->bgColor.r + 20) < 255 ? (h->bgColor.r + 20) : 255,
                               (h->bgColor.g + 20) < 255 ? (h->bgColor.g + 20) : 255,
                               (h->bgColor.b + 20) < 255 ? (h->bgColor.b + 20) : 255, 200};
@@ -79,7 +77,7 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
         ((h->fillColor.r + l_intensity) >= 0) && ((h->fillColor.r + l_intensity) <= 255) ? (h->fillColor.r + l_intensity) : 255,
         ((h->fillColor.g + l_intensity) >= 0) && ((h->fillColor.g + l_intensity) <= 255) ? (h->fillColor.g + l_intensity) : 255,
         ((h->fillColor.b + l_intensity) >= 0) && ((h->fillColor.b + l_intensity) <= 255) ? (h->fillColor.b + l_intensity) : 255,
-        (ls_opacity >= 0 && ls_opacity <= 255) ? (ls_opacity * (hp / h->maxHp))
+        (ls_opacity >= 0 && ls_opacity <= 255) ? (ls_opacity * (hp / h->val))
                                                : 255}; // si l'opacité n'est pas bonne, alors l'ombre n'aura aucune transparence
 
     // initialisations des boxs et couleurs pour le curseur et ses ombres/ lumières (fmaxf est utilisée pour être sûr que la largeur soit toujours supérieure ou égale a minCursorWidth)
@@ -127,7 +125,7 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
 
         V2f barTextPos = {(h->BarBox)->x + XCentering, (h->BarBox)->y + YCentering};
         V2f barTextPosShadow = {(h->BarBox)->x + XCentering + 2 * sdl_ctx->screenRatio,
-                            (h->BarBox)->y + YCentering + 1 * sdl_ctx->screenRatio};        
+                            (h->BarBox)->y + YCentering + 1 * sdl_ctx->screenRatio};
 
         // rendu du texte, avec un effet d'ombre qui imite a la perfection le raytracing
         renderText_Ex(sdl_ctx, hpText, BLACK, barTextPosShadow);

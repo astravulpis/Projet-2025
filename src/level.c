@@ -36,7 +36,7 @@ void loadRoom(level_t *level, int id)
 
 void renderRoom(sdl_ctx_t *ctx, level_t *level)
 {
-    if (level->count > 0 && level->currentLoadedRoomID >= 0) {
+    if (level->count > 0 && level->currentLoadedRoomID <= level->count - 1) {
         room_t *currRoom = getLoadedRoom(level);
         da_foreach (obj, it, &currRoom->structures) {
             renderImage(ctx, it->texture, it->boundingBox);

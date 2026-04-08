@@ -11,9 +11,6 @@
  **/
 
 #include "event.h"
-#include "SDL3_mixer/SDL_mixer.h"
-#include "level.h"
-#include "player.h"
 
 /**
  * @fn basicKeyboardEvents(sdl_ctx_t *sdl_ctx)
@@ -27,21 +24,25 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player)
     const bool *state = SDL_GetKeyboardState(NULL);
     static bool prev[SDL_SCANCODE_COUNT] = {0};
 
-    if (state[SDL_SCANCODE_ESCAPE] && !prev[SDL_SCANCODE_ESCAPE]) {
-        if (!sdl_ctx->paused) MIX_PauseAllTracks(sdl_ctx->mixer);
-        else
+    if (isKeyPressed(SDL_SCANCODE_ESCAPE, state, prev)) {
+        if (sdl_ctx->currMenu != NONE_MENU) {
+            sdl_ctx->currMenu = NONE_MENU;
             MIX_ResumeAllTracks(sdl_ctx->mixer);
-        sdl_ctx->paused = !sdl_ctx->paused;
-        if (sdl_ctx->inOptions) sdl_ctx->inOptions = false;
+        } else {
+            MIX_PauseAllTracks(sdl_ctx->mixer);
+            sdl_ctx->currMenu = PAUSE_MENU;
+        }
     }
-    if (state[SDL_SCANCODE_Q] && !prev[SDL_SCANCODE_Q]) {
-        level->currentLoadedRoomID =
-            (level->currentLoadedRoomID - 1 < 0) ? (int)(level->count - 1) : level->currentLoadedRoomID - 1;
-        movePlayer(player, level->items[level->currentLoadedRoomID]->startPos);
-    } else if (state[SDL_SCANCODE_E] && !prev[SDL_SCANCODE_E]) {
-        level->currentLoadedRoomID =
-            (level->currentLoadedRoomID + 1 > (int)(level->count - 1)) ? 0 : level->currentLoadedRoomID + 1;
-        movePlayer(player, level->items[level->currentLoadedRoomID]->startPos);
+
+    if (isKeyPressed(SDL_SCANCODE_Q, state, prev)) {
+        level->currentLoadedRoomID -= 1;
+        if (level->currentLoadedRoomID > level->count)
+            level->currentLoadedRoomID = level->count - 1; // Underflow since uint = 2^31-1
+        movePlayer(player, getLoadedRoom(level)->startPos);
+    } else if (isKeyPressed(SDL_SCANCODE_E, state, prev)) {
+        level->currentLoadedRoomID += 1;
+        if (level->currentLoadedRoomID > level->count - 1) level->currentLoadedRoomID = 0;
+        movePlayer(player, getLoadedRoom(level)->startPos);
     }
     memcpy(prev, state, SDL_SCANCODE_COUNT);
 }

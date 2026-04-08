@@ -33,8 +33,8 @@ typedef struct {
 
     // Specific attributs to the level
     char *title;
-    int levelID;
-    int currentLoadedRoomID;
+    size_t levelID;
+    size_t currentLoadedRoomID;
 } level_t;
 
 /**

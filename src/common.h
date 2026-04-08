@@ -4,7 +4,6 @@
  *
  * Author: Liam B. <liam.berge72@gmail.com>
  * Last Modified: 2026-03-18
- * Date: 2026-03-03
  *
  * * Contributors:
  * Liam B. <liam.berge72@gmail.com>
@@ -58,7 +57,16 @@ typedef enum {
     SFX_ENEMY_INTERACTIONS,
 
     TRACK_COUNT = 8,
-} tracks;
+} track_kind;
+
+typedef enum {
+    NONE_MENU,
+    PAUSE_MENU,
+    OPTIONS_MENU,
+    START_MENU,
+    LEVEL_SELECTION_MENU,
+    __menu_count = 5,
+} menu_kind;
 
 typedef struct {
     float masterVolume;
@@ -90,8 +98,7 @@ struct sdl_context_s {
     float screenRatio;      //!< Ratio for adaptative ui link the screen size
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
-    bool paused;            //!< Global state to stop the game running or not
-    bool inOptions;         //!< Global state to go into options
+    menu_kind currMenu;
     MIX_Mixer *mixer;
     MIX_Track *tracks[TRACK_COUNT];
 };

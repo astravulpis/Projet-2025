@@ -4,10 +4,10 @@
  *
  * Author: Rossignol François <francois_rossignol@outlook.fr>
  * Last Modified: 2026-03-28
- * Date: 2026-03-28
  *
  * * Contributors:
  * Rossignol François <francois_rossignol@outlook.fr>
+ * Liam B. <liam.berge72@gmail.com>
  **/
 
 #ifndef BAR_H_
@@ -21,17 +21,15 @@ typedef struct bar {
     SDL_Color fillColor;
     SDL_Color cursorColor;
 
-    float maxHp;      // pour avoir le bon ratio dans la jauge
+    float val;      // pour avoir le bon ratio dans la jauge
     float barPadding; // proportion que la jauge prend dans BarBox
     float minCursorWidth;
 
     bool displayHpValue; // booléen qui permet d'indiquer si l'on doit afficher hpValue au rendu ou pas
 } bar;
 
-bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float maxHp,
+bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float baseVal,
                float barPadding, float minCursorWidth, bool displayHpValue);
 void destroyBar(bar **h);
-
-void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l_intensity, int ls_opacity);
 
 #endif // BAR_H_

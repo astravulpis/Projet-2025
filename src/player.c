@@ -107,17 +107,6 @@ void destroyPlayer(player_t **p)
     (*p) = NULL;
 }
 
-bool isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState)
-{
-    bool result = currState[scancode] && !prevState[scancode];
-    return result;
-}
-
-bool isKeyDown(SDL_Scancode scancode, const bool *currState)
-{
-    return currState[scancode];
-}
-
 V2f inputUpdate(player_t *p, const float dt)
 {
     V2f deltaPos = {0};

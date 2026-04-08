@@ -84,4 +84,7 @@ void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color);
  */
 void keepRectInbounds(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
 
+void boxToScale(SDL_FRect *rect, float scale);
+bool isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState);
+bool isKeyDown(SDL_Scancode scancode, const bool *currState);
 #endif // SDL_HELPER_H_

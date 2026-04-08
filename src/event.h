@@ -15,6 +15,8 @@
 
 #include "common.h"
 #include "level.h"
+#include "player.h"
+#include "sdl_helpers.h"
 
 /**
  * @fn basic_keyboard_events(struct sdl_context_s *ctx)
@@ -22,7 +24,5 @@
  * @param[in] ctx SDL context
  */
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player);
-
-// void resolveOverlap(SDL_FRect *a, SDL_FRect *b);
 
 #endif // EVENT_H_
