@@ -17,12 +17,13 @@
 #include "level.h"
 #include "player.h"
 #include "sdl_helpers.h"
+#include "guns.h"
 
 /**
  * @fn basic_keyboard_events(struct sdl_context_s *ctx)
  * @brief Listens to keyboard inputs for mapped keys
  * @param[in] ctx SDL context
  */
-void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player);
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t * guns);
 
 #endif // EVENT_H_

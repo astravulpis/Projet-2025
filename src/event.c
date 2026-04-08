@@ -19,7 +19,7 @@
  *
  * for now this is just to quit the game but we might add menu buttons and such in the future unless we go with a new function?
  */
-void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player)
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t * guns)
 {
     const bool *state = SDL_GetKeyboardState(NULL);
     static bool prev[SDL_SCANCODE_COUNT] = {0};
@@ -32,7 +32,6 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player)
             MIX_PauseAllTracks(sdl_ctx->mixer);
             sdl_ctx->currMenu = PAUSE_MENU;
         }
-    }
 
     if (isKeyPressed(SDL_SCANCODE_Q, state, prev)) {
         level->currentLoadedRoomID -= 1;
@@ -43,6 +42,24 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player)
         level->currentLoadedRoomID += 1;
         if (level->currentLoadedRoomID > level->count - 1) level->currentLoadedRoomID = 0;
         movePlayer(player, getLoadedRoom(level)->startPos);
+    }
+    if (state[SDL_SCANCODE_1] && !prev[SDL_SCANCODE_1]) {
+        setCurrentGun(guns, 0);
+    }
+    if (state[SDL_SCANCODE_2] && !prev[SDL_SCANCODE_2]) {
+        setCurrentGun(guns, 1);
+    }
+    if (state[SDL_SCANCODE_3] && !prev[SDL_SCANCODE_3]) {
+        setCurrentGun(guns, 2);
+    }
+    if (state[SDL_SCANCODE_4] && !prev[SDL_SCANCODE_4]) {
+        setCurrentGun(guns, 3);
+    }
+    if (state[SDL_SCANCODE_5] && !prev[SDL_SCANCODE_5]) {
+        setCurrentGun(guns, 4);
+    }
+    if (state[SDL_SCANCODE_6] && !prev[SDL_SCANCODE_6]) {
+        setCurrentGun(guns, 5);
     }
     memcpy(prev, state, SDL_SCANCODE_COUNT);
 }
