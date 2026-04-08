@@ -50,10 +50,27 @@ int main(int argc, char **argv)
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
 
     player_animation *runAnimation = NULL;
-    if (!createPlayerAnimation(sdl_ctx, &runAnimation, "assets/img/animation/playerRun/frame1.png","assets/img/animation/playerRun/frame2.png",
-    "assets/img/animation/playerRun/frame3.png", "assets/img/animation/playerRun/frame4.png", "assets/img/animation/playerRun/frame5.png", 250.0f));
+    if (!createPlayerAnimation(sdl_ctx, &runAnimation, "assets/img/animation/V1Animation/runAnimation/1.png","assets/img/animation/V1Animation/runAnimation/2.png",
+    "assets/img/animation/V1Animation/runAnimation/3.png", "assets/img/animation/V1Animation/runAnimation/4.png", "assets/img/animation/V1Animation/runAnimation/5.png", 500.0f));
 
-    if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V2.png", runAnimation, "assets/img/V2OR.png", "assets/img/V2D.png")) return 1;
+    player_animation *idleAnimation = NULL;
+    if (!createPlayerAnimation(sdl_ctx, &idleAnimation, "assets/img/animation/V1Animation/idleAnimation/1.png","assets/img/animation/V1Animation/idleAnimation/2.png",
+    "assets/img/animation/V1Animation/idleAnimation/3.png", "assets/img/animation/V1Animation/idleAnimation/4.png", "assets/img/animation/V1Animation/idleAnimation/5.png", 2000.0f));
+
+    player_animation *onAirAnimation = NULL;
+    if (!createPlayerAnimation(sdl_ctx, &onAirAnimation, "assets/img/animation/V1Animation/onAirAnimation/1.png","assets/img/animation/V1Animation/onAirAnimation/2.png",
+    "assets/img/animation/V1Animation/onAirAnimation/3.png", "assets/img/animation/V1Animation/onAirAnimation/4.png", "assets/img/animation/V1Animation/onAirAnimation/5.png", 500.0f));
+    
+    player_animation *dashAnimation = NULL;
+    if (!createPlayerAnimation(sdl_ctx, &dashAnimation, "assets/img/animation/V1Animation/dashAnimation/1.png","assets/img/animation/V1Animation/dashAnimation/2.png",
+    "assets/img/animation/V1Animation/dashAnimation/3.png", "assets/img/animation/V1Animation/dashAnimation/4.png", "assets/img/animation/V1Animation/dashAnimation/5.png", 500.0f));
+    
+    player_animation *slamAnimation = NULL;
+    if (!createPlayerAnimation(sdl_ctx, &slamAnimation, "assets/img/animation/V1Animation/slamAnimation/1.png","assets/img/animation/V1Animation/slamAnimation/1.png",
+    "assets/img/animation/V1Animation/slamAnimation/1.png", "assets/img/animation/V1Animation/slamAnimation/1.png", "assets/img/animation/V1Animation/slamAnimation/1.png", 500.0f));
+    
+
+    if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, idleAnimation, runAnimation, onAirAnimation, dashAnimation, slamAnimation)) return 1;
     parseFlag(argc, argv, &sdl_ctx, &level);
     curr = getLoadedRoom(level);
     movePlayer(player, curr->startPos);

@@ -24,10 +24,11 @@
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB
-    SDL_Texture *tex;       //!< Player's texture
+    player_animation *idleAnimation;
     player_animation *runAnimation; //!< Player's texture when is in movement
-    SDL_Texture *onAirTex; //!< Player's texture when is in movement and not on the ground
-    SDL_Texture *dashTex;
+    player_animation *onAirAnimation;
+    player_animation *dashAnimation;
+    player_animation *slamAnimation;
     SDL_Texture *onWallTex;
     sfxs audios;
     float speed;            //!< Value may depend on preference
@@ -38,6 +39,9 @@ typedef struct {
     float jumpForce;
     uint8_t lastKey;
     float lastX; // the latest x coord of deltaPos
+
+    float dashAnimationTime;
+    float prevDashTick;
 
     float hp;
 
@@ -70,7 +74,7 @@ typedef struct {
  *
  * creates the player and is only called once
  */
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path, player_animation *runAnimation, const char *inAirPath, const char *dashPath);
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation);
 
 /**
  * @fn destroyPlayer(player_t **p)

@@ -22,7 +22,7 @@ void movePlayer(player_t *p, V2f newPos)
     p->boundingBox->y = newPos.y;
 }
 
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path, player_animation *runAnimation, const char *inAirPath, const char *dashPath)
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation)
 {
     bool result = true;
     (*player) = calloc(1, sizeof(player_t));
@@ -38,11 +38,15 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     }
 
     p->ctx = sdl_ctx;
-    p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
+    //p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
+    p->idleAnimation = idleAnimation;
     // p->runTex = IMG_LoadTexture((*p->ctx)->renderer, runPath);
     p->runAnimation = runAnimation;
-    p->onAirTex = IMG_LoadTexture((*p->ctx)->renderer, inAirPath);
-    p->dashTex = IMG_LoadTexture((*p->ctx)->renderer, dashPath);
+    //p->onAirTex = IMG_LoadTexture((*p->ctx)->renderer, inAirPath);
+    p->onAirAnimation = onAirAnimation;
+    //p->dashTex = IMG_LoadTexture((*p->ctx)->renderer, dashPath);
+    p->dashAnimation = dashAnimation;
+    p->slamAnimation = slamAnimation;
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
     memset(&p->audios, 0, sizeof(sfxs));
 
@@ -59,6 +63,9 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->flight = false;
     p->noclip = false;
     p->run = false;
+
+    p->dashAnimationTime = 500; // en ms
+    p->prevDashTick = -1;
 
     // Loading audios sfx
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "jump", "./assets/audio/SFX/jump.wav");
@@ -78,11 +85,17 @@ void destroyPlayer(player_t **p)
         free((*p)->boundingBox);
         (*p)->boundingBox = NULL;
 
-        SDL_DestroyTexture((*p)->tex);
+        //SDL_DestroyTexture((*p)->tex);
         //SDL_DestroyTexture((*p)->runTex);
+        //SDL_DestroyTexture((*p)->onAirTex);
+        //SDL_DestroyTexture((*p)->dashTex);
+
+        destroyPlayerAnimation(&((*p)->idleAnimation));
         destroyPlayerAnimation(&((*p)->runAnimation));
-        SDL_DestroyTexture((*p)->onAirTex);
-        SDL_DestroyTexture((*p)->dashTex);
+        destroyPlayerAnimation(&((*p)->onAirAnimation));
+        destroyPlayerAnimation(&((*p)->dashAnimation));
+        destroyPlayerAnimation(&((*p)->slamAnimation));
+
         (*p)->boundingBox = NULL;
 
         destroySfxs(&(*p)->audios);
@@ -151,14 +164,16 @@ V2f inputUpdate(player_t *p, const float dt)
             if (p->lastKey == SDL_SCANCODE_A) p->velocity.x = -dashSpeed;
             if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) p->velocity.x = dashSpeed;
             p->stamina -= 1.0f;
+            
+            
+            p->prevDashTick = SDL_GetTicks();
             p->isDashing = true;
+
             playSfx(*p->ctx, &p->audios, "dash");
         } else {
             playSfx(*p->ctx, &p->audios, "notEnoughStamina");
+            p->prevDashTick = -1;
         }
-    }
-    else {
-        p->isDashing = false;
     }
 
     // Jump & slam
@@ -186,6 +201,11 @@ V2f inputUpdate(player_t *p, const float dt)
 
     if (p->lastX == deltaPos.x) {
         p->run = false;
+    }
+
+    if (p->prevDashTick != -1 && (SDL_GetTicks() - p->prevDashTick) > p->dashAnimationTime) { // met fin a l'animation du dash
+        p->prevDashTick = -1;
+        p->isDashing = false;
     }
 
     memcpy(prevState, currState, SDL_SCANCODE_COUNT);
@@ -312,20 +332,46 @@ void renderPlayer(player_t *p)
     SDL_FlipMode flipped =
         (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-    if (p->isDashing) {
-        flipped = (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL_AND_VERTICAL : SDL_FLIP_NONE;
-        SDL_RenderTextureRotated((*p->ctx)->renderer, p->dashTex, NULL, p->boundingBox, -90, NULL, flipped);
+    if (p->isDashing) { // dash
+        renderPlayerAnimation((*p->ctx), p->dashAnimation, flipped, 0, &(*p->boundingBox));
+        
+        // reset des animations qui ne sont pas affichée
         resetPlayerAnimationState(p->runAnimation);
+        resetPlayerAnimationState(p->idleAnimation);
+        resetPlayerAnimationState(p->onAirAnimation);
     }
-    else if (p->run && p->onGround) // rendu du player en mode idle sur du sol (image de base)
+    else if (p->isSlamming) {
+        renderPlayerAnimation((*p->ctx), p->slamAnimation, flipped, 0, &(*p->boundingBox));
+
+        // reset des animations qui ne sont pas affichée
+        resetPlayerAnimationState(p->runAnimation);
+        resetPlayerAnimationState(p->onAirAnimation);
+        resetPlayerAnimationState(p->dashAnimation);
+        resetPlayerAnimationState(p->idleAnimation);
+    }
+    else if (p->run && p->onGround){ // rendu du player en mode run sur du sol (image de base)
         renderPlayerAnimation((*p->ctx), p->runAnimation, flipped, 0, &(*p->boundingBox));
-    else if (!p->onGround && !p->isSlamming && !p->onWall){
-        SDL_RenderTextureRotated((*p->ctx)->renderer, p->onAirTex, NULL, p->boundingBox, 0, NULL, flipped);
-        resetPlayerAnimationState(p->runAnimation);
+
+        // reset des animations qui ne sont pas affichée
+        resetPlayerAnimationState(p->onAirAnimation);
+        resetPlayerAnimationState(p->idleAnimation);
+        resetPlayerAnimationState(p->dashAnimation);
     }
-    else {
-        SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
+    else if (!p->onGround && !p->isSlamming && !p->onWall){ //  rendu du player quand il est en l'ai et qu'il ne fait rien de spécial
+        renderPlayerAnimation((*p->ctx), p->onAirAnimation, flipped, 0, &(*p->boundingBox));
+
+        // reset des animations qui ne sont pas affichée
         resetPlayerAnimationState(p->runAnimation);
+        resetPlayerAnimationState(p->idleAnimation);
+        resetPlayerAnimationState(p->dashAnimation);
+    }
+    else { // rendu par défaut, en idle
+        renderPlayerAnimation((*p->ctx), p->idleAnimation, flipped, 0, &(*p->boundingBox));
+
+        // reset des animations qui ne sont pas affichée
+        resetPlayerAnimationState(p->runAnimation);
+        resetPlayerAnimationState(p->onAirAnimation);
+        resetPlayerAnimationState(p->dashAnimation);
     }
 }
 
