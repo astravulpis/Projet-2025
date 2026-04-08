@@ -17,6 +17,7 @@
 #include "level.h"
 #include "music.h"
 #include "sdl_ctx.h"
+#include "triggers.h"
 
 bool parseFlag(int xs_sz, char **xs, sdl_ctx_t **ctx, level_t **level)
 {
@@ -158,36 +159,34 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
 
                 // Might consider to just abs(waveIdx) but the fact that a waveIdx can be <0 is just wrong
                 assert(waveIdx >= 0 && "the wave index should be zero or positive ");
-
-                // Compare the type written with the different type
-                // nb 1: a switch case would have been so blessed but it doesn't exist with strings
-                // nb 2: I wish that I could just have done: `types["type_name"] = type` so that I can
-                //       just have one statement because the following is actual cancer
-                if (sv_eq(type, sv_from_cstr("FILTH"))) assignEntityToWave(room, ctx, E_FILTH, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("STRAY")))
-                    assignEntityToWave(room, ctx, E_STRAY, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("SWORDSMACHINE")))
-                    assignEntityToWave(room, ctx, E_SWORDSMACHINE, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("PROVIDENCE")))
-                    assignEntityToWave(room, ctx, E_PROVIDENCE, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("VERTU")))
-                    assignEntityToWave(room, ctx, E_VERTU, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("MAURICE")))
-                    assignEntityToWave(room, ctx, E_MAURICE, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("MINOS_PRIME")))
-                    assignEntityToWave(room, ctx, E_MINOS_PRIME, (V2f){x_pos, y_pos}, waveIdx);
-                else if (sv_eq(type, sv_from_cstr("SISYPHUS")))
-                    assignEntityToWave(room, ctx, E_SISYPHUS, (V2f){x_pos, y_pos}, waveIdx);
+                assignEntityToWave(room, ctx, type, (V2f){x_pos, y_pos}, waveIdx);
 
             } else if (sv_eq(header, sv_from_cstr("trigger"))) {
 
-                // trigger [WAVE_IDX] [X_POS] [Y_POS] [WIDTH] [HEIGHT]
+                // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT] [TRIGGER_KIND] [WAVE_IDX]
+                // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT] [TRIGGER_KIND] [ROOM_DEST]
 
-                int waveIdx = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 // the trigger's position adapted to the screen ratio
                 for (int i = 0; i < 4; ++i) {
                     float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                     trigger_rect[i] = val * (*ctx)->screenRatio;
+                }
+
+                String_View type = sv_chop_by_delim(&line, ' ');
+                trigger_kind kind = getTriggerKindFromSV(type);
+
+                trigger_t *trigger = createTrigger(trigger_rect[0], trigger_rect[1], trigger_rect[2], trigger_rect[3], kind);
+
+                switch (kind) {
+                case PORTAL: {
+                    trigger->room_dst = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                } break;
+                case SPAWNER: {
+                    trigger->waveId = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                } break;
+                case ONESHOT: // Fallthrough
+                default:
+                    UNREACHABLE("trigger kind");
                 }
 
                 // Removing unwanted values
@@ -198,7 +197,8 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                     }
                     continue;
                 }
-                createTrigger(room, trigger_rect[0], trigger_rect[1], trigger_rect[2], trigger_rect[3], waveIdx);
+
+                assignTriggerToRoom(room, trigger);
 
             // get the music to play in the background
             } else if (sv_eq(header, sv_from_cstr("mus"))) {

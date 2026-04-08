@@ -79,25 +79,22 @@ typedef struct {
  * contains all the relevant and corresponding entity information
  */
 typedef struct {
-    SDL_FRect *boundingBox;
-    SDL_Texture *texture;
-    sdl_ctx_t **ctx;
+    entity_t entity_attribs;
     entity_type type;
     entity_attributs attributs;
     V2f velocity;
     bool onGround;
-} entity_t;
+} ennemy_t;
 
 /**
  * @struct entities_t
  * @brief list of entities
  */
 typedef struct {
-    entity_t **items;
+    ennemy_t **items;
     size_t count;
     size_t capacity;
 } entities;
-
 
 /**
  * @fn createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
@@ -105,14 +102,14 @@ typedef struct {
  * @param[in] basePos spawning location
  * @brief creates a creature of a certain type and with a set default spawning location
  */
-entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
+ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
 
 /**
  * @fn renderEntity(entity_t *e)
  * @param[in] e The entity to render
  * @brief renders the texture of the entity onto the screen
  */
-void renderEntity(entity_t *e);
+void renderEntity(ennemy_t *e);
 
 /**
  * @fn renderEntities(entities *entities)
@@ -132,7 +129,7 @@ void renderEntities(entities *entities);
  * takes one entity and tests it for collisions against all elements of the level
  * and updates its related information
  */
-void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime);
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime);
 
 /**
  * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
@@ -156,7 +153,7 @@ void updateEntities(entities *entities, player_t *player, objs *objects, float d
  *
  * takes one entity and gives it all the necessary attributs
  */
-void _setEntityAttributs(entity_t *e, entity_attributs attributs);
+void _setEntityAttributs(ennemy_t *e, entity_attributs attributs);
 
 /**
  * @fn setEntityState(entity_t *e, entity_state state)
@@ -164,14 +161,14 @@ void _setEntityAttributs(entity_t *e, entity_attributs attributs);
  * @param[in] state entity state
  * @brief sets the state of the enemy
  */
-void setEntityState(entity_t *e, entity_state state);
+void setEntityState(ennemy_t *e, entity_state state);
 
 /**
  * @fn getEntityState(entity_t *e)
  * @param[in] e structure of 1 entity
  * @brief gets the state of the enemy
  */
-entity_state getEntityState(entity_t *e);
+entity_state getEntityState(ennemy_t *e);
 
 /**
  * @fn setMaxHP(entity_t *e, float maxHP)
@@ -179,7 +176,7 @@ entity_state getEntityState(entity_t *e);
  * @param[in] maxHP total HP given to the enemy
  * @brief sets the max HP of the enemy
  */
-void setMaxHP(entity_t *e, float maxHP);
+void setMaxHP(ennemy_t *e, float maxHP);
 
 /**
  * @fn setHP(entity_t *e, float HP)
@@ -187,7 +184,7 @@ void setMaxHP(entity_t *e, float maxHP);
  * @param[in] HP current HP
  * @brief sets the current HP of the enemy
  */
-void setHP(entity_t *e, float HP);
+void setHP(ennemy_t *e, float HP);
 
 /**
  * @fn setEntitySpeed(entity_t *e, float speed)
@@ -195,14 +192,14 @@ void setHP(entity_t *e, float HP);
  * @param[in] speed corresponding speed
  * @brief sets the current speed of the entity
  */
-void setEntitySpeed(entity_t *e, float speed);
+void setEntitySpeed(ennemy_t *e, float speed);
 
 /**
  * @fn destroyEntity(entity_t **e)
  * @param[in] e structure of 1 entity
  * @brief destroys one entity
  */
-void destroyEntity(entity_t **e);
+void destroyEntity(ennemy_t **e);
 
 /**
  * @fn destroyEntity(entity_t **e)

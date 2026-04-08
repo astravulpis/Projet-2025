@@ -137,21 +137,14 @@ typedef struct {
 } objs;
 
 typedef struct {
-    SDL_FRect *boundingBox;
-    bool has_been_touched;
-    int waveId;      // wave index to activate on collision
-    bool oneShot;    // whether to trigger once
-} trigger_t;
-
-typedef struct {
-    trigger_t *items;
-    size_t count;
-    size_t capacity;
-} triggers_t;
+    sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
+    SDL_FRect *boundingBox; //!< Player's BB
+    SDL_Texture *tex;       //!< Player's texture
+    float hp;
+    float maxHp;
+} entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \
     da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
 
-#define trigg_create(array, x, y, width, height, wave_index, one_shot)                                           \
-    da_append((array), ((trigger_t){createRect((x), (y), (width), (height)), false, (wave_index), (one_shot)}));
 #endif // COMMON_H_

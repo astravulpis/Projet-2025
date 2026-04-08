@@ -201,6 +201,7 @@ int main(int argc, char **argv)
     da_append(&modules, "player_animation");
     da_append(&modules, "game");
     da_append(&modules, "guns");
+    da_append(&modules, "triggers");
     if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);
 
     // IMPORTANT: `Tests` cannot be run with other commands.

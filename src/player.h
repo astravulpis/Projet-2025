@@ -22,8 +22,7 @@
 #include "player_animation.h"
 
 typedef struct {
-    sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
-    SDL_FRect *boundingBox; //!< Player's BB
+    entity_t entity_attribs;
     player_animation *idleAnimation;
     player_animation *runAnimation; //!< Player's texture when is in movement
     player_animation *onAirAnimation;
@@ -56,7 +55,7 @@ typedef struct {
     bool run;
 } player_t;
 
-#define getBB(p) (p)->boundingBox
+#define getBB(p) (p)->entity_attribs.boundingBox
 
 #define Top(p) (p)->y
 #define Bottom(p) (p)->y + (p)->h
@@ -95,7 +94,7 @@ void destroyPlayer(player_t **p);
  *
  * updates the player position and checks for collisions with all other textures on the map
  */
-void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_array, int *activeWave);
+void updatePlayer(player_t *p, objs *arr, float deltaTime);
 
 /**
  * @fn renderPlayer(player_t *p)

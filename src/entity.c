@@ -50,24 +50,25 @@ SDL_Texture *getEntityTex(sdl_ctx_t *ctx, int index)
     return entity_textures[index];
 }
 
-entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
+ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
 {
     // See TODO(2026-03-30 08:15:26)
-    entity_t *e = calloc(1, sizeof(entity_t));
+    ennemy_t *e = calloc(1, sizeof(ennemy_t));
     if (e == NULL) {
         nob_log(ERROR, "%s:%d: Failed to allocate space for an entity", __FILE__, __LINE__);
         return NULL;
     }
 
-    e->texture = getEntityTex(*sdl_ctx, type);
+    e->entity_attribs.tex = getEntityTex(*sdl_ctx, type);
+    e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
-    e->ctx = sdl_ctx;
 
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
     case E_FILTH: {
-        e->boundingBox = createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
+        e->entity_attribs.boundingBox =
+            createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
         setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f);
         break;
     }
@@ -107,22 +108,22 @@ entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     return e;
 }
 
-void setMaxHP(entity_t *e, float maxHP)
+void setMaxHP(ennemy_t *e, float maxHP)
 {
     e->attributs.maxHP = maxHP;
 }
 
-void setHP(entity_t *e, float HP)
+void setHP(ennemy_t *e, float HP)
 {
     e->attributs.hp = (HP >= e->attributs.maxHP) ? e->attributs.maxHP : HP;
 }
 
-void setEntitySpeed(entity_t *e, float speed)
+void setEntitySpeed(ennemy_t *e, float speed)
 {
     e->attributs.entity_speed = speed;
 }
 
-void _setEntityAttributs(entity_t *e, entity_attributs attrib)
+void _setEntityAttributs(ennemy_t *e, entity_attributs attrib)
 {
     // See TODO(2026-03-30 08:17:02)
     if (attrib.entity_speed > 0) setEntitySpeed(e, attrib.entity_speed);
@@ -138,26 +139,26 @@ void _setEntityAttributs(entity_t *e, entity_attributs attrib)
     if (attrib.jumpForce > 0) e->attributs.jumpForce = attrib.jumpForce;
 }
 
-void setEntityState(entity_t *e, entity_state state)
+void setEntityState(ennemy_t *e, entity_state state)
 {
     e->attributs.state = state;
 }
 
-entity_state getEntityState(entity_t *e)
+entity_state getEntityState(ennemy_t *e)
 {
     return e->attributs.state;
 }
 
-float getAngle(entity_t *e)
+float getAngle(ennemy_t *e)
 {
     return (e->velocity.x > 0) ? 180.0f : 0.0f;
 }
 
-objs collision_test_entity(entity_t *e, objs *tiles)
+objs collision_test_entity(ennemy_t *e, objs *tiles)
 {
     objs collisions = {0};
     da_foreach (obj, tile, tiles) {
-        if (SDL_HasRectIntersectionFloat(getBB(e), getBB(tile))) {
+        if (SDL_HasRectIntersectionFloat(getBB(e), tile->boundingBox)) {
             da_append(&collisions, *tile);
         }
     }
@@ -165,7 +166,7 @@ objs collision_test_entity(entity_t *e, objs *tiles)
     return collisions;
 }
 
-void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime)
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     float gravity = 28.0f;
@@ -191,40 +192,40 @@ void updateEntity(entity_t *e, player_t *player, objs *objects, float deltaTime)
     e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
-    keepRectInbounds(e->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
 void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime)
 {
-    da_foreach (entity_t *, e, entities) {
+    da_foreach (ennemy_t *, e, entities) {
         updateEntity((*e), player, objects, deltaTime);
     }
 }
 
-void renderEntity(entity_t *e)
+void renderEntity(ennemy_t *e)
 {
     SDL_FlipMode flip = (getAngle(e) >= 180.0f) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    SDL_RenderTextureRotated((*e->ctx)->renderer, e->texture, NULL, e->boundingBox, 0.0f, NULL, flip);
+    SDL_RenderTextureRotated((*e->entity_attribs.ctx)->renderer, e->entity_attribs.tex, NULL, getBB(e), 0.0f, NULL, flip);
 }
 
 void renderEntities(entities *entities)
 {
-    da_foreach (entity_t *, e, entities) {
+    da_foreach (ennemy_t *, e, entities) {
         renderEntity(*e);
     }
 }
 
-void destroyEntity(entity_t **e)
+void destroyEntity(ennemy_t **e)
 {
     if (*e != NULL) {
         // Bounding box
-        free((*e)->boundingBox);
-        (*e)->boundingBox = NULL;
+        free((*e)->entity_attribs.boundingBox);
+        (*e)->entity_attribs.boundingBox = NULL;
 
         // Texture
-        SDL_DestroyTexture((*e)->texture);
-        (*e)->texture = NULL;
+        SDL_DestroyTexture((*e)->entity_attribs.tex);
+        (*e)->entity_attribs.tex = NULL;
     }
 
     free(*e);
@@ -233,7 +234,7 @@ void destroyEntity(entity_t **e)
 
 void destroyEntities(entities *entities)
 {
-    da_foreach (entity_t *, e, entities) {
+    da_foreach (ennemy_t *, e, entities) {
         destroyEntity(e);
         *e = NULL;
     }

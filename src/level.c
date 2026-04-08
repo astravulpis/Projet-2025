@@ -1,6 +1,8 @@
 #include "level.h"
 #include "common.h"
 #include "entity.h"
+#include "player.h"
+#include "triggers.h"
 
 room_t *createRoom(int id)
 {
@@ -11,10 +13,9 @@ room_t *createRoom(int id)
     }
 
     r->roomID = (assert(id >= 0 && "`id` is below 0, which is undefined behaviour"), id);
-    memset(&r->structures, 0, sizeof(objs)); // Delete the trash values in the structures
-    memset(&r->e_waves, 0, sizeof(entities) * MAX_WAVE_COUNT); // Delete the trash values in the waves
-    memset(&r->startPos, 0, sizeof(V2f)); // set start pos at 0, 0
-    r->currWaveIdx = 0;
+    // memset(&r->structures, 0, sizeof(objs)); // Delete the trash values in the structures
+    // memset(&r->e_waves, 0, sizeof(entities) * MAX_WAVE_COUNT); // Delete the trash values in the waves
+    // memset(&r->startPos, 0, sizeof(V2f)); // set start pos at 0, 0
 
     return r;
 }
@@ -42,7 +43,7 @@ void renderRoom(sdl_ctx_t *ctx, level_t *level)
             renderImage(ctx, it->texture, it->boundingBox);
         }
 
-        da_foreach (entity_t *, e, getCurrentEntityWave(level)) {
+        da_foreach (ennemy_t *, e, getCurrentEntityWave(level)) {
             renderEntity(*e);
         }
     }
@@ -103,9 +104,23 @@ void assignObject(room_t *room, sdl_ctx_t *ctx, const char *path, float x, float
     obj_create(&room->structures, ctx, path, x, y, w, h);
 }
 
-void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, entity_type type, V2f basePos, int wave_id)
+entity_type typeDisplayName(String_View sv)
 {
-    entity_t *e = createEntity(ctx, type, basePos);
+    if (sv_eq(sv, sv_from_cstr("FILTH"))) return E_FILTH;
+    if (sv_eq(sv, sv_from_cstr("STRAY"))) return E_STRAY;
+    if (sv_eq(sv, sv_from_cstr("SWORDSMACHINE"))) return E_SWORDSMACHINE;
+    if (sv_eq(sv, sv_from_cstr("PROVIDENCE"))) return E_PROVIDENCE;
+    if (sv_eq(sv, sv_from_cstr("VERTU"))) return E_VERTU;
+    if (sv_eq(sv, sv_from_cstr("MAURICE"))) return E_MAURICE;
+    if (sv_eq(sv, sv_from_cstr("MINOS_PRIME"))) return E_MINOS_PRIME;
+    if (sv_eq(sv, sv_from_cstr("SISYPHUS"))) return E_SISYPHUS;
+    UNREACHABLE("display name entity type");
+}
+
+void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, String_View name, V2f basePos, int wave_id)
+{
+    entity_type type = typeDisplayName(name);
+    ennemy_t *e = createEntity(ctx, type, basePos);
     da_append(&room->e_waves[(assert(wave_id >= 0 && wave_id < MAX_WAVE_COUNT), wave_id)], e);
 }
 
@@ -155,23 +170,41 @@ void destroyLevel(level_t **level)
     *level = NULL;
 }
 
-void createTrigger(room_t *room, float x, float y, float w, float h, int waveID)
+void assignTriggerToRoom(room_t *room, trigger_t *trigger)
 {
-    trigg_create(&room->triggers, x, y, w, h, waveID, true);
-}
-
-void destroyTriggers(triggers_t *triggers)
-{
-    da_foreach (trigger_t, it, triggers) {
-        free(it->boundingBox);
-        it->boundingBox = NULL;
-    }
-
-    free(triggers->items);
-    triggers = NULL;
+    da_append(&room->triggers, trigger);
 }
 
 triggers_t *getRoomTriggers(level_t *level)
 {
     return &level->items[level->currentLoadedRoomID]->triggers;
+}
+
+void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
+{
+    if (hasEntityCollidedWithTrigger(trigger, &p->entity_attribs)) {
+        switch (trigger->kind) {
+        case PORTAL: {
+            loadRoom(level, trigger->room_dst);
+            movePlayer(p, getLoadedRoom(level)->startPos);
+        } break;
+        case ONESHOT: {
+            deathTrigger(&p->entity_attribs);
+        } break;
+        case SPAWNER: {
+            getLoadedRoom(level)->currWaveIdx = trigger->waveId;
+        } break;
+        default:
+            break;
+        }
+    }
+}
+
+void updateTriggers(level_t *level, player_t *p)
+{
+    room_t *curr = getLoadedRoom(level);
+    assert(curr != NULL && "update triggers: current room is not set");
+    for (size_t i = 0; i < curr->triggers.count; ++i) {
+        updateTrigger(level, p, curr->triggers.items[i]);
+    }
 }

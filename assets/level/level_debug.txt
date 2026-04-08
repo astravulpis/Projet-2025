@@ -6,6 +6,7 @@ obj "./assets/img/white.png" 0 0 760 1080
 obj "./assets/img/white.png" 930 0 30 520
 obj "./assets/img/white.png" 930 0 1000 480
 obj "./assets/img/white.png" 760 800 1920 800
+trigger 1800 445 200 400 PORTAL 1
 room 1
 player 100 600
 obj "./assets/img/white.png" 0 800 1920 800
@@ -20,8 +21,8 @@ obj "./assets/img/white.png" 585 260 165 65
 obj "./assets/img/white.png" 520 260 180 25
 obj "./assets/img/white.png" 0 375 345 55
 entity FILTH 840 200 0
-entity FILTH 900 250 0
-entity FILTH 960 300 0
-trigger 0 0 100 100
-trigger 0 500 500 200 200
+entity FILTH 900 250 1
+entity FILTH 960 300 2
+trigger 100 100 100 100 SPAWNER 1
+trigger 1400 400 600 400 SPAWNER 2
 mus "./assets/audio/OST/SneakySnitch.mp3"

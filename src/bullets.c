@@ -22,13 +22,13 @@ bool checkCollision(bullet *bullet, level_t *level)
 {
     room_t *currRoom = level->items[level->currentLoadedRoomID];
     da_foreach (obj, tile, &currRoom->structures) {
-        if (SDL_HasRectIntersectionFloat(getBB(bullet), getBB(tile))) {
+        if (SDL_HasRectIntersectionFloat(bullet->boundingBox, tile->boundingBox)) {
             return true;
         }
     }
 
-    da_foreach (entity_t *, entity, &currRoom->e_waves[currRoom->currWaveIdx]) {
-        if (SDL_HasRectIntersectionFloat(getBB(bullet), getBB(*entity))) {
+    da_foreach (ennemy_t *, entity, &currRoom->e_waves[currRoom->currWaveIdx]) {
+        if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(*entity))) {
             return true;
         }
     }
@@ -39,15 +39,15 @@ bool checkCollision(bullet *bullet, level_t *level)
 void updateBulletState(bullets *arr, level_t *level, float deltaTime)
 {
     da_foreach (bullet, it, arr) {
-        getBB(it)->x += it->velocity.x * deltaTime;
-        getBB(it)->y += it->velocity.y * deltaTime;
+        it->boundingBox->x += it->velocity.x * deltaTime;
+        it->boundingBox->y += it->velocity.y * deltaTime;
     }
 
     size_t i = 0;
     while (i < arr->count) {
         bullet *it = &arr->items[i];
-        if ((getBB(it)->x < -64 || getBB(it)->x >= WINDOW_WIDTH * 2) ||
-            (getBB(it)->y < -64 || getBB(it)->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level)) {
+        if ((it->boundingBox->x < -64 || it->boundingBox->x >= WINDOW_WIDTH * 2) ||
+            (it->boundingBox->y < -64 || it->boundingBox->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level)) {
             deleteBullet(&it);
             da_remove_unordered(arr, i);
             i -= 1;

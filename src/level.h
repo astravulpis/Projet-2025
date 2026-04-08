@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "entity.h"
+#include "triggers.h"
 
 #define MAX_WAVE_COUNT 5
 
@@ -129,12 +130,12 @@ void assignObject(room_t *room, sdl_ctx_t *ctx, const char *path, float x, float
  * @fn assignEntityToWave(room_t *room, sdl_ctx_t **ctx, entity_type type, V2f basePos, int wave_id)
  * @param[in] room current room with all objects
  * @param[in] ctx our own sdl context variable
- * @param[in] type the type of the entity
+ * @param[in] name Name of the type of the entity
  * @param[in] basePos default position in the level
  * @param[in] wave_id ID of the wave
  * @brief assings an entity to a wave
  */
-void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, entity_type type, V2f basePos, int wave_id);
+void assignEntityToWave(room_t *room, sdl_ctx_t **ctx, String_View name, V2f basePos, int wave_id);
 
 /**
  * @fn destroyObjects(objs *objects)
@@ -160,29 +161,8 @@ void destroyRoom(room_t **room);
  */
 void destroyLevel(level_t **level);
 
-/**
- * @fn createTrigger(room_t *room, float x, float y, float w, float h, int waveID)
- * @param[in] room
- * @param[in] x X position
- * @param[in] y Y position
- * @param[in] w width
- * @param[in] h height
- * @param[in] waveID wave index to activate when trigger is hit
- * @brief creates a trigger
- *
- * creates a trigger in a room_t room without a texture like the boxes since we never need to see this
- */
-void createTrigger(room_t *room, float x, float y, float w, float h, int waveID);
-
-/**
- * @fn destroyTriggers(triggers_t *triggers)
- * @param[in] triggers
- * @brief destroys all triggers
- *
- * goes through triggers_t to destory each individual trigger
- */
-void destroyTriggers(triggers_t *triggers);
-
 triggers_t *getRoomTriggers(level_t *level);
+void assignTriggerToRoom(room_t *room, trigger_t *trigger);
+void updateTriggers(level_t *level, player_t *p);
 
 #endif // LEVEL_H_

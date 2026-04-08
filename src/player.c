@@ -18,8 +18,8 @@
 
 void movePlayer(player_t *p, V2f newPos)
 {
-    p->boundingBox->x = newPos.x;
-    p->boundingBox->y = newPos.y;
+    getBB(p)->x = newPos.x;
+    getBB(p)->y = newPos.y;
 }
 
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation, player_animation *onWallAnimation)
@@ -37,7 +37,6 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player
         return_defer(false);
     }
 
-    p->ctx = sdl_ctx;
     //p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
     p->idleAnimation = idleAnimation;
     // p->runTex = IMG_LoadTexture((*p->ctx)->renderer, runPath);
@@ -49,6 +48,9 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player
     p->slamAnimation = slamAnimation;
     p->onWallAnimation = onWallAnimation;
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
+    p->entity_attribs.ctx = sdl_ctx;
+    // p->entity_attribs.tex = IMG_LoadTexture((*p->entity_attribs.ctx)->renderer, path);
+    p->entity_attribs.boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
     memset(&p->audios, 0, sizeof(sfxs));
 
     // Initialising base values
@@ -83,13 +85,8 @@ defer:
 void destroyPlayer(player_t **p)
 {
     if (*p != NULL) {
-        free((*p)->boundingBox);
-        (*p)->boundingBox = NULL;
-
-        //SDL_DestroyTexture((*p)->tex);
-        //SDL_DestroyTexture((*p)->runTex);
-        //SDL_DestroyTexture((*p)->onAirTex);
-        //SDL_DestroyTexture((*p)->dashTex);
+        free((*p)->entity_attribs.boundingBox);
+        (*p)->entity_attribs.boundingBox = NULL;
 
         destroyPlayerAnimation(&((*p)->idleAnimation));
         destroyPlayerAnimation(&((*p)->runAnimation));
@@ -155,14 +152,12 @@ V2f inputUpdate(player_t *p, const float dt)
             if (p->lastKey == SDL_SCANCODE_A) p->velocity.x = -dashSpeed;
             if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) p->velocity.x = dashSpeed;
             p->stamina -= 1.0f;
-            
-            
             p->prevDashTick = SDL_GetTicks();
             p->isDashing = true;
 
-            playSfx(*p->ctx, &p->audios, "dash");
+            playSfx(*p->entity_attribs.ctx, &p->audios, "dash");
         } else {
-            playSfx(*p->ctx, &p->audios, "notEnoughStamina");
+            playSfx(*p->entity_attribs.ctx, &p->audios, "notEnoughStamina");
         }
     }
 
@@ -179,10 +174,10 @@ V2f inputUpdate(player_t *p, const float dt)
         } else if (p->onGround) {
             p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
         }
-        playSfx(*p->ctx, &p->audios, "jump");
+        playSfx(*p->entity_attribs.ctx, &p->audios, "jump");
     } else if ((isKeyPressed(SDL_SCANCODE_LCTRL, currState, prevState) && !p->onGround) && !p->isSlamming) {
         p->isSlamming = true;
-        MIX_StopTrack((*p->ctx)->tracks[SFX_PLAYER_MOVE], 5);
+        MIX_StopTrack((*p->entity_attribs.ctx)->tracks[SFX_PLAYER_MOVE], 5);
     }
 
     if (p->isSlamming) {
@@ -206,7 +201,7 @@ objs collision_test_player(player_t *p, objs *tiles)
 {
     objs collisions = {0};
     da_foreach (obj, tile, tiles) {
-        if (SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) {
+        if (SDL_HasRectIntersectionFloat(getBB(p), tile->boundingBox)) {
             da_append(&collisions, *tile);
         }
     }
@@ -214,19 +209,19 @@ objs collision_test_player(player_t *p, objs *tiles)
     return collisions;
 }
 
-triggers_t collision_test_player_trigg(player_t *p, triggers_t *triggers_array)
-{
-    triggers_t collisions = {0};
-    da_foreach (trigger_t, tile, triggers_array) {
-        if ((tile->has_been_touched = SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) == true) {
-            da_append(&collisions, *tile);
-        }
-    }
+// triggers_t collision_test_player_trigg(player_t *p, triggers_t *triggers_array)
+// {
+//     triggers_t collisions = {0};
+//     da_foreach (trigger_t, tile, triggers_array) {
+//         if ((tile->has_been_touched = SDL_HasRectIntersectionFloat(getBB(p), getBB(tile))) == true) {
+//             da_append(&collisions, *tile);
+//         }
+//     }
+//
+//     return collisions;
+// }
 
-    return collisions;
-}
-
-void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_array, int *activeWave)
+void updatePlayer(player_t *p, objs *arr, float deltaTime)
 {
     float gravity = 28.0f;
     float dragCoef = 0.75f;
@@ -245,13 +240,13 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
     // Play sfx when a bar of stamina is regenerated/recharged
     if ((p->stamina >= 0.97f && p->stamina <= 1.01f) || (p->stamina >= 1.97f && p->stamina <= 2.01f) ||
         (p->stamina >= 2.97f && p->stamina <= 2.99f)) {
-        playSfx(*p->ctx, &p->audios, "staminaRegen");
+        playSfx(*p->entity_attribs.ctx, &p->audios, "staminaRegen");
     }
 
     rect->x += frame_movement.x;
     if (!p->noclip) {
         objs collisions = collision_test_player(p, arr);
-        triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
+        // triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             p->onWall = true;
@@ -263,32 +258,32 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
                 rect->x = Right(tile) + 0.01f; // Set the player's left edge to the tile's right edge
             }
         }
-        da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
-            SDL_FRect *tile = it->boundingBox;
-            if (it->waveId >= 0 && activeWave != NULL) {
-                *activeWave = it->waveId;
-                printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
-            } else {
-                printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
-            }
-        }
-        free(collisions.items);
-        free(trigg_collision.items);
+        // da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
+        //     SDL_FRect *tile = it->boundingBox;
+        //     if (it->waveId >= 0 && activeWave != NULL) {
+        //         *activeWave = it->waveId;
+        //         printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
+        //     } else {
+        //         printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
+        //     }
+        // }
+        // free(collisions.items);
+        // free(trigg_collision.items);
     }
 
     rect->y += frame_movement.y;
     if (!p->noclip) {
         objs collisions = collision_test_player(p, arr);
-        triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
+        // triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.y > 0) {
                 rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
                 p->onGround = true;
                 if (p->onGround && !wasOnGround) {
-                    if (p->isSlamming) playSfx(*p->ctx, &p->audios, "hardFall");
+                    if (p->isSlamming) playSfx(*p->entity_attribs.ctx, &p->audios, "hardFall");
                     else
-                        playSfx(*p->ctx, &p->audios, "softFall");
+                        playSfx(*p->entity_attribs.ctx, &p->audios, "softFall");
                 }
                 p->isSlamming = false;
             }
@@ -297,24 +292,24 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
             }
             p->velocity.y = 0;
         }
-        da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
-            SDL_FRect *tile = it->boundingBox;
-            if (it->waveId >= 0 && activeWave != NULL) {
-                *activeWave = it->waveId;
-                printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
-            } else {
-                printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
-            }
-        }
-        free(collisions.items);
-        free(trigg_collision.items);
+        // da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
+        //     SDL_FRect *tile = it->boundingBox;
+        //     if (it->waveId >= 0 && activeWave != NULL) {
+        //         *activeWave = it->waveId;
+        //         printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
+        //     } else {
+        //         printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
+        //     }
+        // }
+        // free(collisions.items);
+        // free(trigg_collision.items);
     }
     wasOnGround = p->onGround;
 
     if (!p->flight) p->velocity.y = MAX(150.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
-    keepRectInbounds(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    keepRectInbounds(getBB(p), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void renderPlayer(player_t *p)
@@ -324,7 +319,7 @@ void renderPlayer(player_t *p)
 
     if (p->isDashing) { // rendu du dash animation
         renderPlayerAnimation((*p->ctx), p->dashAnimation, flipped, 0, &(*p->boundingBox));
-        
+
         // reset des animations qui ne sont pas affichée
         resetPlayerAnimationState(p->runAnimation);
         resetPlayerAnimationState(p->idleAnimation);
@@ -408,12 +403,7 @@ bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar
                    (SDL_Color){207, 80, 255, 255}, (SDL_Color){127, 0, 205, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
         return false;
 
-        if (!createBar(b3,
-                       (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w * 2,
-                                   (*b1)->BarBox->y, (*b1)->BarBox->w,
-                                   (*b1)->BarBox->h},
-                       (SDL_Color){255, 143, 226, 255}, (SDL_Color){253, 63, 146, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
-        return false;
+        if (!createBar(b3, (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w * 2, (*b1)->BarBox->y, (*b1)->BarBox->w, (*b1)->BarBox->h}, (SDL_Color){255, 143, 226, 255}, (SDL_Color){253, 63, 146, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false)) return false;
 
     return true;
 }
@@ -455,7 +445,7 @@ bool initAllPlayerAnimation (sdl_ctx_t *sdl_ctx, player_animation **runAnimation
     if (!createPlayerAnimation(sdl_ctx, idleAnimation, "assets/img/animation/V1Animation/idleAnimation/1.png","assets/img/animation/V1Animation/idleAnimation/2.png",
     "assets/img/animation/V1Animation/idleAnimation/3.png", "assets/img/animation/V1Animation/idleAnimation/4.png", "assets/img/animation/V1Animation/idleAnimation/5.png", 2000.0f))
     return false;
-    
+
     if (!createPlayerAnimation(sdl_ctx, onAirAnimation, "assets/img/animation/V1Animation/onAirAnimation/1.png","assets/img/animation/V1Animation/onAirAnimation/2.png",
     "assets/img/animation/V1Animation/onAirAnimation/3.png", "assets/img/animation/V1Animation/onAirAnimation/4.png", "assets/img/animation/V1Animation/onAirAnimation/5.png", 500.0f))
     return false;

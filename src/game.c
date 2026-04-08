@@ -5,6 +5,7 @@
 #include "file_parsing.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
+#include "triggers.h"
 
 void closeGame(gameContext *ctx)
 {
@@ -57,7 +58,7 @@ room_t *beginLevel(int argc, char **argv, gameContext *ctx)
     ctx->loadedLevelIdx = level->levelID;
 
     curr = getLoadedRoom(level);
-    movePlayer(ctx->player, curr->startPos);
+    movePlayer(ctx->player, (V2f){curr->startPos.x * ctx->sdl_ctx->screenRatio, curr->startPos.y * ctx->sdl_ctx->screenRatio});
     return curr;
 }
 
@@ -95,13 +96,23 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     Uint32 frameStart = 0;
     Uint32 last = SDL_GetTicks();
 
+    player_animation *runAnimation = NULL;
+    player_animation *idleAnimation = NULL;
+    player_animation *onAirAnimation = NULL;
+    player_animation *dashAnimation = NULL;
+    player_animation *slamAnimation = NULL;
+    player_animation *onWallAnimation = NULL;
+
+    if (!initAllPlayerAnimation(sdl_ctx, &runAnimation, &idleAnimation, &onAirAnimation, &dashAnimation, &slamAnimation, &onWallAnimation))
+        return 1;
+
     int mouseInputFlag = 0;
     int prevMouseInput = 0;
     V2f mouseCoord = {0};
 
     if (!createCtx(&ctx->sdl_ctx)) return false; // Error handling is done in the function
     disableVsync(ctx->sdl_ctx);
-    if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx, "assets/img/V1.png")) return false;
+    if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx, idleAnimation, runAnimation, onAirAnimation, dashAnimation, slamAnimation, onWallAnimation)) return 1;
     room_t *currRoom = NULL;
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
     level_t *currLevel = getLoadedLevel(ctx);
@@ -152,14 +163,14 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_RenderClear(ctx->sdl_ctx->renderer);
         renderBackground(ctx->sdl_ctx);
         renderRoom(ctx->sdl_ctx, currLevel);
-        da_foreach (trigger_t, trigger, &getLoadedRoom(currLevel)->triggers) {
-            renderFillRect(ctx->sdl_ctx->renderer, trigger->boundingBox, (SDL_Color){0xFF, 0x7F, 0x7f, 0x7F});
+        da_foreach (trigger_t *, trigger, &getLoadedRoom(currLevel)->triggers) {
+            renderFillRect(ctx->sdl_ctx->renderer, (*trigger)->boundingBox, (SDL_Color){0xFF, 0x7F, 0x7f, 0x7F});
         }
 
         if (!ctx->sdl_ctx->currMenu &&
             (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
-            V2f startingPos = (V2f){ctx->player->boundingBox->x + ctx->player->boundingBox->w / 2.0f,
-                                    ctx->player->boundingBox->y + ctx->player->boundingBox->h / 2.0f};
+            V2f startingPos = (V2f){getBB(ctx->player)->x + getBB(ctx->player)->w / 2.0f,
+                                    getBB(ctx->player)->y + getBB(ctx->player)->h / 2.0f};
             V2f deltaPos = (V2f){mouseCoord.x - startingPos.x, mouseCoord.y - startingPos.y - 15.0f};
             float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
@@ -178,9 +189,10 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         prevMouseInput = mouseInputFlag;
 
         if (!ctx->sdl_ctx->currMenu) {
+            updateTriggers(getLoadedLevel(ctx), ctx->player);
             updateBulletState(&ctx->bullet_arr, currLevel, deltaTime);
             updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime);
-            updatePlayer(ctx->player, getRoomObjects(currLevel), deltaTime, getRoomTriggers(currLevel), &currRoom->currWaveIdx);
+            updatePlayer(ctx->player, getRoomObjects(currLevel), deltaTime);
         }
 
         renderPlayer(ctx->player);
