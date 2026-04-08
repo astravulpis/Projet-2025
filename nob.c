@@ -199,6 +199,7 @@ int main(int argc, char **argv)
     da_append(&modules, "checkboxes");
     da_append(&modules, "level");
     da_append(&modules, "player_animation");
+    da_append(&modules, "game");
     if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);
 
     // IMPORTANT: `Tests` cannot be run with other commands.
