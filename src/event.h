@@ -21,8 +21,11 @@
 
 /**
  * @fn basic_keyboard_events(struct sdl_context_s *ctx)
+ * @param[in] sdl_ctx SDL context
+ * @param[in] level level structure
+ * @param[in] player player structure
+ * @param[in] guns list of guns to be able to equip them
  * @brief Listens to keyboard inputs for mapped keys
- * @param[in] ctx SDL context
  */
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t * guns);
 

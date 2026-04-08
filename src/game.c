@@ -165,7 +165,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
 
             shootGun(ctx->sdl_ctx, &guns->arsenal[guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
             //createBullet(&ctx->bullet_arr, startingPos, vel);
-            playSfx(ctx->sdl_ctx, &ctx->audios, "piercerPrimary");
+            //playSfx(ctx->sdl_ctx, &ctx->audios, "piercerPrimary");
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
         // {

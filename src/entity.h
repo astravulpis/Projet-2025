@@ -88,12 +88,23 @@ typedef struct {
     bool onGround;
 } entity_t;
 
+/**
+ * @struct entities_t
+ * @brief list of entities
+ */
 typedef struct {
     entity_t **items;
     size_t count;
     size_t capacity;
 } entities;
 
+
+/**
+ * @fn createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
+ * @param[in] sdl_ctx our won sdl context variable
+ * @param[in] basePos spawning location
+ * @brief creates a creature of a certain type and with a set default spawning location
+ */
 entity_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
 
 /**

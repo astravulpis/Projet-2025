@@ -23,10 +23,45 @@ typedef struct {
 
 #define LEVEL_COUNT 5
 
+/**
+ * @fn closeGame(gameContext *ctx)
+ * @param[in] ctx our context variable
+ * @brief destroys every single object that needs to be destroyed and close the game
+ */
 void closeGame(gameContext *ctx);
+
+/**
+ * @fn getLoadedLevel(gameContext *ctx)
+ * @param[in] ctx our context variable
+ * @brief returns the currently loaded level
+ */
 level_t *getLoadedLevel(gameContext *ctx);
+
+/**
+ * @fn beginLevel(int argc, char **argv, gameContext *ctx)
+ * @param[in] argc amount of variables
+ * @param[in] argv list of function arguments
+ * @param[in] ctx our context variable
+ * @brief begins the level found in ctx
+ */
 room_t *beginLevel(int argc, char **argv, gameContext *ctx);
+
+/**
+ * @fn addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
+ * @param[in] ctx our context variable
+ * @param[in] menu menu structure
+ * @param[in] kind type of menu
+ * @brief returns the currently loaded level
+ */
 bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind);
+
+/**
+ * @fn gameLoop(gameContext *ctx, int argc, char **argv)
+ * @param[in] ctx our context variable
+ * @param[in] argc amount of variables
+ * @param[in] argv list of function arguments
+ * @brief main game loop with every single relevant function call
+ */
 bool gameLoop(gameContext *ctx, int argc, char **argv);
 
 #endif // GAME_H_

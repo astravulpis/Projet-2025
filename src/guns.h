@@ -72,31 +72,54 @@ const char *getGunImage(Gun_t *gun);
 void setGunImage(Gun_t *gun, const char *path);
 
 /**
- * @fn setGunImage(Gun_t *gun, const char *path
+ * @fn loadGunImage(Gun_t *gun, sdl_ctx_t *ctx)
  * @param[in] gun gun structure
- * @param[in] path path to the texture
- * @brief assigns the gun its texture
+ * @param[in] ctx our sdl context variable
+ * @brief loads the gun's image
  */
 void loadGunImage(Gun_t *gun, sdl_ctx_t *ctx);
 
 // Interactions
 /**
- * @fn setGunImage(Gun_t *gun, const char *path
- * @param[in] gun gun structure
- * @param[in] path path to the texture
+ * @fn shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position, V2f direction)
+ * @param[in] sdl_ctx sld context variable
+ * @param[in] gun currently equiped gun
+ * @param[in] bullet_arr dynamic array of all on screen bullets
+ * @param[in] position starting position
+ * @param[in] vel normalised bullet speed
  * @brief assigns the gun its texture
  */
-void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position, V2f direction);
-bool isLmbOnCd(Gun_t *gun);
-bool isRmbOnCd(Gun_t *gun);
+void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position, V2f vel);
 
 // Current gun
+/**
+ * @fn getCurrentGun(Guns_t *guns)
+ * @param[in] guns gun structure
+ * @brief returns the ID of the currently equipped gun
+ */
 int getCurrentGun(Guns_t *guns);
-Gun_t *getCurrentGunPtr(Guns_t *guns);
+
+/**
+ * @fn setCurrentGun(Guns_t *guns, int idx)
+ * @param[in] guns gun structure
+ * @param[in] idx id of the new gun to equip
+ * @brief equips the gun with ID idx
+ */
 void setCurrentGun(Guns_t *guns, int idx);
 
 // Initialize guns
+/**
+ * @fn destroyGun(Gun_t **gun)
+ * @param[in] gun gun structure
+ * @brief destroys a gun structure
+ */
 void destroyGun(Gun_t **gun);
+
+/**
+ * @fn destroyGuns(Guns_t **guns)
+ * @param[in] guns guns structure
+ * @brief goes through the list of all guns to destory them
+ */
 void destroyGuns(Guns_t **guns);
 
 #endif // GUNS_H_

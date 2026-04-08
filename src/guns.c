@@ -16,7 +16,7 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
         free(guns);
         return NULL;
     }
-    // Basic Pistol 
+    // Basic Pistol
     guns->arsenal[0].name = "Pistol";
     guns->arsenal[0].dmg = 5;
     guns->arsenal[0].size = 20;
@@ -24,12 +24,12 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
     setGunSfx(&guns->arsenal[0], "./assets/audio/SFX/piercer.wav");
     setGunImage(&guns->arsenal[0], "./assets/img/guns/pistol.png");
 
-    // Shotgun (Weapon 2 - Spread damage)
+    // Shotgun
     guns->arsenal[1].name = "Shotgun";
     guns->arsenal[1].dmg = 8;
-    guns->arsenal[1].size = 8; // Fires multiple pellets
+    guns->arsenal[1].size = 8; 
     guns->arsenal[1].idx = 1;
-    setGunSfx(&guns->arsenal[1], "./assets/audio/SFX/gun_shotgun.wav");
+    setGunSfx(&guns->arsenal[1], "./assets/audio/SFX/shotgun.mp3");
     setGunImage(&guns->arsenal[1], "./assets/img/guns/shotgun.png");
 
     // Machine Gun_t (Weapon 3 - Rapid fire)
@@ -37,31 +37,31 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
     guns->arsenal[2].dmg = 3;
     guns->arsenal[2].size = 10;
     guns->arsenal[2].idx = 2;
-    setGunSfx(&guns->arsenal[2], "./assets/audio/SFX/gun_machine.wav");
+    setGunSfx(&guns->arsenal[2], "./assets/audio/SFX/piercer.wav");
     setGunImage(&guns->arsenal[2], "./assets/img/guns/machinegun.png");
 
-    // Sniper Rifle (Weapon 4 - High damage, slow)
+    // Railcannon
     guns->arsenal[3].name = "Sniper Rifle";
     guns->arsenal[3].dmg = 25;
     guns->arsenal[3].size = 30;
     guns->arsenal[3].idx = 3;
-    setGunSfx(&guns->arsenal[3], "./assets/audio/SFX/gun_sniper.wav");
+    setGunSfx(&guns->arsenal[3], "./assets/audio/SFX/railcannon.mp3");
     setGunImage(&guns->arsenal[3], "./assets/img/guns/sniper.png");
 
-    // Bouncer (Weapon 5 - Bouncing bullets)
+    // sharpshooter (bounce is not implemented since lack of time at the moment)
     guns->arsenal[4].name = "Bouncer";
     guns->arsenal[4].dmg = 6;
     guns->arsenal[4].size = 20; // Special: bouncing effect
     guns->arsenal[4].idx = 4;
-    setGunSfx(&guns->arsenal[4], "./assets/audio/SFX/gun_bouncer.wav");
+    setGunSfx(&guns->arsenal[4], "./assets/audio/SFX/piercer.wav");
     setGunImage(&guns->arsenal[4], "./assets/img/guns/bouncer.png");
 
-    // Rocket Launcher (Weapon 6 - Explosive)
+    // Rocket Launcher 
     guns->arsenal[5].name = "Rocket Launcher";
     guns->arsenal[5].dmg = 15;
-    guns->arsenal[5].size = 50; // Special: explosive effect
+    guns->arsenal[5].size = 50;
     guns->arsenal[5].idx = 5;
-    setGunSfx(&guns->arsenal[5], "./assets/audio/SFX/gun_rocket.wav");
+    setGunSfx(&guns->arsenal[5], "./assets/audio/SFX/rocket.mp3");
     setGunImage(&guns->arsenal[5], "./assets/img/guns/rocket.png");
 
     // Load all textures and sounds
@@ -163,13 +163,6 @@ int getCurrentGun(Guns_t *guns)
 {
     assert(guns != NULL);
     return guns->selectedGun;
-}
-
-Gun_t *getCurrentGunPtr(Guns_t *guns)
-{
-    assert(guns != NULL);
-    assert(guns->selectedGun >= 0 && guns->selectedGun < GUN_COUNT);
-    return &guns->arsenal[guns->selectedGun];
 }
 
 void setCurrentGun(Guns_t *guns, int idx)
