@@ -32,8 +32,6 @@ SDL_Texture *entity_textures[E_TYPE_COUNT] = {0};
 
 void loadEntityTex(sdl_ctx_t *ctx)
 {
-    // See TODO(2026-03-30 08:14:05)
-    // See TODO(2026-03-30 08:14:40)
     const char *texPaths[E_TYPE_COUNT] = {
         "./assets/img/filth.png",
     };
@@ -248,9 +246,6 @@ void destroyEntities(entities *entities)
 
     free(entities->items);
 }
-// TODO(2026-03-30 08:14:05): Create test for loading every image, when every image will be added
-// TODO(2026-03-30 08:14:40): Change the entity_textures to take arrays of texture for when the animation part of the project
-// comes into mind
 // TODO(2026-03-30 08:15:26): Create test to test the creation of a valid entity, wrongly typed entity, with both bad and good
 // position (test with keepInbounds)
 // TODO(2026-03-30 08:17:02): Test exhausively this function

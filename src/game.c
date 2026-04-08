@@ -125,7 +125,6 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     bar *dashBar3 = NULL;
 
     createPlayerStatusBar(ctx->sdl_ctx, &dashBar1, &dashBar2, &dashBar3, &hpBar);
-
     room_t *currRoom = NULL;
     // 2rd place in taking a lot of time -> parse the file and loads the level
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;

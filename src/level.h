@@ -170,6 +170,22 @@ triggers_t *getRoomTriggers(level_t *level);
 
 /**
  * @fn assignTriggerToRoom(room_t *room, trigger_t *trigger)
+ * @param[in] room The room in question
+ * @param[in] trigger the trigger to assign
+ * @brief Assigns a trigger to a room
+ */
+void assignTriggerToRoom(room_t *room, trigger_t *trigger);
+
+/**
+ * @fn updateTriggers(level_t *level, player_t *p)
+ * @param[in] level The level that contains the triggers to update
+ * @param[in] p The player that can interact with such triggers
+ * @brief Assigns a trigger to a room
+ */
+void updateTriggers(level_t *level, player_t *p);
+
+/**
+ * @fn assignTriggerToRoom(room_t *room, trigger_t *trigger)
  * @param[in] room current room
  * @param[in] trigger trigger to be assigned to the room itself
  * @brief asigns a given trigger to the given room

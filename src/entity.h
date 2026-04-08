@@ -216,7 +216,7 @@ void destroyEntities(entities *entities);
 
 /**
  * @fn loadEntityTex(sdl_ctx_t *ctx)
- * @param[in] ctx our context variable 
+ * @param[in] ctx our context variable
  * @brief loads the entity's texture into the ctx
  */
 void loadEntityTex(sdl_ctx_t *ctx);

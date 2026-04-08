@@ -52,14 +52,14 @@ void destroyTriggers(triggers_t *triggers);
 
 /**
  * @fn getTriggerKindFromSV(String_View sv)
- * @param[in] sv currently viewed string 
+ * @param[in] sv currently viewed string
  * @brief returns the kind of the trigger sent from file_parsing
  */
 trigger_kind getTriggerKindFromSV(String_View sv);
 
 /**
  * @fn hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e)
- * @param[in] trigger trigger structure we are checking 
+ * @param[in] trigger trigger structure we are checking
  * @param[in] e entity structure we are checking as well
  * @brief returns true if the given entity is colliding with the given trigger
  */

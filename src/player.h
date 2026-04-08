@@ -32,7 +32,7 @@ typedef enum {
 /**
  * @typedef struct player_t
  * @brief contains every single bit of information regarding the player
- * 
+ *
  * contains the player's speed, hitbox, jump force, health, animation information, sound effects and so on
  */
 typedef struct {
