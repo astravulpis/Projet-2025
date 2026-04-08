@@ -144,16 +144,16 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
             } else if (sv_eq(header, sv_from_cstr("player"))) {
 
                 // player [X_POS] [Y_POS]
-                int x_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                int y_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                int x_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' '))) * (*ctx)->screenRatio;
+                int y_pos = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' '))) * (*ctx)->screenRatio;
                 room->startPos = (V2f){x_pos, y_pos};
 
             // entities
             } else if (sv_eq(header, sv_from_cstr("entity"))) {
                 // entity [TYPE] [X_POS] [Y_POS] [WAVE_INDEX]
                 String_View type = sv_chop_by_delim(&line, ' ');
-                float x_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                float y_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                float x_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' '))) * (*ctx)->screenRatio;
+                float y_pos = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' '))) * (*ctx)->screenRatio;
                 int waveIdx = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
 
                 // Might consider to just abs(waveIdx) but the fact that a waveIdx can be <0 is just wrong
