@@ -122,4 +122,7 @@ bool renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b
 
 void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB);
 
+bool initAllPlayerAnimation (sdl_ctx_t *sdl_ctx, player_animation **runAnimation, player_animation **idleAnimation, player_animation **onAirAnimation,
+                          player_animation **dashAnimation, player_animation **slamAnimation, player_animation **onWallAnimation);
+
 #endif // PLAYER_H_

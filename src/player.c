@@ -333,7 +333,7 @@ void renderPlayer(player_t *p)
     SDL_FlipMode flipped =
         (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-    if (p->isDashing) { // dash
+    if (p->isDashing) { // rendu du dash animation
         renderPlayerAnimation((*p->ctx), p->dashAnimation, flipped, 0, &(*p->boundingBox));
         
         // reset des animations qui ne sont pas affichée
@@ -343,7 +343,7 @@ void renderPlayer(player_t *p)
         resetPlayerAnimationState(p->slamAnimation);
         resetPlayerAnimationState(p->onWallAnimation);
     }
-    else if (p->isSlamming) {
+    else if (p->isSlamming) { // rendu du slam animation
         renderPlayerAnimation((*p->ctx), p->slamAnimation, flipped, 0, &(*p->boundingBox));
 
         // reset des animations qui ne sont pas affichée
@@ -453,4 +453,35 @@ void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB) {
     destroyBar(b1);
     destroyBar(b2);
     destroyBar(b3);
+}
+
+
+bool initAllPlayerAnimation (sdl_ctx_t *sdl_ctx, player_animation **runAnimation, player_animation **idleAnimation, player_animation **onAirAnimation,
+                          player_animation **dashAnimation, player_animation **slamAnimation, player_animation **onWallAnimation)
+{
+    if (!createPlayerAnimation(sdl_ctx, runAnimation, "assets/img/animation/V1Animation/runAnimation/1.png","assets/img/animation/V1Animation/runAnimation/2.png",
+    "assets/img/animation/V1Animation/runAnimation/3.png", "assets/img/animation/V1Animation/runAnimation/4.png", "assets/img/animation/V1Animation/runAnimation/5.png", 500.0f))
+    return false;
+
+    if (!createPlayerAnimation(sdl_ctx, idleAnimation, "assets/img/animation/V1Animation/idleAnimation/1.png","assets/img/animation/V1Animation/idleAnimation/2.png",
+    "assets/img/animation/V1Animation/idleAnimation/3.png", "assets/img/animation/V1Animation/idleAnimation/4.png", "assets/img/animation/V1Animation/idleAnimation/5.png", 2000.0f))
+    return false;
+    
+    if (!createPlayerAnimation(sdl_ctx, onAirAnimation, "assets/img/animation/V1Animation/onAirAnimation/1.png","assets/img/animation/V1Animation/onAirAnimation/2.png",
+    "assets/img/animation/V1Animation/onAirAnimation/3.png", "assets/img/animation/V1Animation/onAirAnimation/4.png", "assets/img/animation/V1Animation/onAirAnimation/5.png", 500.0f))
+    return false;
+
+    if (!createPlayerAnimation(sdl_ctx, dashAnimation, "assets/img/animation/V1Animation/dashAnimation/1.png","assets/img/animation/V1Animation/dashAnimation/2.png",
+    "assets/img/animation/V1Animation/dashAnimation/3.png", "assets/img/animation/V1Animation/dashAnimation/4.png", "assets/img/animation/V1Animation/dashAnimation/5.png", 500.0f))
+    return false;
+
+    if (!createPlayerAnimation(sdl_ctx, slamAnimation, "assets/img/animation/V1Animation/slamAnimation/1.png","assets/img/animation/V1Animation/slamAnimation/1.png",
+    "assets/img/animation/V1Animation/slamAnimation/1.png", "assets/img/animation/V1Animation/slamAnimation/1.png", "assets/img/animation/V1Animation/slamAnimation/1.png", 500.0f))
+    return false;
+
+    if (!createPlayerAnimation(sdl_ctx, onWallAnimation, "assets/img/animation/V1Animation/onWallAnimation/1.png","assets/img/animation/V1Animation/onWallAnimation/1.png",
+    "assets/img/animation/V1Animation/onWallAnimation/1.png", "assets/img/animation/V1Animation/onWallAnimation/1.png", "assets/img/animation/V1Animation/onWallAnimation/1.png", 500.0f))
+    return false;
+
+    return true;
 }
