@@ -48,7 +48,12 @@ int main(int argc, char **argv)
     room_t *curr = NULL;
 
     if (!createCtx(&sdl_ctx)) return 1; // Error handling is done in the function
-    if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V1.png")) return 1;
+
+    player_animation *runAnimation = NULL;
+    if (!createPlayerAnimation(sdl_ctx, &runAnimation, "assets/img/animation/playerRun/frame1.png","assets/img/animation/playerRun/frame2.png",
+    "assets/img/animation/playerRun/frame3.png", "assets/img/animation/playerRun/frame4.png", "assets/img/animation/playerRun/frame5.png", 250.0f));
+
+    if (!createPlayer(&player, (V2f){100, 120}, &sdl_ctx, "assets/img/V2.png", runAnimation, "assets/img/V2OR.png", "assets/img/V2D.png")) return 1;
     parseFlag(argc, argv, &sdl_ctx, &level);
     curr = getLoadedRoom(level);
     movePlayer(player, curr->startPos);

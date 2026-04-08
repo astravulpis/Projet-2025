@@ -19,11 +19,16 @@
 #include "sdl_helpers.h"
 #include <string.h>
 #include "bars.h"
+#include "player_animation.h"
 
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB
     SDL_Texture *tex;       //!< Player's texture
+    player_animation *runAnimation; //!< Player's texture when is in movement
+    SDL_Texture *onAirTex; //!< Player's texture when is in movement and not on the ground
+    SDL_Texture *dashTex;
+    SDL_Texture *onWallTex;
     sfxs audios;
     float speed;            //!< Value may depend on preference
     V2f velocity;
@@ -32,14 +37,18 @@ typedef struct {
     float stamina;
     float jumpForce;
     uint8_t lastKey;
+    float lastX; // the latest x coord of deltaPos
 
     float hp;
 
     bool onGround; //!< State to tell whenever the player is on the ground or not
     bool onWall; //!< State to tell whenever the player is glued to a wall or not
     bool isSlamming;
+    bool isDashing;
     bool flight;
     bool noclip;
+
+    bool run;
 } player_t;
 
 #define getBB(p) (p)->boundingBox
@@ -55,11 +64,13 @@ typedef struct {
  * @param[in] playerSize X and Y value for it's height and width
  * @param[in] sdl_ctx pointer pointer to the ctx variable
  * @param[in] path where the player file is located
+ * @param[in] runPath where the player file is located  when he is in ground and in movement
+ * @param[in] inAirPath where the player file is located  when he is not on ground and in movement (exlude speical movement like dash, slide ...)
  * @brief creates the player, makes sur it exists and then loads it
  *
  * creates the player and is only called once
  */
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path);
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path, player_animation *runAnimation, const char *inAirPath, const char *dashPath);
 
 /**
  * @fn destroyPlayer(player_t **p)

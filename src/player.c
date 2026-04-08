@@ -9,6 +9,7 @@
  * * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  * Reeves Guillaume <greeves2306@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
  **/
 
 #include "player.h"
@@ -21,7 +22,7 @@ void movePlayer(player_t *p, V2f newPos)
     p->boundingBox->y = newPos.y;
 }
 
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path)
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const char *path, player_animation *runAnimation, const char *inAirPath, const char *dashPath)
 {
     bool result = true;
     (*player) = calloc(1, sizeof(player_t));
@@ -38,6 +39,10 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
 
     p->ctx = sdl_ctx;
     p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
+    // p->runTex = IMG_LoadTexture((*p->ctx)->renderer, runPath);
+    p->runAnimation = runAnimation;
+    p->onAirTex = IMG_LoadTexture((*p->ctx)->renderer, inAirPath);
+    p->dashTex = IMG_LoadTexture((*p->ctx)->renderer, dashPath);
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
     memset(&p->audios, 0, sizeof(sfxs));
 
@@ -46,11 +51,14 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, const 
     p->jumpForce = -685.0f;
     p->velocity = (V2f){0.0f, 0.0f};
     p->onGround = false;
+    p->isDashing = false;
     p->stamina = 3.0f;
     p->lastKey = SDL_SCANCODE_UNKNOWN;
+    p->lastX = -1;
     p->hp = 100;
     p->flight = false;
     p->noclip = false;
+    p->run = false;
 
     // Loading audios sfx
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "jump", "./assets/audio/SFX/jump.wav");
@@ -71,6 +79,10 @@ void destroyPlayer(player_t **p)
         (*p)->boundingBox = NULL;
 
         SDL_DestroyTexture((*p)->tex);
+        //SDL_DestroyTexture((*p)->runTex);
+        destroyPlayerAnimation(&((*p)->runAnimation));
+        SDL_DestroyTexture((*p)->onAirTex);
+        SDL_DestroyTexture((*p)->dashTex);
         (*p)->boundingBox = NULL;
 
         destroySfxs(&(*p)->audios);
@@ -120,13 +132,17 @@ V2f inputUpdate(player_t *p, const float dt)
 
     // Horizontal movement
     if (isKeyDown(SDL_SCANCODE_A, currState)) {
+        p->lastX = deltaPos.x;
         deltaPos.x -= p->speed * dt;
         p->lastKey = SDL_SCANCODE_A;
+        p->run = true;
     }
 
     if (isKeyDown(SDL_SCANCODE_D, currState)) {
+        p->lastX = deltaPos.x;
         deltaPos.x += p->speed * dt;
         p->lastKey = SDL_SCANCODE_D;
+        p->run = true;
     }
 
     // Dash
@@ -135,10 +151,14 @@ V2f inputUpdate(player_t *p, const float dt)
             if (p->lastKey == SDL_SCANCODE_A) p->velocity.x = -dashSpeed;
             if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) p->velocity.x = dashSpeed;
             p->stamina -= 1.0f;
+            p->isDashing = true;
             playSfx(*p->ctx, &p->audios, "dash");
         } else {
             playSfx(*p->ctx, &p->audios, "notEnoughStamina");
         }
+    }
+    else {
+        p->isDashing = false;
     }
 
     // Jump & slam
@@ -162,6 +182,10 @@ V2f inputUpdate(player_t *p, const float dt)
 
     if (p->isSlamming) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
+    }
+
+    if (p->lastX == deltaPos.x) {
+        p->run = false;
     }
 
     memcpy(prevState, currState, SDL_SCANCODE_COUNT);
@@ -287,7 +311,22 @@ void renderPlayer(player_t *p)
 {
     SDL_FlipMode flipped =
         (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
+
+    if (p->isDashing) {
+        flipped = (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL_AND_VERTICAL : SDL_FLIP_NONE;
+        SDL_RenderTextureRotated((*p->ctx)->renderer, p->dashTex, NULL, p->boundingBox, -90, NULL, flipped);
+        resetPlayerAnimationState(p->runAnimation);
+    }
+    else if (p->run && p->onGround) // rendu du player en mode idle sur du sol (image de base)
+        renderPlayerAnimation((*p->ctx), p->runAnimation, flipped, 0, &(*p->boundingBox));
+    else if (!p->onGround && !p->isSlamming && !p->onWall){
+        SDL_RenderTextureRotated((*p->ctx)->renderer, p->onAirTex, NULL, p->boundingBox, 0, NULL, flipped);
+        resetPlayerAnimationState(p->runAnimation);
+    }
+    else {
+        SDL_RenderTextureRotated((*p->ctx)->renderer, p->tex, NULL, p->boundingBox, 0, NULL, flipped);
+        resetPlayerAnimationState(p->runAnimation);
+    }
 }
 
 // créé 3 bar, utilisé pour afficher la stamina du joueur (dash disponibles)
