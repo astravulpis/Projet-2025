@@ -61,7 +61,6 @@ typedef enum {
     SFX_ENEMY_INTERACTIONS,
     SFX_ENEMY_DIE,
     SFX_ENEMY_SPAWN,
-
     TRACK_COUNT = 10,
 } track_kind;
 
@@ -81,7 +80,7 @@ typedef enum {
 
 /**
  * @typedef struct options
- * @brief contains the different sound options for the game 
+ * @brief contains the different sound options for the game
  */
 typedef struct {
     float masterVolume;
@@ -155,9 +154,9 @@ typedef struct {
 /**
  * @typedef struct entity_t
  * @brief entity information
- * 
+ *
  * containes the bounding box, texture, max health, current health and score value of the entity
- */ 
+ */
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB

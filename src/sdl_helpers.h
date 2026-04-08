@@ -97,8 +97,8 @@ void boxToScale(SDL_FRect *rect, float scale);
 
 /**
  * @fn isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState)
- * @param[in] scancode 
- * @param[in] currState 
+ * @param[in] scancode
+ * @param[in] currState
  * @param[in] prevState
  * @brief returns true if the currently pressed key is different from the previous one
  */
@@ -106,8 +106,8 @@ bool isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState)
 
 /**
  * @fn isKeyDown(SDL_Scancode scancode, const bool *currState)
- * @param[in] scancode 
- * @param[in] currState 
+ * @param[in] scancode
+ * @param[in] currState
  * @param[in] prevState
  * @brief returns true if the given key is pressed down
  */

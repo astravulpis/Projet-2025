@@ -33,6 +33,7 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, G
             sdl_ctx->currMenu = PAUSE_MENU;
         }
     }
+
     if (isKeyPressed(SDL_SCANCODE_Q, state, prev)) {
         level->currentLoadedRoomID -= 1;
         if (level->currentLoadedRoomID > level->count)
@@ -43,23 +44,11 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, G
         if (level->currentLoadedRoomID > level->count - 1) level->currentLoadedRoomID = 0;
         movePlayer(player, getLoadedRoom(level)->startPos);
     }
-    if (state[SDL_SCANCODE_1] && !prev[SDL_SCANCODE_1]) {
-        setCurrentGun(guns, 0);
-    }
-    if (state[SDL_SCANCODE_2] && !prev[SDL_SCANCODE_2]) {
-        setCurrentGun(guns, 1);
-    }
-    if (state[SDL_SCANCODE_3] && !prev[SDL_SCANCODE_3]) {
-        setCurrentGun(guns, 2);
-    }
-    if (state[SDL_SCANCODE_4] && !prev[SDL_SCANCODE_4]) {
-        setCurrentGun(guns, 3);
-    }
-    if (state[SDL_SCANCODE_5] && !prev[SDL_SCANCODE_5]) {
-        setCurrentGun(guns, 4);
-    }
-    if (state[SDL_SCANCODE_6] && !prev[SDL_SCANCODE_6]) {
-        setCurrentGun(guns, 5);
-    }
+    if (isKeyPressed(SDL_SCANCODE_1, state, prev)) setCurrentGun(guns, 0);
+    if (isKeyPressed(SDL_SCANCODE_2, state, prev)) setCurrentGun(guns, 1);
+    if (isKeyPressed(SDL_SCANCODE_3, state, prev)) setCurrentGun(guns, 2);
+    if (isKeyPressed(SDL_SCANCODE_4, state, prev)) setCurrentGun(guns, 3);
+    if (isKeyPressed(SDL_SCANCODE_5, state, prev)) setCurrentGun(guns, 4);
+    if (isKeyPressed(SDL_SCANCODE_6, state, prev)) setCurrentGun(guns, 5);
     memcpy(prev, state, SDL_SCANCODE_COUNT);
 }
