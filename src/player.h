@@ -29,6 +29,7 @@ typedef struct {
     player_animation *onAirAnimation;
     player_animation *dashAnimation;
     player_animation *slamAnimation;
+    player_animation *onWallAnimation;
     SDL_Texture *onWallTex;
     sfxs audios;
     float speed;            //!< Value may depend on preference
@@ -74,7 +75,7 @@ typedef struct {
  *
  * creates the player and is only called once
  */
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation);
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation, player_animation *onWallAnimation);
 
 /**
  * @fn destroyPlayer(player_t **p)

@@ -22,7 +22,7 @@ void movePlayer(player_t *p, V2f newPos)
     p->boundingBox->y = newPos.y;
 }
 
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation)
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation, player_animation *onWallAnimation)
 {
     bool result = true;
     (*player) = calloc(1, sizeof(player_t));
@@ -47,6 +47,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player
     //p->dashTex = IMG_LoadTexture((*p->ctx)->renderer, dashPath);
     p->dashAnimation = dashAnimation;
     p->slamAnimation = slamAnimation;
+    p->onWallAnimation = onWallAnimation;
     p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
     memset(&p->audios, 0, sizeof(sfxs));
 
@@ -95,6 +96,7 @@ void destroyPlayer(player_t **p)
         destroyPlayerAnimation(&((*p)->onAirAnimation));
         destroyPlayerAnimation(&((*p)->dashAnimation));
         destroyPlayerAnimation(&((*p)->slamAnimation));
+        destroyPlayerAnimation(&((*p)->onWallAnimation));
 
         (*p)->boundingBox = NULL;
 
@@ -339,6 +341,8 @@ void renderPlayer(player_t *p)
         resetPlayerAnimationState(p->runAnimation);
         resetPlayerAnimationState(p->idleAnimation);
         resetPlayerAnimationState(p->onAirAnimation);
+        resetPlayerAnimationState(p->slamAnimation);
+        resetPlayerAnimationState(p->onWallAnimation);
     }
     else if (p->isSlamming) {
         renderPlayerAnimation((*p->ctx), p->slamAnimation, flipped, 0, &(*p->boundingBox));
@@ -349,13 +353,25 @@ void renderPlayer(player_t *p)
         resetPlayerAnimationState(p->dashAnimation);
         resetPlayerAnimationState(p->idleAnimation);
     }
-    else if (p->run && p->onGround){ // rendu du player en mode run sur du sol (image de base)
+    else if (p->onWall && !p->onGround) { // rendu du player quand il est collé a un mur et en l'air
+        renderPlayerAnimation((*p->ctx), p->onWallAnimation, flipped, 0, &(*p->boundingBox));
+
+        // reset des animations qui ne sont pas affichée
+        resetPlayerAnimationState(p->onAirAnimation);
+        resetPlayerAnimationState(p->idleAnimation);
+        resetPlayerAnimationState(p->dashAnimation);
+        resetPlayerAnimationState(p->slamAnimation);
+        resetPlayerAnimationState(p->runAnimation);
+    }
+    else if (p->run && p->onGround && !p->onWall){ // rendu du player en mode run sur du sol (image de base) et quand il n'est pas collé a un mur
         renderPlayerAnimation((*p->ctx), p->runAnimation, flipped, 0, &(*p->boundingBox));
 
         // reset des animations qui ne sont pas affichée
         resetPlayerAnimationState(p->onAirAnimation);
         resetPlayerAnimationState(p->idleAnimation);
         resetPlayerAnimationState(p->dashAnimation);
+        resetPlayerAnimationState(p->slamAnimation);
+        resetPlayerAnimationState(p->onWallAnimation);
     }
     else if (!p->onGround && !p->isSlamming && !p->onWall){ //  rendu du player quand il est en l'ai et qu'il ne fait rien de spécial
         renderPlayerAnimation((*p->ctx), p->onAirAnimation, flipped, 0, &(*p->boundingBox));
@@ -364,6 +380,8 @@ void renderPlayer(player_t *p)
         resetPlayerAnimationState(p->runAnimation);
         resetPlayerAnimationState(p->idleAnimation);
         resetPlayerAnimationState(p->dashAnimation);
+        resetPlayerAnimationState(p->slamAnimation);
+        resetPlayerAnimationState(p->onWallAnimation);
     }
     else { // rendu par défaut, en idle
         renderPlayerAnimation((*p->ctx), p->idleAnimation, flipped, 0, &(*p->boundingBox));
@@ -372,6 +390,8 @@ void renderPlayer(player_t *p)
         resetPlayerAnimationState(p->runAnimation);
         resetPlayerAnimationState(p->onAirAnimation);
         resetPlayerAnimationState(p->dashAnimation);
+        resetPlayerAnimationState(p->slamAnimation);
+        resetPlayerAnimationState(p->onWallAnimation);
     }
 }
 
