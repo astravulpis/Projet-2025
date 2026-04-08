@@ -25,6 +25,5 @@ int main(int argc, char **argv)
     gameContext ctx = {0};
     gameLoop(&ctx, argc, argv);
     closeGame(&ctx);
-
     return 0;
 }

@@ -230,8 +230,6 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         frameCounter++;
-        // if (needsFpsCap)
-        //     SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
     destroyBar(&hpBar);

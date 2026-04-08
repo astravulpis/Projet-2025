@@ -20,7 +20,6 @@ typedef struct {
     player_t *player;
     bullets bullet_arr;
     Guns_t *guns;
-
     gui_menu **menus;
     size_t menu_count;
 } gameContext;
