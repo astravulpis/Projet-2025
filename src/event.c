@@ -32,7 +32,7 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, G
             MIX_PauseAllTracks(sdl_ctx->mixer);
             sdl_ctx->currMenu = PAUSE_MENU;
         }
-
+    }
     if (isKeyPressed(SDL_SCANCODE_Q, state, prev)) {
         level->currentLoadedRoomID -= 1;
         if (level->currentLoadedRoomID > level->count)

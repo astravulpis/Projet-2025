@@ -119,6 +119,9 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     float healthBarTest = 0;
     bool addition = true;
 
+    Guns_t *guns = initialiseGuns(ctx->sdl_ctx);
+    if (guns == NULL) return 1;
+
     while (!ctx->sdl_ctx->quit) {
         temp_rewind(mark);
         SDL_SetRenderDrawColor(ctx->sdl_ctx->renderer, 0x00, 0x00, 0x00, 0xFF);
@@ -143,7 +146,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_PumpEvents();
 
         mouseInputFlag = SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
-        basicKeyboardEvents(ctx->sdl_ctx, currLevel, ctx->player);
+        basicKeyboardEvents(ctx->sdl_ctx, currLevel, ctx->player, guns);
 
         SDL_RenderClear(ctx->sdl_ctx->renderer);
         renderBackground(ctx->sdl_ctx);
@@ -160,7 +163,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
             float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
-            createBullet(&ctx->bullet_arr, startingPos, vel);
+            shootGun(ctx->sdl_ctx, &guns->arsenal[guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
+            //createBullet(&ctx->bullet_arr, startingPos, vel);
             playSfx(ctx->sdl_ctx, &ctx->audios, "piercerPrimary");
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))

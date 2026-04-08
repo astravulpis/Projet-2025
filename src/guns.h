@@ -13,8 +13,6 @@ typedef struct {
     const char *img_path;
     const char *name;
     SDL_Texture associatedImage;
-    size_t lmbCD;
-    size_t rmbCD;
     int idx;
     int size;
     int dmg;

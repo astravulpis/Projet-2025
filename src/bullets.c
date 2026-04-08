@@ -5,10 +5,10 @@
 #include "player.h"
 #include "sdl_helpers.h"
 
-bool createBullet(bullets *arr, V2f init_pos, V2f vel, int height, int width, SDL_Color color)
+bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Color color)
 {
     bullet projectile = {0};
-    projectile.boundingBox = createRect(init_pos.x, init_pos.y, height, width);
+    projectile.boundingBox = createRect(init_pos.x, init_pos.y, size, size);
     projectile.velocity.x = vel.x;
     projectile.velocity.y = vel.y;
     projectile.color = color;

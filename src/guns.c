@@ -16,22 +16,18 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
         free(guns);
         return NULL;
     }
-    // Basic Pistol (Weapon 1 - Default)
+    // Basic Pistol 
     guns->arsenal[0].name = "Pistol";
     guns->arsenal[0].dmg = 5;
-    guns->arsenal[0].size = 1;
-    guns->arsenal[0].lmbCD = 250; // milliseconds
-    guns->arsenal[0].rmbCD = 1000;
+    guns->arsenal[0].size = 20;
     guns->arsenal[0].idx = 0;
-    setGunSfx(&guns->arsenal[0], "./assets/audio/SFX/gun_basic.wav");
+    setGunSfx(&guns->arsenal[0], "./assets/audio/SFX/piercer.wav");
     setGunImage(&guns->arsenal[0], "./assets/img/guns/pistol.png");
 
     // Shotgun (Weapon 2 - Spread damage)
     guns->arsenal[1].name = "Shotgun";
     guns->arsenal[1].dmg = 8;
-    guns->arsenal[1].size = 3; // Fires multiple pellets
-    guns->arsenal[1].lmbCD = 800;
-    guns->arsenal[1].rmbCD = 2000;
+    guns->arsenal[1].size = 8; // Fires multiple pellets
     guns->arsenal[1].idx = 1;
     setGunSfx(&guns->arsenal[1], "./assets/audio/SFX/gun_shotgun.wav");
     setGunImage(&guns->arsenal[1], "./assets/img/guns/shotgun.png");
@@ -39,9 +35,7 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
     // Machine Gun_t (Weapon 3 - Rapid fire)
     guns->arsenal[2].name = "Machine Gun_t";
     guns->arsenal[2].dmg = 3;
-    guns->arsenal[2].size = 1;
-    guns->arsenal[2].lmbCD = 100; // Very fast
-    guns->arsenal[2].rmbCD = 1500;
+    guns->arsenal[2].size = 10;
     guns->arsenal[2].idx = 2;
     setGunSfx(&guns->arsenal[2], "./assets/audio/SFX/gun_machine.wav");
     setGunImage(&guns->arsenal[2], "./assets/img/guns/machinegun.png");
@@ -49,9 +43,7 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
     // Sniper Rifle (Weapon 4 - High damage, slow)
     guns->arsenal[3].name = "Sniper Rifle";
     guns->arsenal[3].dmg = 25;
-    guns->arsenal[3].size = 1;
-    guns->arsenal[3].lmbCD = 1500; // Slow fire rate
-    guns->arsenal[3].rmbCD = 3000;
+    guns->arsenal[3].size = 30;
     guns->arsenal[3].idx = 3;
     setGunSfx(&guns->arsenal[3], "./assets/audio/SFX/gun_sniper.wav");
     setGunImage(&guns->arsenal[3], "./assets/img/guns/sniper.png");
@@ -59,9 +51,7 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
     // Bouncer (Weapon 5 - Bouncing bullets)
     guns->arsenal[4].name = "Bouncer";
     guns->arsenal[4].dmg = 6;
-    guns->arsenal[4].size = 2; // Special: bouncing effect
-    guns->arsenal[4].lmbCD = 400;
-    guns->arsenal[4].rmbCD = 1200;
+    guns->arsenal[4].size = 20; // Special: bouncing effect
     guns->arsenal[4].idx = 4;
     setGunSfx(&guns->arsenal[4], "./assets/audio/SFX/gun_bouncer.wav");
     setGunImage(&guns->arsenal[4], "./assets/img/guns/bouncer.png");
@@ -69,9 +59,7 @@ Guns_t *initialiseGuns(sdl_ctx_t * ctx)
     // Rocket Launcher (Weapon 6 - Explosive)
     guns->arsenal[5].name = "Rocket Launcher";
     guns->arsenal[5].dmg = 15;
-    guns->arsenal[5].size = 4; // Special: explosive effect
-    guns->arsenal[5].lmbCD = 1200;
-    guns->arsenal[5].rmbCD = 2500;
+    guns->arsenal[5].size = 50; // Special: explosive effect
     guns->arsenal[5].idx = 5;
     setGunSfx(&guns->arsenal[5], "./assets/audio/SFX/gun_rocket.wav");
     setGunImage(&guns->arsenal[5], "./assets/img/guns/rocket.png");
@@ -138,48 +126,36 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
     // Create bullets based on gun type
     switch (gun->idx) {
         case 0: // Pistol - Single bullet
-            createBullet(bullet_arr, position, vel, 20, 20, (SDL_Color){0x00, 0x00, 0xFF, 0xFF});
+            createBullet(bullet_arr, position, (V2f){vel.x/2, vel.y/2}, gun->size, (SDL_Color){0x00, 0x00, 0xFF, 0xFF});
             break;
 
         case 1: // Shotgun - Spread of 5 bullets
             for (int i = -2; i <= 2; i++) {
-                float angle = i * 0.2f; // Spread angle
+                float angle = i * 0.1f; // Spread angle
                 V2f spread_dir = {
                     vel.x * cosf(angle) - vel.y * sinf(angle),
                     vel.x * sinf(angle) + vel.y * cosf(angle)
                 };
-                createBullet(bullet_arr, position, spread_dir, 5, 5, (SDL_Color){0xFF, 0x95, 0x27, 0xFF});
+                createBullet(bullet_arr, position, (V2f){spread_dir.x/3, spread_dir.y/3}, gun->size, (SDL_Color){0xFF, 0x95, 0x27, 0xFF});
             }
             break;
 
         case 2: // Machine Gun_t - Single fast bullet
-            createBullet(bullet_arr, position, vel, 10, 10, (SDL_Color){0xDB, 0x36, 0x21, 0xFF});
+            createBullet(bullet_arr, position, (V2f){vel.x/1.5, vel.y/1.5}, gun->size, (SDL_Color){0xDB, 0x36, 0x21, 0xFF});
             break;
 
         case 3: // Sniper - Single powerful bullet
-            createBullet(bullet_arr, position, (V2f){vel.x/1.75, vel.y/1.75}, 30, 30, (SDL_Color){0xDB, 0x21, 0xD2, 0xFF});
+            createBullet(bullet_arr, position, (V2f){vel.x/1.75, vel.y/1.75}, gun->size, (SDL_Color){0xDB, 0x21, 0xD2, 0xFF});
             break;
 
         case 4: // Bouncer - Single bullet with bounce effect (would need bullet system enhancement)
-            createBullet(bullet_arr, position, vel, 20, 20, (SDL_Color){0xFF, 0x00, 0x00, 0xFF});
+            createBullet(bullet_arr, position, (V2f){vel.x/2, vel.y/2}, gun->size, (SDL_Color){0xFF, 0x00, 0x00, 0xFF});
             break;
 
         case 5: // Rocket Launcher - Single slow but powerful bullet
-            createBullet(bullet_arr, position, (V2f){vel.x/2.5, vel.y/2.5}, 50, 50, (SDL_Color){0xFC, 0xFF, 0x00, 0xFF});
+            createBullet(bullet_arr, position, (V2f){vel.x/5, vel.y/5}, gun->size, (SDL_Color){0xFC, 0xFF, 0x00, 0xFF});
             break;
     }
-}
-
-bool isLmbOnCd(Gun_t *gun)
-{
-    assert(gun != NULL);
-    return gun->lmbCD > 0;
-}
-
-bool isRmbOnCd(Gun_t *gun)
-{
-    assert(gun != NULL);
-    return gun->rmbCD > 0;
 }
 
 // Current gun

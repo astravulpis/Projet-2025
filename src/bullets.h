@@ -37,7 +37,7 @@ typedef struct {
  *
  * creates one bullet by putting in the dynamic array with its corresponding position and velocity
  */
-bool createBullet(bullets *arr, V2f init_pos, V2f vel, int height, int width, SDL_Color color);
+bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Color color);
 
 /**
  * @fn updateBulletState(bullets *arr, float deltaTime)
