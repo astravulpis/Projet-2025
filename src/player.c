@@ -174,7 +174,6 @@ V2f inputUpdate(player_t *p, const float dt)
             playSfx(*p->ctx, &p->audios, "dash");
         } else {
             playSfx(*p->ctx, &p->audios, "notEnoughStamina");
-            p->prevDashTick = -1;
         }
     }
 
