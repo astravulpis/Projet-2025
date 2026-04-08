@@ -61,7 +61,7 @@ void renderPlayerAnimation(sdl_ctx_t *sdl_ctx, player_animation *pa, SDL_FlipMod
         if (pa->cumulateTime != -1) {
             float currentTick = SDL_GetTicks();
 
-            if (currentTick - pa->cumulateTime > pa->loopInterval) { // si cumulateTime a été initialisé il y'a loopInterval il est remis au tick actuel pour avoir 1 seconde
+            if (currentTick - pa->cumulateTime > pa->loopInterval) { // si cumulateTime a été initialisé il y'a loopInterval il est remis au tick actuel
                 pa->cumulateTime = currentTick;
                 pa->currentAnimationIndex = 0;
             }
@@ -72,8 +72,9 @@ void renderPlayerAnimation(sdl_ctx_t *sdl_ctx, player_animation *pa, SDL_FlipMod
             SDL_RenderTextureRotated(sdl_ctx->renderer, pa->animationTab[pa->currentAnimationIndex], NULL, animationBox, deg, NULL, flipped);
 
         }
-        else // normalement si on arrive ici, currentAnimationIndex est a 0 (car il y'a eu reset)
+        else {// normalement si on arrive ici, currentAnimationIndex est a 0 (car il y'a eu reset)
             pa->cumulateTime = SDL_GetTicks();    
             SDL_RenderTextureRotated(sdl_ctx->renderer, pa->animationTab[pa->currentAnimationIndex], NULL, animationBox, deg, NULL, flipped);
+        }
     }
 }
