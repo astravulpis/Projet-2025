@@ -186,7 +186,7 @@ void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
         switch (trigger->kind) {
         case PORTAL: {
             loadRoom(level, trigger->room_dst);
-            movePlayer(p, getLoadedRoom(level)->startPos);
+            movePlayer(p, trigger->newPos);
         } break;
         case ONESHOT: {
             deathTrigger(&p->entity_attribs);

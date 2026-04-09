@@ -27,7 +27,7 @@ void closeGame(gameContext *ctx)
     free(ctx->menus);
     ctx->menus = NULL;
 
-    destroySfxs(&ctx->audios);
+    destroyGuns(&ctx->guns);
     deleteBullets(&ctx->bullet_arr);
     destroyPlayer(&ctx->player);
     closeCtx(&ctx->sdl_ctx);
@@ -117,8 +117,6 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
     level_t *currLevel = getLoadedLevel(ctx);
 
-    loadSfx(ctx->sdl_ctx, &ctx->audios, SFX_PLAYER_GUNS, "piercerPrimary", "./assets/audio/SFX/piercer.wav");
-
     if (!addMenu(ctx, createPauseMenu(ctx->sdl_ctx), PAUSE_MENU)) return false;
     if (!addMenu(ctx, createOptionsMenu(ctx->sdl_ctx), OPTIONS_MENU)) return false;
 
@@ -131,8 +129,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     float healthBarTest = 0;
     bool addition = true;
 
-    Guns_t *guns = initialiseGuns(ctx->sdl_ctx);
-    if (guns == NULL) return 1;
+    ctx->guns = initialiseGuns(ctx->sdl_ctx);
 
     while (!ctx->sdl_ctx->quit) {
         temp_rewind(mark);
@@ -158,7 +155,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_PumpEvents();
 
         mouseInputFlag = SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
-        basicKeyboardEvents(ctx->sdl_ctx, currLevel, ctx->player, guns);
+        basicKeyboardEvents(ctx->sdl_ctx, currLevel, ctx->player, ctx->guns);
 
         SDL_RenderClear(ctx->sdl_ctx->renderer);
         renderBackground(ctx->sdl_ctx);
@@ -175,9 +172,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
             float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
-            shootGun(ctx->sdl_ctx, &guns->arsenal[guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
-            // createBullet(&ctx->bullet_arr, startingPos, vel);
-            // playSfx(ctx->sdl_ctx, &ctx->audios, "piercerPrimary");
+            shootGun(ctx->sdl_ctx, &ctx->guns->arsenal[ctx->guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
         // {

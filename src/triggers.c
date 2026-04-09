@@ -39,7 +39,7 @@ bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e)
 {
     if (SDL_HasRectIntersectionFloat(e->boundingBox, trigger->boundingBox)) {
         if (trigger->toggled) return false;
-        trigger->toggled = true;
+        if (trigger->kind != PORTAL) trigger->toggled = true;
         return true;
     }
     return false;

@@ -1,4 +1,5 @@
 #include "guns.h"
+#include "SDL3/SDL_render.h"
 #include "common.h"
 #include <math.h>
 #include <string.h>
@@ -149,33 +150,25 @@ void setCurrentGun(Guns_t *guns, gun_kind kind)
 }
 
 // Destroy functions
-void destroyGun(Gun_t **gun)
+void destroyGun(Gun_t *gun)
 {
-    if (*gun != NULL) {
-        free((*gun)->sfx_path);
-        (*gun)->sfx_path = NULL;
+    free(gun->sfx_path);
+    gun->sfx_path = NULL;
 
-        free((*gun)->img_path);
-        (*gun)->img_path = NULL;
-    }
-
-    free(*gun);
-    *gun = NULL;
+    free(gun->img_path);
+    gun->img_path = NULL;
 }
 
 void destroyGuns(Guns_t **guns)
 {
     if (*guns != NULL) {
         for (int i = 0; i < __gun_kind_count; ++i) {
-            free((*guns)->arsenal[i].sfx_path);
-            (*guns)->arsenal[i].sfx_path = NULL;
-
-            free((*guns)->arsenal[i].img_path);
-            (*guns)->arsenal[i].img_path = NULL;
-
-            // free((*guns)->arsenal[i].name);
-            // (*guns)->arsenal[i].name = NULL;
+            destroyGun(&(*guns)->arsenal[i]);
+            SDL_DestroyTexture(gun_textures[i]);
+            gun_textures[i] = NULL;
         }
+        free((*guns)->arsenal);
+        (*guns)->arsenal = NULL;
     }
 
     free(*guns);

@@ -164,7 +164,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
             } else if (sv_eq(header, sv_from_cstr("trigger"))) {
 
                 // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT] [TRIGGER_KIND] [WAVE_IDX]
-                // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT] [TRIGGER_KIND] [ROOM_DEST]
+                // trigger [X_POS] [Y_POS] [WIDTH] [HEIGHT] [TRIGGER_KIND] [ROOM_DEST] [NEW_X_POS] [NEW_Y_POS]
 
                 // the trigger's position adapted to the screen ratio
                 for (int i = 0; i < 4; ++i) {
@@ -180,6 +180,10 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 switch (kind) {
                 case PORTAL: {
                     trigger->room_dst = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                    V2f new_pos = {0};
+                    new_pos.x = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                    new_pos.y = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
+                    trigger->newPos = new_pos;
                 } break;
                 case SPAWNER: {
                     trigger->waveId = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));

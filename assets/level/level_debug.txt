@@ -1,17 +1,19 @@
 info "debug level" 0
 bg "./assets/img/flare.jpg"
+mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
 player 800 10
 obj "./assets/img/white.png" 0 0 760 1080
 obj "./assets/img/white.png" 930 0 30 520
 obj "./assets/img/white.png" 930 0 1000 480
 obj "./assets/img/white.png" 760 800 1920 800
-trigger 1800 445 200 400 PORTAL 1
+trigger 1800 445 200 400 PORTAL 1 50 620
 room 1
 player 100 600
 obj "./assets/img/white.png" 0 800 1920 800
-obj "./assets/img/white.png" 0 0 10 1080
-obj "./assets/img/white.png" 0 0 1920 10
+obj "./assets/img/white.png" 0 0 10 480
+obj "./assets/img/white.png" 0 0 1125 10
+obj "./assets/img/white.png" 1525 0 400 10
 obj "./assets/img/white.png" 1910 0 10 1080
 obj "./assets/img/white.png" 700 740 245 180
 obj "./assets/img/white.png" 980 610 150 50
@@ -20,9 +22,21 @@ obj "./assets/img/white.png" 450 500 300 50
 obj "./assets/img/white.png" 585 260 165 65
 obj "./assets/img/white.png" 520 260 180 25
 obj "./assets/img/white.png" 0 375 345 55
+obj "./assets/img/white.png" 1125 275 400 55
+obj "./assets/img/white.png" 1525 0 50 330
 entity FILTH 840 200 0
 entity FILTH 900 250 1
 entity FILTH 960 300 2
 trigger 100 100 100 100 SPAWNER 1
-trigger 1400 400 600 400 SPAWNER 2
-mus "./assets/audio/OST/SneakySnitch.mp3"
+trigger 0 460 40 420 PORTAL 0 1650 640
+trigger 1125 0 400 40 PORTAL 2 1475 515
+room 2
+player 100 600
+obj "./assets/img/white.png" 0 800 1920 800
+obj "./assets/img/white.png" 0 0 10 1080
+obj "./assets/img/white.png" 0 0 1920 10
+obj "./assets/img/white.png" 1600 0 500 1080
+obj "./assets/img/white.png" 1400 645 200 55
+obj "./assets/img/white.png" 1100 645 120 55
+obj "./assets/img/white.png" 1050 400 50 500
+trigger 1125 770 400 40 PORTAL 1 1225 110

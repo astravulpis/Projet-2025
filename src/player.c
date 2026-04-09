@@ -267,14 +267,13 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
         //         printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
         //     }
         // }
-        // free(collisions.items);
+        free(collisions.items);
         // free(trigg_collision.items);
     }
 
     rect->y += frame_movement.y;
     if (!p->noclip) {
         objs collisions = collision_test_player(p, arr);
-        // triggers_t trigg_collision = collision_test_player_trigg(p, trigg_array);
         da_foreach (obj, it, &collisions) {
             SDL_FRect *tile = it->boundingBox;
             if (frame_movement.y > 0) {
@@ -292,22 +291,11 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
             }
             p->velocity.y = 0;
         }
-        // da_foreach (trigger_t, it, &trigg_collision) { // trigger box collision check
-        //     SDL_FRect *tile = it->boundingBox;
-        //     if (it->waveId >= 0 && activeWave != NULL) {
-        //         *activeWave = it->waveId;
-        //         printf("TRIGGER hit (x=%.1f y=%.1f) -> wave %d\n", tile->x, tile->y, it->waveId);
-        //     } else {
-        //         printf("TRIGGER hit (x=%.1f y=%.1f) -> no wave id\n", tile->x, tile->y);
-        //     }
-        // }
-        // free(collisions.items);
-        // free(trigg_collision.items);
+        free(collisions.items);
     }
     wasOnGround = p->onGround;
 
     if (!p->flight) p->velocity.y = MAX(150.0f, p->velocity.y + (gravity * deltaTime));
-    // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
     keepRectInbounds(getBB(p), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }

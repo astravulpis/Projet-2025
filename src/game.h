@@ -4,8 +4,8 @@
 #include "bullets.h"
 #include "common.h"
 #include "gui.h"
+#include "guns.h"
 #include "level.h"
-#include "music.h"
 #include "player.h"
 
 typedef struct {
@@ -15,7 +15,7 @@ typedef struct {
     size_t loadedLevelIdx;
     player_t *player;
     bullets bullet_arr;
-    sfxs audios;
+    Guns_t *guns;
 
     gui_menu **menus;
     size_t menu_count;

@@ -43,7 +43,7 @@ void loadSfx(sdl_ctx_t *sdl_ctx, sfxs *audios, size_t track_name, char *name, co
     MIX_Audio *audio = MIX_LoadAudio(sdl_ctx->mixer, path, false);
 
     if (!audio) {
-        nob_log(ERROR, "See error: %s", SDL_GetError());
+        nob_log(ERROR, "%s:%d: See error: %s", __FILE__, __LINE__, SDL_GetError());
         return;
     }
 

@@ -16,6 +16,7 @@ struct trigger_s {
     int waveId;              //!< Corresponding wave index
     size_t room_dst;
     bool toggled;
+    V2f newPos;
     void (*trigger_func)(trigger_t *, int);
     trigger_kind kind;
 };

@@ -107,11 +107,11 @@ void setCurrentGun(Guns_t *guns, gun_kind kind);
 
 // Initialize guns
 /**
- * @fn destroyGun(Gun_t **gun)
+ * @fn destroyGun(Gun_t *gun)
  * @param[in] gun gun structure
  * @brief destroys a gun structure
  */
-void destroyGun(Gun_t **gun);
+void destroyGun(Gun_t *gun);
 
 /**
  * @fn destroyGuns(Guns_t **guns)
