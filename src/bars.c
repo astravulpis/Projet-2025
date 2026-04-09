@@ -33,8 +33,8 @@ void destroyBar(bar **h)
     h = NULL;
 }
 
-void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l_intensity,
-               int ls_opacity) // s = shadow et l = ligth
+// s = shadow et l = light
+void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l_intensity, int ls_opacity)
 {
     // Compare hpValue a la valeur maximum de la barre, copie la valeur dans hp, la rabaisse si trop grande, la met a 0 si
     // négative cela ne se fait que sur la jauge, pas le nombre affiché (cela me parraît utile d'avoir la vrai valeur qui
@@ -80,10 +80,10 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
         (ls_opacity >= 0 && ls_opacity <= 255) ? (ls_opacity * (hp / h->val))
                                                : 255}; // si l'opacité n'est pas bonne, alors l'ombre n'aura aucune transparence
 
-    // initialisations des boxs et couleurs pour le curseur et ses ombres/ lumières (fmaxf est utilisée pour être sûr que la largeur soit toujours supérieure ou égale a minCursorWidth)
-    SDL_FRect cursorBox = {fillBox.x + fillBox.w - (h->barPadding * sdl_ctx->screenRatio / 2),
-                           fillBox.y, fmaxf(h->barPadding * sdl_ctx->screenRatio / 2, h->minCursorWidth),
-                           fillBox.h};
+    // initialisations des boxs et couleurs pour le curseur et ses ombres/ lumières (fmaxf est utilisée pour être sûr que la
+    // largeur soit toujours supérieure ou égale a minCursorWidth)
+    SDL_FRect cursorBox = {fillBox.x + fillBox.w - (h->barPadding * sdl_ctx->screenRatio / 2), fillBox.y,
+                           fmaxf(h->barPadding * sdl_ctx->screenRatio / 2, h->minCursorWidth), fillBox.h};
 
     SDL_FRect cursorShadowBox = {cursorBox.x, cursorBox.y, cursorBox.w / 3, cursorBox.h};
     SDL_Color cursorShadowColor = {50, 50, 50, 100}; // valeurs en dur, je vais peut être revenir dessus, mais il me semble que
@@ -125,7 +125,7 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
 
         V2f barTextPos = {(h->BarBox)->x + XCentering, (h->BarBox)->y + YCentering};
         V2f barTextPosShadow = {(h->BarBox)->x + XCentering + 2 * sdl_ctx->screenRatio,
-                            (h->BarBox)->y + YCentering + 1 * sdl_ctx->screenRatio};
+                                (h->BarBox)->y + YCentering + 1 * sdl_ctx->screenRatio};
 
         // rendu du texte, avec un effet d'ombre qui imite a la perfection le raytracing
         renderText_Ex(sdl_ctx, hpText, BLACK, barTextPosShadow);

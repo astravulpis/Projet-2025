@@ -13,8 +13,9 @@
  **/
 
 #include "player.h"
-#include "SDL3/SDL_scancode.h"
-#include "common.h"
+#include "sdl_helpers.h"
+#include <math.h>
+#include <string.h>
 
 void movePlayer(player_t *p, V2f newPos)
 {
@@ -22,7 +23,7 @@ void movePlayer(player_t *p, V2f newPos)
     getBB(p)->y = newPos.y;
 }
 
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation, player_animation *onWallAnimation)
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
 {
     bool result = true;
     (*player) = calloc(1, sizeof(player_t));
@@ -37,20 +38,10 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player
         return_defer(false);
     }
 
-    //p->tex = IMG_LoadTexture((*p->ctx)->renderer, path);
-    p->idleAnimation = idleAnimation;
-    // p->runTex = IMG_LoadTexture((*p->ctx)->renderer, runPath);
-    p->runAnimation = runAnimation;
-    //p->onAirTex = IMG_LoadTexture((*p->ctx)->renderer, inAirPath);
-    p->onAirAnimation = onAirAnimation;
-    //p->dashTex = IMG_LoadTexture((*p->ctx)->renderer, dashPath);
-    p->dashAnimation = dashAnimation;
-    p->slamAnimation = slamAnimation;
-    p->onWallAnimation = onWallAnimation;
-    p->boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
-    p->entity_attribs.ctx = sdl_ctx;
-    // p->entity_attribs.tex = IMG_LoadTexture((*p->entity_attribs.ctx)->renderer, path);
     p->entity_attribs.boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
+    p->entity_attribs.ctx = sdl_ctx;
+    memset(&p->anims, 0, sizeof(player_animation *) * __count_player_anim_kind);
+    if (!initAllPlayerAnimation((*sdl_ctx), p)) return_defer(false);
     memset(&p->audios, 0, sizeof(sfxs));
 
     // Initialising base values
@@ -87,16 +78,9 @@ void destroyPlayer(player_t **p)
     if (*p != NULL) {
         free((*p)->entity_attribs.boundingBox);
         (*p)->entity_attribs.boundingBox = NULL;
-
-        destroyPlayerAnimation(&((*p)->idleAnimation));
-        destroyPlayerAnimation(&((*p)->runAnimation));
-        destroyPlayerAnimation(&((*p)->onAirAnimation));
-        destroyPlayerAnimation(&((*p)->dashAnimation));
-        destroyPlayerAnimation(&((*p)->slamAnimation));
-        destroyPlayerAnimation(&((*p)->onWallAnimation));
-
-        (*p)->boundingBox = NULL;
-
+        for (player_anim_kind kind = 0; kind < __count_player_anim_kind; ++kind) {
+            destroyPlayerAnimation(&(*p)->anims[kind]);
+        }
         destroySfxs(&(*p)->audios);
     }
 
@@ -300,105 +284,85 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
     keepRectInbounds(getBB(p), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
+void resetAnimationStates(player_t *player, player_anim_kind excluded_anim)
+{
+    for (player_anim_kind kind = 0; kind < __count_player_anim_kind; ++kind) {
+        if (kind != excluded_anim) {
+            resetPlayerAnimationState(player->anims[kind]);
+        }
+    }
+}
+
 void renderPlayer(player_t *p)
 {
     SDL_FlipMode flipped =
         (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-    if (p->isDashing) { // rendu du dash animation
-        renderPlayerAnimation((*p->ctx), p->dashAnimation, flipped, 0, &(*p->boundingBox));
+    // rendu du dash animation
+    if (p->isDashing) {
+        renderPlayerAnimation((*p->entity_attribs.ctx), p->anims[DASH_ANIM], flipped, 0, p->entity_attribs.boundingBox);
+        resetAnimationStates(p, DASH_ANIM);
 
-        // reset des animations qui ne sont pas affichée
-        resetPlayerAnimationState(p->runAnimation);
-        resetPlayerAnimationState(p->idleAnimation);
-        resetPlayerAnimationState(p->onAirAnimation);
-        resetPlayerAnimationState(p->slamAnimation);
-        resetPlayerAnimationState(p->onWallAnimation);
-    }
-    else if (p->isSlamming) { // rendu du slam animation
-        renderPlayerAnimation((*p->ctx), p->slamAnimation, flipped, 0, &(*p->boundingBox));
+    // rendu du slam animation
+    } else if (p->isSlamming) {
+        renderPlayerAnimation((*p->entity_attribs.ctx), p->anims[SLAM_ANIM], flipped, 0, p->entity_attribs.boundingBox);
+        resetAnimationStates(p, SLAM_ANIM);
 
-        // reset des animations qui ne sont pas affichée
-        resetPlayerAnimationState(p->runAnimation);
-        resetPlayerAnimationState(p->onAirAnimation);
-        resetPlayerAnimationState(p->dashAnimation);
-        resetPlayerAnimationState(p->idleAnimation);
-    }
-    else if (p->onWall && !p->onGround) { // rendu du player quand il est collé a un mur et en l'air
-        renderPlayerAnimation((*p->ctx), p->onWallAnimation, flipped, 0, &(*p->boundingBox));
+    // rendu du player quand il est collé a un mur et en l'air
+    } else if (p->onWall && !p->onGround) {
+        renderPlayerAnimation((*p->entity_attribs.ctx), p->anims[ON_WALL_ANIM], flipped, 0, p->entity_attribs.boundingBox);
+        resetAnimationStates(p, ON_WALL_ANIM);
 
-        // reset des animations qui ne sont pas affichée
-        resetPlayerAnimationState(p->onAirAnimation);
-        resetPlayerAnimationState(p->idleAnimation);
-        resetPlayerAnimationState(p->dashAnimation);
-        resetPlayerAnimationState(p->slamAnimation);
-        resetPlayerAnimationState(p->runAnimation);
-    }
-    else if (p->run && p->onGround && !p->onWall){ // rendu du player en mode run sur du sol (image de base) et quand il n'est pas collé a un mur
-        renderPlayerAnimation((*p->ctx), p->runAnimation, flipped, 0, &(*p->boundingBox));
+    // rendu du player en mode run sur du sol (image de base) et quand il n'est pas collé a un mur
+    } else if (p->run && p->onGround && !p->onWall) {
+        renderPlayerAnimation((*p->entity_attribs.ctx), p->anims[RUN_ANIM], flipped, 0, p->entity_attribs.boundingBox);
+        resetAnimationStates(p, RUN_ANIM);
 
-        // reset des animations qui ne sont pas affichée
-        resetPlayerAnimationState(p->onAirAnimation);
-        resetPlayerAnimationState(p->idleAnimation);
-        resetPlayerAnimationState(p->dashAnimation);
-        resetPlayerAnimationState(p->slamAnimation);
-        resetPlayerAnimationState(p->onWallAnimation);
-    }
-    else if (!p->onGround && !p->isSlamming && !p->onWall){ //  rendu du player quand il est en l'ai et qu'il ne fait rien de spécial
-        renderPlayerAnimation((*p->ctx), p->onAirAnimation, flipped, 0, &(*p->boundingBox));
+    //  rendu du player quand il est en l'ai et qu'il ne fait rien de spécial
+    } else if (!p->onGround && !p->isSlamming && !p->onWall) {
+        renderPlayerAnimation((*p->entity_attribs.ctx), p->anims[ON_AIR_ANIM], flipped, 0, p->entity_attribs.boundingBox);
+        resetAnimationStates(p, ON_AIR_ANIM);
 
-        // reset des animations qui ne sont pas affichée
-        resetPlayerAnimationState(p->runAnimation);
-        resetPlayerAnimationState(p->idleAnimation);
-        resetPlayerAnimationState(p->dashAnimation);
-        resetPlayerAnimationState(p->slamAnimation);
-        resetPlayerAnimationState(p->onWallAnimation);
-    }
-    else { // rendu par défaut, en idle
-        renderPlayerAnimation((*p->ctx), p->idleAnimation, flipped, 0, &(*p->boundingBox));
-
-        // reset des animations qui ne sont pas affichée
-        resetPlayerAnimationState(p->runAnimation);
-        resetPlayerAnimationState(p->onAirAnimation);
-        resetPlayerAnimationState(p->dashAnimation);
-        resetPlayerAnimationState(p->slamAnimation);
-        resetPlayerAnimationState(p->onWallAnimation);
+    // rendu par défaut, en idle
+    } else {
+        renderPlayerAnimation((*p->entity_attribs.ctx), p->anims[IDLE_ANIM], flipped, 0, p->entity_attribs.boundingBox);
+        resetAnimationStates(p, IDLE_ANIM);
     }
 }
 
 // créé 3 bar, utilisé pour afficher la stamina du joueur (dash disponibles)
-bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB) {
-    // (WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio correspond au y de la zone de footer, donc 150 est la hauteur du footer
-
-    if (!createBar(hpB,
-                   (SDL_FRect){15 * sdl_ctx->screenRatio,
-                               (((WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio) + 15) * sdl_ctx->screenRatio, 450 * sdl_ctx->screenRatio,
-                               54.5f * sdl_ctx->screenRatio},
-                   (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255}, 100.0f, 10.0f, 0, true))
+bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB)
+{
+    SDL_FRect hpBox = (SDL_FRect){15, (((WINDOW_HEIGHT - 150)) + 15), 450, 54.5f};
+    boxToScale(&hpBox, sdl_ctx->screenRatio);
+    if (!createBar(hpB, hpBox, (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255},
+                   100.0f, 10.0f, 0, true))
         return false;
 
-    if (!createBar(b1,
-                   (SDL_FRect){(15 + (5)) * sdl_ctx->screenRatio,
-                               (((WINDOW_HEIGHT - 150) * sdl_ctx->screenRatio)  + 82.5f ) * sdl_ctx->screenRatio, 145 * sdl_ctx->screenRatio,
-                               37.5f * sdl_ctx->screenRatio},
-                   (SDL_Color){80, 80, 255, 255}, (SDL_Color){0, 0, 205, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
+    SDL_FRect b1Box = (SDL_FRect){(15 + (5)), (((WINDOW_HEIGHT - 150)) + 82.5f), 145, 37.5f};
+    if (!createBar(b1, b1Box, (SDL_Color){80, 80, 255, 255}, (SDL_Color){0, 0, 205, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f,
+                   0, 5 * sdl_ctx->screenRatio, false))
         return false;
 
-    if (!createBar(b2,
-                   (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w,
-                               (*b1)->BarBox->y, (*b1)->BarBox->w,
-                               (*b1)->BarBox->h},
-                   (SDL_Color){207, 80, 255, 255}, (SDL_Color){127, 0, 205, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false))
+    SDL_FRect b2Box = (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w, (*b1)->BarBox->y, (*b1)->BarBox->w, (*b1)->BarBox->h};
+    if (!createBar(b2, b2Box, (SDL_Color){207, 80, 255, 255}, (SDL_Color){127, 0, 205, 255}, (SDL_Color){255, 255, 255, 255},
+                   1.0f, 0, 5 * sdl_ctx->screenRatio, false))
         return false;
 
-        if (!createBar(b3, (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w * 2, (*b1)->BarBox->y, (*b1)->BarBox->w, (*b1)->BarBox->h}, (SDL_Color){255, 143, 226, 255}, (SDL_Color){253, 63, 146, 255}, (SDL_Color){255, 255, 255, 255}, 1.0f, 0, 5 * sdl_ctx->screenRatio, false)) return false;
+    SDL_FRect b3Box =
+        (SDL_FRect){(*b1)->BarBox->x + (*b1)->BarBox->w * 2, (*b1)->BarBox->y, (*b1)->BarBox->w, (*b1)->BarBox->h};
+    if (!createBar(b3, b3Box, (SDL_Color){255, 143, 226, 255}, (SDL_Color){253, 63, 146, 255}, (SDL_Color){255, 255, 255, 255},
+                   1.0f, 0, 5 * sdl_ctx->screenRatio, false))
+        return false;
 
     return true;
 }
 
-bool renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB) {
-    SDL_FRect dashBgBox = {hpB->BarBox->x, b1->BarBox->y - ((13.0f / 2.0f) * sdl_ctx->screenRatio),
-                            ((b1->BarBox->w * 3) + 10.0f + b1->minCursorWidth) * sdl_ctx->screenRatio, hpB->BarBox->h - (3 * sdl_ctx->screenRatio)};
+void renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB)
+{
+    SDL_FRect dashBgBox = {hpB->BarBox->x, b1->BarBox->y - ((13.0f / 2.0f)), ((b1->BarBox->w * 3) + 10.0f + b1->minCursorWidth),
+                           hpB->BarBox->h - (3)};
+    boxToScale(&dashBgBox, sdl_ctx->screenRatio);
 
     barRender(sdl_ctx, hpB, player->hp, 50, 50, 50);
 
@@ -415,40 +379,35 @@ bool renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b
     barRender(sdl_ctx, b3, dash3, 50, 50, 50);
 }
 
-void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB) {
+void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB)
+{
     destroyBar(hpB);
     destroyBar(b1);
     destroyBar(b2);
     destroyBar(b3);
 }
 
-
-bool initAllPlayerAnimation (sdl_ctx_t *sdl_ctx, player_animation **runAnimation, player_animation **idleAnimation, player_animation **onAirAnimation,
-                          player_animation **dashAnimation, player_animation **slamAnimation, player_animation **onWallAnimation)
+bool initAllPlayerAnimation(sdl_ctx_t *sdl_ctx, player_t *player)
 {
-    if (!createPlayerAnimation(sdl_ctx, runAnimation, "assets/img/animation/V1Animation/runAnimation/1.png","assets/img/animation/V1Animation/runAnimation/2.png",
-    "assets/img/animation/V1Animation/runAnimation/3.png", "assets/img/animation/V1Animation/runAnimation/4.png", "assets/img/animation/V1Animation/runAnimation/5.png", 500.0f))
-    return false;
+    if (!createPlayerAnimation(sdl_ctx, &player->anims[RUN_ANIM], "./assets/img/animation/V1Animation/runAnimation/", 500))
+        return false;
 
-    if (!createPlayerAnimation(sdl_ctx, idleAnimation, "assets/img/animation/V1Animation/idleAnimation/1.png","assets/img/animation/V1Animation/idleAnimation/2.png",
-    "assets/img/animation/V1Animation/idleAnimation/3.png", "assets/img/animation/V1Animation/idleAnimation/4.png", "assets/img/animation/V1Animation/idleAnimation/5.png", 2000.0f))
-    return false;
+    if (!createPlayerAnimation(sdl_ctx, &player->anims[IDLE_ANIM], "./assets/img/animation/V1Animation/idleAnimation/", 2000.f))
+        return false;
 
-    if (!createPlayerAnimation(sdl_ctx, onAirAnimation, "assets/img/animation/V1Animation/onAirAnimation/1.png","assets/img/animation/V1Animation/onAirAnimation/2.png",
-    "assets/img/animation/V1Animation/onAirAnimation/3.png", "assets/img/animation/V1Animation/onAirAnimation/4.png", "assets/img/animation/V1Animation/onAirAnimation/5.png", 500.0f))
-    return false;
+    if (!createPlayerAnimation(sdl_ctx, &player->anims[ON_AIR_ANIM], "./assets/img/animation/V1Animation/onAirAnimation/",
+                               500.f))
+        return false;
 
-    if (!createPlayerAnimation(sdl_ctx, dashAnimation, "assets/img/animation/V1Animation/dashAnimation/1.png","assets/img/animation/V1Animation/dashAnimation/2.png",
-    "assets/img/animation/V1Animation/dashAnimation/3.png", "assets/img/animation/V1Animation/dashAnimation/4.png", "assets/img/animation/V1Animation/dashAnimation/5.png", 500.0f))
-    return false;
+    if (!createPlayerAnimation(sdl_ctx, &player->anims[DASH_ANIM], "./assets/img/animation/V1Animation/dashAnimation/", 500.f))
+        return false;
 
-    if (!createPlayerAnimation(sdl_ctx, slamAnimation, "assets/img/animation/V1Animation/slamAnimation/1.png","assets/img/animation/V1Animation/slamAnimation/1.png",
-    "assets/img/animation/V1Animation/slamAnimation/1.png", "assets/img/animation/V1Animation/slamAnimation/1.png", "assets/img/animation/V1Animation/slamAnimation/1.png", 500.0f))
-    return false;
+    if (!createPlayerAnimation(sdl_ctx, &player->anims[SLAM_ANIM], "./assets/img/animation/V1Animation/slamAnimation/", 500.f))
+        return false;
 
-    if (!createPlayerAnimation(sdl_ctx, onWallAnimation, "assets/img/animation/V1Animation/onWallAnimation/1.png","assets/img/animation/V1Animation/onWallAnimation/1.png",
-    "assets/img/animation/V1Animation/onWallAnimation/1.png", "assets/img/animation/V1Animation/onWallAnimation/1.png", "assets/img/animation/V1Animation/onWallAnimation/1.png", 500.0f))
-    return false;
+    if (!createPlayerAnimation(sdl_ctx, &player->anims[ON_WALL_ANIM], "./assets/img/animation/V1Animation/onWallAnimation/",
+                               500.f))
+        return false;
 
     return true;
 }

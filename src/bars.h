@@ -30,6 +30,7 @@ typedef struct bar {
 
 bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, SDL_Color cursorColor, float baseVal,
                float barPadding, float minCursorWidth, bool displayHpValue);
+void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l_intensity, int ls_opacity);
 void destroyBar(bar **h);
 
 #endif // BAR_H_

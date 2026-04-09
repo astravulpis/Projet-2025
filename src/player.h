@@ -14,21 +14,24 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
+#include "bars.h"
 #include "common.h"
 #include "music.h"
-#include "sdl_helpers.h"
-#include <string.h>
-#include "bars.h"
 #include "player_animation.h"
+
+typedef enum {
+    IDLE_ANIM,
+    RUN_ANIM,
+    ON_AIR_ANIM,
+    DASH_ANIM,
+    SLAM_ANIM,
+    ON_WALL_ANIM,
+    __count_player_anim_kind = 6
+} player_anim_kind;
 
 typedef struct {
     entity_t entity_attribs;
-    player_animation *idleAnimation;
-    player_animation *runAnimation; //!< Player's texture when is in movement
-    player_animation *onAirAnimation;
-    player_animation *dashAnimation;
-    player_animation *slamAnimation;
-    player_animation *onWallAnimation;
+    player_animation *anims[__count_player_anim_kind];
     SDL_Texture *onWallTex;
     sfxs audios;
     float speed;            //!< Value may depend on preference
@@ -69,12 +72,13 @@ typedef struct {
  * @param[in] sdl_ctx pointer pointer to the ctx variable
  * @param[in] path where the player file is located
  * @param[in] runPath where the player file is located  when he is in ground and in movement
- * @param[in] inAirPath where the player file is located  when he is not on ground and in movement (exlude speical movement like dash, slide ...)
+ * @param[in] inAirPath where the player file is located  when he is not on ground and in movement (exlude speical movement like
+ * dash, slide ...)
  * @brief creates the player, makes sur it exists and then loads it
  *
  * creates the player and is only called once
  */
-bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx, player_animation *idleAnimation, player_animation *runAnimation, player_animation *onAirAnimation, player_animation *dashAnimation, player_animation *slamAnimation, player_animation *onWallAnimation);
+bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx);
 
 /**
  * @fn destroyPlayer(player_t **p)
@@ -117,11 +121,10 @@ void movePlayer(player_t *p, V2f newPos);
 
 bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB);
 
-bool renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB);
+void renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB);
 
 void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB);
 
-bool initAllPlayerAnimation (sdl_ctx_t *sdl_ctx, player_animation **runAnimation, player_animation **idleAnimation, player_animation **onAirAnimation,
-                          player_animation **dashAnimation, player_animation **slamAnimation, player_animation **onWallAnimation);
+bool initAllPlayerAnimation(sdl_ctx_t *sdl_ctx, player_t *player);
 
 #endif // PLAYER_H_

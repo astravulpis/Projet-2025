@@ -1,5 +1,6 @@
 #include "game.h"
 #include "bars.h"
+#include "common.h"
 #include "entity.h"
 #include "event.h"
 #include "file_parsing.h"
@@ -96,38 +97,37 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     Uint32 frameStart = 0;
     Uint32 last = SDL_GetTicks();
 
-    player_animation *runAnimation = NULL;
-    player_animation *idleAnimation = NULL;
-    player_animation *onAirAnimation = NULL;
-    player_animation *dashAnimation = NULL;
-    player_animation *slamAnimation = NULL;
-    player_animation *onWallAnimation = NULL;
-
-    if (!initAllPlayerAnimation(sdl_ctx, &runAnimation, &idleAnimation, &onAirAnimation, &dashAnimation, &slamAnimation, &onWallAnimation))
-        return 1;
-
     int mouseInputFlag = 0;
     int prevMouseInput = 0;
     V2f mouseCoord = {0};
 
     if (!createCtx(&ctx->sdl_ctx)) return false; // Error handling is done in the function
-    disableVsync(ctx->sdl_ctx);
-    if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx, idleAnimation, runAnimation, onAirAnimation, dashAnimation, slamAnimation, onWallAnimation)) return 1;
+    // disableVsync(ctx->sdl_ctx);
+
+    if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
+
+    SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150.f), WINDOW_WIDTH, 150.f};
+    boxToScale(&footerBox, ctx->sdl_ctx->screenRatio);
+
+    SDL_FRect cWeaponBox = {(WINDOW_WIDTH / 2.f - 300.f), (WINDOW_HEIGHT - 135.f), 600.f, 120.f};
+    boxToScale(&cWeaponBox, ctx->sdl_ctx->screenRatio);
+
+    SDL_FRect styleMeterBox = {(WINDOW_WIDTH - 265.f), (WINDOW_HEIGHT - 135.f), 250.f, 120.f};
+    boxToScale(&styleMeterBox, ctx->sdl_ctx->screenRatio);
+
+    bar *hpBar = NULL;
+    bar *dashBar1 = NULL;
+    bar *dashBar2 = NULL;
+    bar *dashBar3 = NULL;
+
+    createPlayerStatusBar(ctx->sdl_ctx, &dashBar1, &dashBar2, &dashBar3, &hpBar);
+
     room_t *currRoom = NULL;
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
     level_t *currLevel = getLoadedLevel(ctx);
 
     if (!addMenu(ctx, createPauseMenu(ctx->sdl_ctx), PAUSE_MENU)) return false;
     if (!addMenu(ctx, createOptionsMenu(ctx->sdl_ctx), OPTIONS_MENU)) return false;
-
-    bar *hpBar = NULL;
-    SDL_FRect hpBox = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 150.0f), (WINDOW_HEIGHT - 95.0f), 450, 60.0f};
-    boxToScale(&hpBox, ctx->sdl_ctx->screenRatio);
-    createBar(&hpBar, hpBox, (SDL_Color){20, 20, 20, 255}, (SDL_Color){178, 19, 19, 255}, (SDL_Color){255, 255, 255, 255},
-              100.0f, 10.0f);
-
-    float healthBarTest = 0;
-    bool addition = true;
 
     ctx->guns = initialiseGuns(ctx->sdl_ctx);
 
@@ -198,7 +198,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         renderText_Ex(ctx->sdl_ctx, temp_sprintf("%.2f", ctx->player->velocity.x), WHITE, (V2f){10.0f, 50.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
-        barRender(ctx->sdl_ctx, hpBar, healthBarTest, 50, 50, 50);
+        renderPlayerStatusBar(ctx->sdl_ctx, ctx->player, dashBar1, dashBar2, dashBar3, hpBar);
 
         // test de slider
         // updateSliderStates(sTest, mouseCoord, mouseInputFlag, ctx->sdl_ctx);
@@ -233,14 +233,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         frameCounter++;
-        if (healthBarTest < 0 && !addition) addition = true;
-        if (healthBarTest > 100 && addition) addition = false;
-
-        if (addition) healthBarTest += 10 * deltaTime;
-        else
-            healthBarTest -= 10 * deltaTime;
-
-        SDL_Delay(16); // 16.6667 ms ~= 60fps
+        // SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
     destroyBar(&hpBar);
