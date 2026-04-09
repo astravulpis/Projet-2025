@@ -31,9 +31,9 @@ bool createCtx(sdl_ctx_t **ctx)
 
 void initOptions(options *opts)
 {
-    opts->masterVolume = 50.0f;
-    opts->musicVolume = 25.0f;
-    opts->sfxVolume = 25.0f;
+    opts->masterVolume = 75.0f;
+    opts->musicVolume = 15.0f;
+    opts->sfxVolume = 35.0f;
 }
 
 void setMasterTrackGain(sdl_ctx_t *ctx)

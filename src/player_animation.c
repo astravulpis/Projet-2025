@@ -21,7 +21,6 @@ bool createPlayerAnimation(sdl_ctx_t *sdl_ctx, player_animation **pa, char *fram
     for (int i = 0; i < 5; ++i) {
         temp_rewind(mark);
         char *path = temp_sprintf("%s%d.png", framesPath, i + 1);
-        printf("path: %s\n", path);
         (*pa)->animationTab[i] = IMG_LoadTexture(sdl_ctx->renderer, path);
         if ((*pa)->animationTab[i] == NULL) {
             nob_log(WARNING, "Failed to load animation frame. See error: %s", SDL_GetError());

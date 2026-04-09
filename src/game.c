@@ -183,7 +183,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         prevMouseInput = mouseInputFlag;
 
         if (!ctx->sdl_ctx->currMenu) {
-            updateTriggers(getLoadedLevel(ctx), ctx->player);
+            updateTriggers(currLevel, ctx->player);
             updateBulletState(&ctx->bullet_arr, currLevel, deltaTime);
             updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime);
             updatePlayer(ctx->player, getRoomObjects(currLevel), deltaTime);
@@ -192,20 +192,10 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         renderPlayer(ctx->player);
         renderEntities(getCurrentEntityWave(currLevel));
 
-        renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
-        renderText_Ex(ctx->sdl_ctx, temp_sprintf("Stamina: %.2f", ctx->player->stamina), WHITE, (V2f){10.0f, 30.0f});
-        renderText_Ex(ctx->sdl_ctx, temp_sprintf("%.2f", ctx->player->velocity.x), WHITE, (V2f){10.0f, 50.0f});
+        renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), BLACK, (V2f){10.0f, 10.0f});
 
         // Everything after the footer being rendered is rendered OVER it.
         renderPlayerStatusBar(ctx->sdl_ctx, ctx->player, dashBar1, dashBar2, dashBar3, hpBar);
-
-        // test de slider
-        // updateSliderStates(sTest, mouseCoord, mouseInputFlag, ctx->sdl_ctx);
-        // renderSlider(ctx->sdl_ctx, sTest);
-
-        // test de checkbox
-        // updateCheckboxStates(cTest, mouseCoord, mouseInputFlag);
-        // renderCheckbox(ctx->sdl_ctx, cTest, "checkbox test");
 
         // Update and render the menu at the very end
         switch (ctx->sdl_ctx->currMenu) {

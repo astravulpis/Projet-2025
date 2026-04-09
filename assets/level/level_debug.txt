@@ -1,8 +1,8 @@
 info "debug level" 0
 bg "./assets/img/flare.jpg"
-mus "./assets/audio/OST/SneakySnitch.mp3"
+mus "./assets/audio/OST/Event_Horizon.wav"
 room 0
-player 800 10
+player 780 10
 obj "./assets/img/white.png" 0 0 760 1080
 obj "./assets/img/white.png" 930 0 30 520
 obj "./assets/img/white.png" 930 0 1000 480
