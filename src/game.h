@@ -8,6 +8,10 @@
 #include "level.h"
 #include "player.h"
 
+/**
+ * @typedef struct gameContext
+ * @brief contains all the game context variables, and by all i do mean all, from the SDL context itself to the player and bullets
+ */
 typedef struct {
     sdl_ctx_t *sdl_ctx;
     level_t **levels;
@@ -26,7 +30,7 @@ typedef struct {
 /**
  * @fn closeGame(gameContext *ctx)
  * @param[in] ctx our context variable
- * @brief destroys every single object that needs to be destroyed and close the game
+ * @brief destroys every single object that needs to be destroyed and closes the game
  */
 void closeGame(gameContext *ctx);
 

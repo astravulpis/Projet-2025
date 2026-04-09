@@ -5,8 +5,16 @@
 #include "common.h"
 #include "music.h"
 
+/**
+ * @typedef enum gun_kind
+ * @brief enum for all the weapon types in the game
+ */
 typedef enum { PIERCER, SHARPSHOOTER, SHOTGUN, MACHINEGUN, RAILCANNON, ROCKET, __gun_kind_count = 6 } gun_kind;
 
+/**
+ * @typedef struct Gun_t
+ * @brief structure for all things gun related such as its texture, damage and projectile texture
+ */
 typedef struct {
     gun_kind kind;
     char *sfx_path;
@@ -18,6 +26,10 @@ typedef struct {
     SDL_Texture *bullet_texture;
 } Gun_t;
 
+/**
+ * @typedef enum Guns_t
+ * @brief list of all the guns in the game with the one the player is currently holding
+ */
 typedef struct {
     Gun_t *arsenal;
     int selectedGun;

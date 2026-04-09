@@ -29,6 +29,12 @@ typedef enum {
     __count_player_anim_kind = 6
 } player_anim_kind;
 
+/**
+ * @typedef struct player_t
+ * @brief contains every single bit of information regarding the player
+ * 
+ * contains the player's speed, hitbox, jump force, health, animation information, sound effects and so on
+ */
 typedef struct {
     entity_t entity_attribs;
     player_animation *anims[__count_player_anim_kind];
@@ -72,10 +78,6 @@ typedef struct {
  * @param[in] player pointer pointer to the player itself
  * @param[in] playerSize X and Y value for it's height and width
  * @param[in] sdl_ctx pointer pointer to the ctx variable
- * @param[in] path where the player file is located
- * @param[in] runPath where the player file is located  when he is in ground and in movement
- * @param[in] inAirPath where the player file is located  when he is not on ground and in movement (exlude speical movement like
- * dash, slide ...)
  * @brief creates the player, makes sur it exists and then loads it
  *
  * creates the player and is only called once
@@ -121,12 +123,46 @@ void renderPlayer(player_t *p);
  */
 void movePlayer(player_t *p, V2f newPos);
 
+/**
+ * @fn createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB)
+ * @param[in] sdl_ctx SDL context variable
+ * @param[in] b1 first portion of the dash bar
+ * @param[in] b2 second portion of the dash bar
+ * @param[in] b3 third portion of the dash bar
+ * @param[in] hpB player health bar
+ * @brief creates all the player's information bars (for now health and dash cooldown)
+ */
 bool createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB);
 
+/**
+ * @fn renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB)
+ * @param[in] sdl_ctx SDL context variable
+ * @param[in] b1 first portion of the dash bar
+ * @param[in] b2 second portion of the dash bar
+ * @param[in] b3 third portion of the dash bar
+ * @param[in] hpB player health bar
+ * @brief renders all the player's information bars (for now just health and dash information)
+ */
 void renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b2, bar *b3, bar *hpB);
 
+/**
+ * @fn destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB)
+ * @param[in] b1 first portion of the dash bar
+ * @param[in] b2 second portion of the dash bar
+ * @param[in] b3 third portion of the dash bar
+ * @param[in] hpB player health bar
+ * @brief destorys all the player's bars
+ *
+ * moves the player's bounding box based on the new position
+ */
 void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB);
 
+/**
+ * @fn initAllPlayerAnimation(sdl_ctx_t *sdl_ctx, player_t *player)
+ * @param[in] sdl_ctx first portion of the dash bar
+ * @param[in] player player structure
+ * @brief initializes all of the player animations
+ */
 bool initAllPlayerAnimation(sdl_ctx_t *sdl_ctx, player_t *player);
 
 #endif // PLAYER_H_

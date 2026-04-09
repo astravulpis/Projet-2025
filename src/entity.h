@@ -55,7 +55,7 @@ typedef enum {
  * @struct entity_t
  * @brief entity attributes
  *
- * contains all the attributes one entity can have such as speed and jump force
+ * contains all the attributes one entity can have such as speed and jump force, health and score value
  */
 typedef struct {
     float entity_speed;
@@ -103,6 +103,7 @@ typedef struct {
  * @fn createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
  * @param[in] sdl_ctx our won sdl context variable
  * @param[in] basePos spawning location
+ * @param[in] type entity type (i.e. E_FILTH)
  * @brief creates a creature of a certain type and with a set default spawning location
  */
 ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
@@ -212,5 +213,35 @@ void destroyEntity(ennemy_t **e);
  * Goes through the list of all entities and destroys them one by one by calling the destroyEntity function
  */
 void destroyEntities(entities *entities);
+
+/**
+ * @fn loadEntityTex(sdl_ctx_t *ctx)
+ * @param[in] ctx our context variable 
+ * @brief loads the entity's texture into the ctx
+ */
+void loadEntityTex(sdl_ctx_t *ctx);
+
+/**
+ * @fn getEntityTex(sdl_ctx_t *ctx, int index)
+ * @param[in] ctx our context variable
+ * @param[in] index position of the texture
+ * @brief returns the texture of the entity at the index position
+ */
+SDL_Texture *getEntityTex(sdl_ctx_t *ctx, int index);
+
+/**
+ * @fn getAngle(ennemy_t *e)
+ * @param[in] e enemy structure
+ * @brief returns the angle of the enemy (aka is it going left or right to render it correctly)
+ */
+float getAngle(ennemy_t *e);
+
+/**
+ * @fn collision_test_entity(ennemy_t *e, objs *tiles)
+ * @param[in] e enemy structure
+ * @param[in] tiles list of objects
+ * @brief collision test of the entity with the level objects
+ */
+objs collision_test_entity(ennemy_t *e, objs *tiles);
 
 #endif // ENTITY_H_

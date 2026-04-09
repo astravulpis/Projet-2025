@@ -25,7 +25,7 @@
  * @param[in] level level structure
  * @param[in] player player structure
  * @param[in] guns list of guns to be able to equip them
- * @brief Listens to keyboard inputs for mapped keys
+ * @brief Listens to keyboard inputs for mapped keys to execute the corresponding action
  */
 void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t *guns);
 

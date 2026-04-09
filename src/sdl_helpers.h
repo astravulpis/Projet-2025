@@ -31,7 +31,7 @@ void renderImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect);
  * @param[in] y Position y
  * @param[in] width Width of the rect
  * @param[in] height Height of the rect
- * @return rect A pointer to a SDL_FRect allocated on the heap
+ * @param[out] rect a pointer to a SDL_FRect allocated on the heap
  * @brief allocate memory for a SDL_FRect of size width*height at position {x, y}
  */
 SDL_FRect *createRect(float x, float y, float width, float height);
@@ -39,34 +39,37 @@ SDL_FRect *createRect(float x, float y, float width, float height);
 /**
  * @fn createRect_Ex(SDL_FRect rect)
  * @param[in] rect A temporary/example rect to copy over into heap
- * @return rect A pointer to a SDL_FRect allocated on the heap
+ * @param[out] rect a pointer to a SDL_FRect allocated on the heap
  * @brief allocate memory for a SDL_FRect
  */
 SDL_FRect *createRect_Ex(SDL_FRect rect);
 
 /**
  * @fn renderText(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, float x_pos, float y_pos)
- * @brief Render text on the screen
  * @param[in] sdl_ctx Our sdl context
  * @param[in] text The text to be rendered
  * @param[in] color The color of the text rendered
  * @param[in] x_pos The x-offset from the left of the window
  * @param[in] y_pos The y-offset from the top of the window
+ * @brief Render text on the screen
  */
 bool renderText(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, float x_pos, float y_pos);
 
 /**
  * @fn renderText_Ex(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, V2f position);
- * @brief Render text on the screen
  * @param[in] sdl_ctx Our sdl context
  * @param[in] text The text to be rendered
  * @param[in] color The color of the text rendered
  * @param[in] position The position of where the text should be at
+ * @brief Render text on the screen
  */
 bool renderText_Ex(sdl_ctx_t *sdl_ctx, const char *text, SDL_Color color, V2f position);
 
 /**
  * @fn renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color)
+ * @param[in] renderer sdl renderer used just for the rectangle filling
+ * @param[in] rect rectangle we want to fill in
+ * @param[in] color color of the rectangle we want to use
  * @brief render a rectangle with the color specified
  */
 void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color);
@@ -84,7 +87,29 @@ void renderFillRect(SDL_Renderer *renderer, SDL_FRect *rect, SDL_Color color);
  */
 void keepRectInbounds(SDL_FRect *r, float minX, float minY, float maxX, float maxY);
 
+/**
+ * @fn boxToScale(SDL_FRect *rect, float scale)
+ * @param[in] rect rectangle we want to fill in
+ * @param[in] scale color of the rectangle we want to use
+ * @brief adjusts the rectangle's size based on the screen scale
+ */
 void boxToScale(SDL_FRect *rect, float scale);
+
+/**
+ * @fn isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState)
+ * @param[in] scancode 
+ * @param[in] currState 
+ * @param[in] prevState
+ * @brief returns true if the currently pressed key is different from the previous one
+ */
 bool isKeyPressed(SDL_Scancode scancode, const bool *currState, bool *prevState);
+
+/**
+ * @fn isKeyDown(SDL_Scancode scancode, const bool *currState)
+ * @param[in] scancode 
+ * @param[in] currState 
+ * @param[in] prevState
+ * @brief returns true if the given key is pressed down
+ */
 bool isKeyDown(SDL_Scancode scancode, const bool *currState);
 #endif // SDL_HELPER_H_

@@ -49,8 +49,27 @@ trigger_t *createTrigger(float x, float y, float w, float h, trigger_kind kind);
  * goes through triggers_t to destory each individual trigger
  */
 void destroyTriggers(triggers_t *triggers);
+
+/**
+ * @fn getTriggerKindFromSV(String_View sv)
+ * @param[in] sv currently viewed string 
+ * @brief returns the kind of the trigger sent from file_parsing
+ */
 trigger_kind getTriggerKindFromSV(String_View sv);
+
+/**
+ * @fn hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e)
+ * @param[in] trigger trigger structure we are checking 
+ * @param[in] e entity structure we are checking as well
+ * @brief returns true if the given entity is colliding with the given trigger
+ */
 bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e);
+
+/**
+ * @fn deathTrigger(entity_t *e)
+ * @param[in] e entity structure we are checking as well
+ * @brief sets the entity's health to 0, effectively killing them
+ */
 void deathTrigger(entity_t *e);
 
 #endif // TRIGGERS_H_

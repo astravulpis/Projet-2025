@@ -47,6 +47,10 @@
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (y) : (x))
 
+/**
+ * @typedef enum track_kind
+ * @brief enum for all the sound effects in the game, including player and enemy
+ */
 typedef enum {
     BACKGROUND_MUSIC,
     SFX_PLAYER_MOVE,
@@ -61,6 +65,10 @@ typedef enum {
     TRACK_COUNT = 10,
 } track_kind;
 
+/**
+ * @typedef enum menu_kind
+ * @brief contains the enum to the different menus found in the game
+ */
 typedef enum {
     NONE_MENU,
     PAUSE_MENU,
@@ -70,6 +78,11 @@ typedef enum {
     __menu_count = 5,
 } menu_kind;
 
+
+/**
+ * @typedef struct options
+ * @brief contains the different sound options for the game 
+ */
 typedef struct {
     float masterVolume;
     float musicVolume;
@@ -88,6 +101,7 @@ typedef struct sdl_context_s sdl_ctx_t;
  *
  * It holds multiple variable for the rendering of the window, the surface of
  * said window, the event that can be pulled and if it's running or not
+ * also countains options such as vsync and audio elements
  */
 struct sdl_context_s {
     SDL_Window *window;     //!< SDL3 window context
@@ -106,11 +120,10 @@ struct sdl_context_s {
     MIX_Audio *ennemy_death;
 };
 
-typedef struct {
-    int x;
-    int y;
-} V2i;
-
+/**
+ * @typedef struct V2f
+ * @brief positional values
+ */
 typedef struct {
     float x;
     float y;
@@ -139,6 +152,12 @@ typedef struct {
     size_t capacity;
 } objs;
 
+/**
+ * @typedef struct entity_t
+ * @brief entity information
+ * 
+ * containes the bounding box, texture, max health, current health and score value of the entity
+ */ 
 typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB

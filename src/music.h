@@ -29,7 +29,7 @@ typedef struct {
  * @fn loadTrack(sdl_ctx_t *ctx, int trackIdx, const char *path)
  * @param[in] path pointer pointer to the player itself
  * @param[in] ctx our own sdl context variable
- * @param[in] trackIdx
+ * @param[in] trackIdx track number to load the track
  * @brief loads a track into ctx
  */
 bool loadTrack(sdl_ctx_t *ctx, int trackIdx, const char *path);

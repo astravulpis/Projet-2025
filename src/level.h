@@ -11,7 +11,7 @@
  * @struct room_t
  * @brief the room structure
  *
- * contains all the information related to a singular room like the list of objects within
+ * contains all the information related to a singular room like the list of objects within and the entity waves
  */
 typedef struct {
     objs structures;
@@ -161,8 +161,36 @@ void destroyRoom(room_t **room);
  */
 void destroyLevel(level_t **level);
 
+/**
+ * @fn getRoomTriggers(level_t *level)
+ * @param[in] level
+ * @brief returns the list of all triggers within the given room
+ */
 triggers_t *getRoomTriggers(level_t *level);
+
+/**
+ * @fn assignTriggerToRoom(room_t *room, trigger_t *trigger)
+ * @param[in] room current room
+ * @param[in] trigger trigger to be assigned to the room itself
+ * @brief asigns a given trigger to the given room
+ */
 void assignTriggerToRoom(room_t *room, trigger_t *trigger);
+
+/**
+ * @fn updateTriggers(level_t *level, player_t *p)
+ * @param[in] level current level
+ * @param[in] p player pointer
+ * @brief goes through the list of triggers in a level to update them if needed
+ */
 void updateTriggers(level_t *level, player_t *p);
+
+/**
+ * @fn updateTriggers(level_t *level, player_t *p)
+ * @param[in] level current level
+ * @param[in] p player pointer to update the position should it pass through a portal
+ * @param[in] trigger the trigger to be checked for potential updates
+ * @brief updates a trigger's state and executes the corresponding function
+ */
+void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
 
 #endif // LEVEL_H_

@@ -6,7 +6,7 @@
 
 /**
  * @struct bullet
- * @brief bullet bounding box and current velocity
+ * @brief bullet bounding box and current velocity with their texture and damage
  *
  * individual bullet information
  */
@@ -34,6 +34,9 @@ typedef struct {
  * @param[in] arr pointer to the bullets array
  * @param[in] init_pos X and Y origin point
  * @param[in] vel bullet speed
+ * @param[in] size bullet size
+ * @param[in] texture bullet texture
+ * @param[in] dmg bullet damage
  * @brief creates bullet and puts it in the bullets array
  *
  * creates one bullet by putting in the dynamic array with its corresponding position and velocity
@@ -44,6 +47,8 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
  * @fn updateBulletState(bullets *arr, float deltaTime)
  * @param[in] arr pointer to the bullets array
  * @param[in] deltaTime X update interval
+ * @param[in] level pointer to the level objects
+ * @param[in] p pointer to the player
  * @brief updates bullet position
  *
  * moves all bullets according to delta time
@@ -54,6 +59,7 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *
  * @fn checkCollision(bullets *arr, objs *level)
  * @param[in] arr pointer to the bullets array
  * @param[in] level pointer to the level objects
+ * @param[in] p pointer to the player to pppass in update bullet state
  * @brief checks collisions between bullets and level pieces
  *
  * goes through all the bullets and removes any that are colliding with elements of the level

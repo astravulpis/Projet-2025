@@ -35,6 +35,7 @@ bool checkCollision(bullet *bullet, level_t *level, player_t *p)
             if (entity->entity_attribs.hp <= 0) {
                 playSfx(*entity->entity_attribs.ctx, &entity->audios, "death");
                 p->score += entity->attributs.score;
+                printf("Score: %f\n", p->score);
                 da_remove_unordered(s, i);
                 destroyEntity(&entity);
             }
