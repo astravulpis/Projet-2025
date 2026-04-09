@@ -179,7 +179,6 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         //     printf("Right Clicked\n");
         // }
 
-        updateBulletState(&ctx->bullet_arr, currLevel, deltaTime);
         renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
         prevMouseInput = mouseInputFlag;
 

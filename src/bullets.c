@@ -5,13 +5,14 @@
 #include "player.h"
 #include "sdl_helpers.h"
 
-bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Color color)
+bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Color color, float dmg)
 {
     bullet projectile = {0};
     projectile.boundingBox = createRect(init_pos.x, init_pos.y, size, size);
     projectile.velocity.x = vel.x;
     projectile.velocity.y = vel.y;
     projectile.color = color;
+    projectile.dmg = dmg;
 
     da_append(arr, projectile);
 
@@ -26,9 +27,17 @@ bool checkCollision(bullet *bullet, level_t *level)
             return true;
         }
     }
-
-    da_foreach (ennemy_t *, entity, &currRoom->e_waves[currRoom->currWaveIdx]) {
-        if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(*entity))) {
+    entities * s = &currRoom->e_waves[currRoom->currWaveIdx];
+    for (int i = 0; i < s->count; i++){
+        ennemy_t * entity = s->items[i];
+        if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(entity))) {
+            entity->entity_attribs.hp-=bullet->dmg;
+            if (entity->entity_attribs.hp <= 0){
+                playSfx(*entity->entity_attribs.ctx, &entity->audios, "death");
+                destroyEntity(&entity);
+                
+                da_remove_unordered(s, i);
+            } 
             return true;
         }
     }

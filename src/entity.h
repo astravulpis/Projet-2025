@@ -70,6 +70,7 @@ typedef struct {
     float maxHP;
     // BEHAVIOUR PART
     entity_state state;
+
 } entity_attributs;
 
 /**
@@ -84,6 +85,7 @@ typedef struct {
     entity_attributs attributs;
     V2f velocity;
     bool onGround;
+    sfxs audios;
 } ennemy_t;
 
 /**

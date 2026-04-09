@@ -45,7 +45,7 @@ Guns_t *initialiseGuns(sdl_ctx_t *ctx)
     createGun(guns, SHARPSHOOTER, 6, 20, "./assets/audio/SFX/guns/railcannon.wav", "./assets/img/guns/bouncer.png");
 
     // Rocket Launcher
-    createGun(guns, ROCKET, 15, 50, "./assets/audio/SFX/guns/rocket.wav", "./assets/img/guns/rocket.png");
+    createGun(guns, ROCKET, 15, 45, "./assets/audio/SFX/guns/rocket.wav", "./assets/img/guns/rocket.png");
 
     // Load all textures and sounds
     for (int i = 0; i < __gun_kind_count; i++) {
@@ -101,11 +101,12 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
     if (gun_sfx[gun->kind] != NULL) {
         MIX_PlayAudio(sdl_ctx->mixer, gun_sfx[gun->kind]);
     }
+    (V2f){position.x, position.y-=10}; //avoid the bullets spawning in the ground (mostly a rocket launcher issue but also just looks nicer)
 
     // Create bullets based on gun type
     switch (gun->kind) {
     case PIERCER: // Pistol - Single bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, (SDL_Color){0x00, 0x00, 0xFF, 0xFF});
+        createBullet(bullet_arr, position, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, (SDL_Color){0x00, 0x00, 0xFF, 0xFF}, gun->dmg);
         break;
 
     case SHOTGUN: // Shotgun - Spread of 5 bullets
@@ -113,24 +114,24 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
             float angle = i * 0.1f; // Spread angle
             V2f spread_dir = {vel.x * cosf(angle) - vel.y * sinf(angle), vel.x * sinf(angle) + vel.y * cosf(angle)};
             createBullet(bullet_arr, position, (V2f){spread_dir.x / 3.f, spread_dir.y / 3.f}, gun->size,
-                         (SDL_Color){0xFF, 0x95, 0x27, 0xFF});
+                         (SDL_Color){0xFF, 0x95, 0x27, 0xFF}, gun->dmg);
         }
         break;
 
     case MACHINEGUN: // Machine Gun_t - Single fast bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 1.5f, vel.y / 1.5f}, gun->size, (SDL_Color){0xDB, 0x36, 0x21, 0xFF});
+        createBullet(bullet_arr, position, (V2f){vel.x / 1.5f, vel.y / 1.5f}, gun->size, (SDL_Color){0xDB, 0x36, 0x21, 0xFF}, gun->dmg);
         break;
 
     case RAILCANNON: // Sniper - Single powerful bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 1.75f, vel.y / 1.75f}, gun->size, (SDL_Color){0xDB, 0x21, 0xD2, 0xFF});
+        createBullet(bullet_arr, position, (V2f){vel.x / 1.75f, vel.y / 1.75f}, gun->size, (SDL_Color){0xDB, 0x21, 0xD2, 0xFF}, gun->dmg);
         break;
 
     case SHARPSHOOTER: // Bouncer - Single bullet with bounce effect (would need bullet system enhancement)
-        createBullet(bullet_arr, position, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, (SDL_Color){0xFF, 0x00, 0x00, 0xFF});
+        createBullet(bullet_arr, position, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, (SDL_Color){0xFF, 0x00, 0x00, 0xFF}, gun->dmg);
         break;
 
     case ROCKET: // Rocket Launcher - Single slow but powerful bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 5.f, vel.y / 5.f}, gun->size, (SDL_Color){0xFC, 0xFF, 0x00, 0xFF});
+        createBullet(bullet_arr, position, (V2f){vel.x / 5.f, vel.y / 5.f}, gun->size, (SDL_Color){0xFC, 0xFF, 0x00, 0xFF}, gun->dmg);
         break;
     default:
         UNREACHABLE("gun kind");

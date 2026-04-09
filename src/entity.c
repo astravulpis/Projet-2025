@@ -63,6 +63,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
 
+    loadSfx((*sdl_ctx), &e->audios, SFX_ENEMY_DIE, "death", "./assets/audio/SFX/die.ogg");
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
@@ -226,6 +227,8 @@ void destroyEntity(ennemy_t **e)
         // Texture
         SDL_DestroyTexture((*e)->entity_attribs.tex);
         (*e)->entity_attribs.tex = NULL;
+
+        destroySfxs(&(*e)->audios);
     }
 
     free(*e);

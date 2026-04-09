@@ -55,8 +55,9 @@ typedef enum {
     SFX_PLAYER_INTERACTIONS,
     SFX_ENEMY_MOVE,
     SFX_ENEMY_INTERACTIONS,
+    SFX_ENEMY_DIE,
 
-    TRACK_COUNT = 8,
+    TRACK_COUNT = 9,
 } track_kind;
 
 typedef enum {
@@ -101,6 +102,7 @@ struct sdl_context_s {
     menu_kind currMenu;
     MIX_Mixer *mixer;
     MIX_Track *tracks[TRACK_COUNT];
+    MIX_Audio * ennemy_death;
 };
 
 typedef struct {

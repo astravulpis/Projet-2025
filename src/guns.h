@@ -14,6 +14,7 @@ typedef struct {
     SDL_Texture associatedImage;
     float size;
     float dmg;
+    char *bullet_path;
 } Gun_t;
 
 typedef struct {
