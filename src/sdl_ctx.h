@@ -111,4 +111,11 @@ void setMusicTrackGain(sdl_ctx_t *ctx);
  */
 void setSfxTrackGain(sdl_ctx_t *ctx);
 
+/**
+ * @fn initOptions(options *opts)
+ * @param[in] opts our context variable
+ * @brief sets the default sound volume
+ */
+void initOptions(options *opts);
+
 #endif // SDL_CTX_H_

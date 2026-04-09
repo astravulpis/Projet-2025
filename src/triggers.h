@@ -72,4 +72,11 @@ bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e);
  */
 void deathTrigger(entity_t *e);
 
+/**
+ * @fn destroyTrigger(trigger_t **trigger)
+ * @param[in] trigger trigger structure
+ * @brief destroys a trigger
+ */
+void destroyTrigger(trigger_t **trigger);
+
 #endif // TRIGGERS_H_
