@@ -124,32 +124,32 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
     // Create bullets based on gun type
     switch (gun->kind) {
     case PIERCER: // Pistol - Single bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, gun->bullet_texture, gun->dmg);
+        createBullet(bullet_arr, newPos, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, gun->bullet_texture, gun->dmg);
         break;
 
     case SHOTGUN: // Shotgun - Spread of 5 bullets
         for (int i = -2; i <= 2; i++) {
             float angle = i * 0.1f; // Spread angle
             V2f spread_dir = {vel.x * cosf(angle) - vel.y * sinf(angle), vel.x * sinf(angle) + vel.y * cosf(angle)};
-            createBullet(bullet_arr, position, (V2f){spread_dir.x / 3.f, spread_dir.y / 3.f}, gun->size,
+            createBullet(bullet_arr, newPos, (V2f){spread_dir.x / 3.f, spread_dir.y / 3.f}, gun->size,
                          gun->bullet_texture, gun->dmg);
         }
         break;
 
     case MACHINEGUN: // Machine Gun_t - Single fast bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 1.5f, vel.y / 1.5f}, gun->size, gun->bullet_texture, gun->dmg);
+        createBullet(bullet_arr, newPos, (V2f){vel.x / 1.5f, vel.y / 1.5f}, gun->size, gun->bullet_texture, gun->dmg);
         break;
 
     case RAILCANNON: // Sniper - Single powerful bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 1.75f, vel.y / 1.75f}, gun->size, gun->bullet_texture, gun->dmg);
+        createBullet(bullet_arr, newPos, (V2f){vel.x / 1.75f, vel.y / 1.75f}, gun->size, gun->bullet_texture, gun->dmg);
         break;
 
     case SHARPSHOOTER: // Bouncer - Single bullet with bounce effect (would need bullet system enhancement)
-        createBullet(bullet_arr, position, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, gun->bullet_texture, gun->dmg);
+        createBullet(bullet_arr, newPos, (V2f){vel.x / 2.f, vel.y / 2.f}, gun->size, gun->bullet_texture, gun->dmg);
         break;
 
     case ROCKET: // Rocket Launcher - Single slow but powerful bullet
-        createBullet(bullet_arr, position, (V2f){vel.x / 5.f, vel.y / 5.f}, gun->size, gun->bullet_texture, gun->dmg);
+        createBullet(bullet_arr, newPos, (V2f){vel.x / 5.f, vel.y / 5.f}, gun->size, gun->bullet_texture, gun->dmg);
         break;
     default:
         UNREACHABLE("gun kind");
