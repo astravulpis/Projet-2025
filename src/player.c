@@ -13,6 +13,8 @@
  **/
 
 #include "player.h"
+#include "SDL3_mixer/SDL_mixer.h"
+#include "common.h"
 #include "sdl_helpers.h"
 #include <math.h>
 #include <string.h>
@@ -66,6 +68,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_FALL, "softFall", "./assets/audio/SFX/softFall.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_FALL, "hardFall", "./assets/audio/SFX/hardFall.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "dash", "./assets/audio/SFX/dash.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "wallSlide", "./assets/audio/SFX/wallSlide.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "notEnoughStamina", "./assets/audio/SFX/notEnoughStamina.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_INTERACTIONS, "staminaRegen", "./assets/audio/SFX/staminaRegen.wav");
 
@@ -91,8 +94,9 @@ void destroyPlayer(player_t **p)
 V2f inputUpdate(player_t *p, const float dt)
 {
     V2f deltaPos = {0};
-    float dashSpeed = (p->speed * 2.65f) * dt;
-    float wallJumpStrenght = (p->speed * 1.3f) * dt;
+    float dashSpeed = (p->speed * 2.95f) * dt;
+    float wallJumpStrenght = (p->speed * 1.95f) * dt;
+    static bool wasOnWall = false;
     const bool *currState = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
     static bool prevState[SDL_SCANCODE_COUNT] = {0};
 
@@ -121,6 +125,13 @@ V2f inputUpdate(player_t *p, const float dt)
         deltaPos.x -= p->speed * dt;
         p->lastKey = SDL_SCANCODE_A;
         p->run = true;
+
+        if (p->onWall && !p->onGround) {
+            p->velocity.y *= 0.85;
+            if (!wasOnWall) {
+                playSfx(*p->entity_attribs.ctx, &p->audios, "wallSlide");
+            }
+        }
     }
 
     if (isKeyDown(SDL_SCANCODE_D, currState)) {
@@ -128,6 +139,12 @@ V2f inputUpdate(player_t *p, const float dt)
         deltaPos.x += p->speed * dt;
         p->lastKey = SDL_SCANCODE_D;
         p->run = true;
+        if (p->onWall && !p->onGround) {
+            p->velocity.y *= 0.85f;
+            if (!wasOnWall) {
+                playSfx(*p->entity_attribs.ctx, &p->audios, "wallSlide");
+            }
+        }
     }
 
     // Dash
@@ -148,17 +165,18 @@ V2f inputUpdate(player_t *p, const float dt)
     // Jump & slam
     if (isKeyPressed(SDL_SCANCODE_SPACE, currState, prevState) && !prevState[SDL_SCANCODE_LCTRL]) {
         float temp = 1.35f;
-        if (p->onWall) {
+        if (p->onWall && !p->onGround) {
             if (p->lastKey == SDL_SCANCODE_A) {
                 p->velocity.x = wallJumpStrenght * temp;
             } else if (p->lastKey == SDL_SCANCODE_D) {
                 p->velocity.x = -wallJumpStrenght * temp;
             }
             p->velocity.y = -wallJumpStrenght * temp;
+            playSfx(*p->entity_attribs.ctx, &p->audios, "jump");
         } else if (p->onGround) {
             p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
+            playSfx(*p->entity_attribs.ctx, &p->audios, "jump");
         }
-        playSfx(*p->entity_attribs.ctx, &p->audios, "jump");
     } else if ((isKeyPressed(SDL_SCANCODE_LCTRL, currState, prevState) && !p->onGround) && !p->isSlamming) {
         p->isSlamming = true;
         MIX_StopTrack((*p->entity_attribs.ctx)->tracks[SFX_PLAYER_MOVE], 5);
@@ -167,6 +185,8 @@ V2f inputUpdate(player_t *p, const float dt)
     if (p->isSlamming) {
         p->velocity.y -= (p->jumpForce * 2) * dt; // Up is towards negatives in SDL
     }
+
+    if (!p->onWall && wasOnWall) MIX_StopTrack((*p->entity_attribs.ctx)->tracks[SFX_PLAYER_MOVE], 5);
 
     if (p->lastX == deltaPos.x) {
         p->run = false;
@@ -177,6 +197,7 @@ V2f inputUpdate(player_t *p, const float dt)
         p->isDashing = false;
     }
 
+    wasOnWall = p->onWall;
     memcpy(prevState, currState, SDL_SCANCODE_COUNT);
     return deltaPos;
 }

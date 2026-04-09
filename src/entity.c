@@ -10,6 +10,7 @@
  **/
 
 #include "entity.h"
+#include "SDL3/SDL_render.h"
 #include "player.h"
 
 static struct entityBaseAttributs {
@@ -224,10 +225,6 @@ void destroyEntity(ennemy_t **e)
         free((*e)->entity_attribs.boundingBox);
         (*e)->entity_attribs.boundingBox = NULL;
 
-        // Texture
-        SDL_DestroyTexture((*e)->entity_attribs.tex);
-        (*e)->entity_attribs.tex = NULL;
-
         destroySfxs(&(*e)->audios);
     }
 
@@ -240,6 +237,10 @@ void destroyEntities(entities *entities)
     da_foreach (ennemy_t *, e, entities) {
         destroyEntity(e);
         *e = NULL;
+    }
+
+    for (int i = 0; i < E_TYPE_COUNT; ++i) {
+        SDL_DestroyTexture(entity_textures[i]);
     }
 
     free(entities->items);

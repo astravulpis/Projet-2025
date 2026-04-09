@@ -26,7 +26,9 @@ obj "./assets/img/white.png" 1125 275 400 55
 obj "./assets/img/white.png" 1525 0 50 330
 entity FILTH 840 200 0
 entity FILTH 900 250 1
-entity FILTH 960 300 2
+entity FILTH 960 300 1
+entity FILTH 840 300 1
+entity FILTH 1000 300 1
 trigger 100 100 100 100 SPAWNER 1
 trigger 0 460 40 420 PORTAL 0 1650 640
 trigger 1125 0 400 40 PORTAL 2 1475 515
