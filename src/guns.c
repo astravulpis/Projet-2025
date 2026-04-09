@@ -8,7 +8,7 @@ static MIX_Audio *gun_sfx[__gun_kind_count] = {0};
 static SDL_Texture *gun_textures[__gun_kind_count] = {0};
 static SDL_Texture *bullet_textures[__gun_kind_count] = {0};
 
-void createGun(Guns_t *guns, gun_kind kind, float dmg, float size, char *sfxPath, char *gunImage, char * bulletTexture)
+void createGun(Guns_t *guns, gun_kind kind, float dmg, float size, char *sfxPath, char *gunImage, char *bulletTexture)
 {
     guns->arsenal[kind].kind = kind;
     guns->arsenal[kind].dmg = dmg;
@@ -32,22 +32,28 @@ Guns_t *initialiseGuns(sdl_ctx_t *ctx)
         return NULL;
     }
     // Basic Pistol
-    createGun(guns, PIERCER, 5, 20, "./assets/audio/SFX/guns/piercer.wav", "./assets/img/guns/pistol.png", "./assets/img/weapons/piercer.png");
+    createGun(guns, PIERCER, 5, 20, "./assets/audio/SFX/guns/piercer.wav", "./assets/img/guns/pistol.png",
+              "./assets/img/weapons/piercer.png");
 
     // Machine Gun
-    createGun(guns, MACHINEGUN, 3, 10, "./assets/audio/SFX/guns/piercer.wav", "./assets/img/guns/machinegun.png", "./assets/img/weapons/minigun.png");
+    createGun(guns, MACHINEGUN, 3, 10, "./assets/audio/SFX/guns/piercer.wav", "./assets/img/guns/machinegun.png",
+              "./assets/img/weapons/minigun.png");
 
     // Shotgun
-    createGun(guns, SHOTGUN, 8, 8, "./assets/audio/SFX/guns/shotgun.wav", "./assets/img/guns/shotgun.png", "./assets/img/weapons/shotgun.png");
+    createGun(guns, SHOTGUN, 8, 8, "./assets/audio/SFX/guns/shotgun.wav", "./assets/img/guns/shotgun.png",
+              "./assets/img/weapons/shotgun.png");
 
     // Railcannon
-    createGun(guns, RAILCANNON, 25, 30, "./assets/audio/SFX/guns/railcannon.wav", "./assets/img/guns/sniper.png", "./assets/img/weapons/sniper.png");
+    createGun(guns, RAILCANNON, 25, 30, "./assets/audio/SFX/guns/railcannon.wav", "./assets/img/guns/sniper.png",
+              "./assets/img/weapons/sniper.png");
 
     // sharpshooter (bounce is not implemented since lack of time at the moment)
-    createGun(guns, SHARPSHOOTER, 6, 20, "./assets/audio/SFX/guns/railcannon.wav", "./assets/img/guns/bouncer.png", "./assets/img/weapons/sharpshooter.png");
+    createGun(guns, SHARPSHOOTER, 6, 20, "./assets/audio/SFX/guns/railcannon.wav", "./assets/img/guns/bouncer.png",
+              "./assets/img/weapons/sharpshooter.png");
 
     // Rocket Launcher
-    createGun(guns, ROCKET, 15, 45, "./assets/audio/SFX/guns/rocket.wav", "./assets/img/guns/rocket.png", "./assets/img/weapons/rocketlauncher.png");
+    createGun(guns, ROCKET, 15, 45, "./assets/audio/SFX/guns/rocket.wav", "./assets/img/guns/rocket.png",
+              "./assets/img/weapons/rocketlauncher.png");
 
     // Load all textures and sounds
     for (int i = 0; i < __gun_kind_count; i++) {
@@ -98,7 +104,6 @@ void loadGunImage(Gun_t *gun, sdl_ctx_t *ctx)
 {
     if (gun_textures[(assert(gun->kind < __gun_kind_count), gun->kind)] == NULL) {
         gun_textures[gun->kind] = IMG_LoadTexture(ctx->renderer, gun->img_path);
-        SDL_SetTextureScaleMode(gun_textures[gun->kind], SDL_SCALEMODE_NEAREST);
     }
 }
 
@@ -106,7 +111,6 @@ void loadBulletTexture(Gun_t *gun, sdl_ctx_t *ctx)
 {
     if (bullet_textures[(assert(gun->kind < __gun_kind_count), gun->kind)] == NULL) {
         bullet_textures[gun->kind] = IMG_LoadTexture(ctx->renderer, gun->bullet_path);
-        SDL_SetTextureScaleMode(bullet_textures[gun->kind], SDL_SCALEMODE_NEAREST);
     }
     gun->bullet_texture = bullet_textures[gun->kind];
 }
@@ -131,8 +135,8 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
         for (int i = -2; i <= 2; i++) {
             float angle = i * 0.1f; // Spread angle
             V2f spread_dir = {vel.x * cosf(angle) - vel.y * sinf(angle), vel.x * sinf(angle) + vel.y * cosf(angle)};
-            createBullet(bullet_arr, newPos, (V2f){spread_dir.x / 3.f, spread_dir.y / 3.f}, gun->size,
-                         gun->bullet_texture, gun->dmg);
+            createBullet(bullet_arr, newPos, (V2f){spread_dir.x / 3.f, spread_dir.y / 3.f}, gun->size, gun->bullet_texture,
+                         gun->dmg);
         }
         break;
 

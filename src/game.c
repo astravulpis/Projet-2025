@@ -101,9 +101,12 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     int prevMouseInput = 0;
     V2f mouseCoord = {0};
 
+    // 0st place in taking a lot of time -> Loads every SDL contexts (i.e. SDL, SDL Image, ttf, mixer)
     if (!createCtx(&ctx->sdl_ctx)) return false; // Error handling is done in the function
+    SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
     // disableVsync(ctx->sdl_ctx);
 
+    // 1st place in taking a lot of time -> Loads the player
     if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
 
     SDL_FRect footerBox = {0, (WINDOW_HEIGHT - 150.f), WINDOW_WIDTH, 150.f};
@@ -123,13 +126,16 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     createPlayerStatusBar(ctx->sdl_ctx, &dashBar1, &dashBar2, &dashBar3, &hpBar);
 
     room_t *currRoom = NULL;
+    // 2rd place in taking a lot of time -> parse the file and loads the level
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
     level_t *currLevel = getLoadedLevel(ctx);
 
     if (!addMenu(ctx, createPauseMenu(ctx->sdl_ctx), PAUSE_MENU)) return false;
     if (!addMenu(ctx, createOptionsMenu(ctx->sdl_ctx), OPTIONS_MENU)) return false;
 
+    // 3rd place in taking a lot of time -> idk
     ctx->guns = initialiseGuns(ctx->sdl_ctx);
+    playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
 
     while (!ctx->sdl_ctx->quit) {
         temp_rewind(mark);

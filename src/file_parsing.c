@@ -211,7 +211,6 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 sv_chop_right(&temp, 1);
                 const char *path = nob_temp_sv_to_cstr(temp);
                 if (!loadTrack(*ctx, BACKGROUND_MUSIC, path)) return false;
-                playTrack(*ctx, BACKGROUND_MUSIC);
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
