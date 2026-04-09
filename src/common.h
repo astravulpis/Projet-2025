@@ -96,7 +96,7 @@ typedef struct sdl_context_s sdl_ctx_t;
 
 /**
  * @struct sdl_context_s
- * @brief Act as structure
+ * @brief Act as structure 
  *
  * It holds multiple variable for the rendering of the window, the surface of
  * said window, the event that can be pulled and if it's running or not
