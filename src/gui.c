@@ -87,6 +87,7 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
     }
     // Options button
     if (menu->btns.items[1]->isLeftClicked == true) {
+        sdl_ctx->prevMenu = PAUSE_MENU;
         sdl_ctx->currMenu = OPTIONS_MENU;
     }
 
@@ -137,7 +138,7 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
 
     // Go back button
     if (menu->btns.items[0]->isLeftClicked == true) {
-        sdl_ctx->currMenu = PAUSE_MENU;
+        sdl_ctx->currMenu = sdl_ctx->prevMenu;
     }
 
     sdl_ctx->opts.masterVolume = menu->sliders.items[0]->currentValue;
@@ -156,14 +157,15 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
 // ******************* HOME MENU ***********************
 gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
 {
+    // Box to scale n'est utilisé qu'avec le premier bouton, car les prochains se base sur lui, donc ils sont déja scale
     SDL_FRect boxPlay = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 120.0f), 384.0f, 96.0f};
     boxToScale(&boxPlay, sdl_ctx->screenRatio);
 
-    SDL_FRect boxLevelSelect = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f), 384.0f, 96.0f};
-    boxToScale(&boxLevelSelect, sdl_ctx->screenRatio);
+    SDL_FRect boxLevelSelect = (SDL_FRect){boxPlay.x, boxPlay.y + boxPlay.h + (15 *sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
+    
+    SDL_FRect boxOption = (SDL_FRect){boxLevelSelect.x, boxLevelSelect.y + boxPlay.h + (15 *sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
 
-    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f + 120.0f), 384.0f, 96.0f};
-    boxToScale(&boxQuit, sdl_ctx->screenRatio);
+    SDL_FRect boxQuit = (SDL_FRect){boxOption.x, boxOption.y + boxPlay.h + (15 *sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
 
     button *playButton = NULL;
     createButton(sdl_ctx, &playButton, "PLAY", boxPlay, "./assets/img/buttons/base128.png",
@@ -173,6 +175,10 @@ gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
     createButton(sdl_ctx, &levelButton, "LEVEL SELECTION", boxLevelSelect, "./assets/img/buttons/base128.png",
                  "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
+    button *optionsButton = NULL;
+    createButton(sdl_ctx, &optionsButton, "OPTIONS", boxOption, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
     button *quitButton = NULL;
     createButton(sdl_ctx, &quitButton, "QUIT", boxQuit, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
                  "./assets/img/buttons/click128.png");
@@ -180,6 +186,7 @@ gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
     addButtonToMenu(menu, playButton);
     addButtonToMenu(menu, levelButton);
+    addButtonToMenu(menu, optionsButton);
     addButtonToMenu(menu, quitButton);
 
     return menu;
@@ -197,9 +204,13 @@ void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
     if (menu->btns.items[1]->isLeftClicked == true) {
         sdl_ctx->currMenu = LEVEL_SELECTION_MENU;
     }
-
+    // Options menu button
+    if (menu->btns.items[2]->isLeftClicked == true) {
+        sdl_ctx->prevMenu = START_MENU;
+        sdl_ctx->currMenu = OPTIONS_MENU;
+    }
     // Quit button
-    if (menu->btns.items[2]->isLeftClicked == true) sdl_ctx->quit = true;
+    if (menu->btns.items[3]->isLeftClicked == true) sdl_ctx->quit = true;
 }
 
 // ******************* LEVEL SELECTION MENU ***********************

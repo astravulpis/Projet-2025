@@ -15,6 +15,13 @@
 
 #include "common.h"
 
+/**
+ * @struct bar
+ * @brief Act as our sdl context with multiple variables used about everywhere
+ *
+ * It holds multiple variable for the rendering of the window, the surface of
+ * said window, the event that can be pulled and if it's running or not
+ */
 typedef struct bar {
     SDL_FRect *BarBox;
     SDL_Color bgColor;

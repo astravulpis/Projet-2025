@@ -96,7 +96,7 @@ typedef struct sdl_context_s sdl_ctx_t;
 
 /**
  * @struct sdl_context_s
- * @brief Act as our sdl context with multiple variables used about everywhere
+ * @brief Act as structure
  *
  * It holds multiple variable for the rendering of the window, the surface of
  * said window, the event that can be pulled and if it's running or not
@@ -114,6 +114,7 @@ struct sdl_context_s {
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
     menu_kind currMenu;
+    menu_kind prevMenu;
     MIX_Mixer *mixer;
     MIX_Track *tracks[TRACK_COUNT];
     MIX_Audio *ennemy_death;

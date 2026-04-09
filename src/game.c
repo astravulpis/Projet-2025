@@ -224,6 +224,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         renderPlayerStatusBar(ctx->sdl_ctx, ctx->player, dashBar1, dashBar2, dashBar3, hpBar);
 
         // Update and render the menu at the very end
+        // il faut que le menu home s'affiche au démarrage, puis charge un niveau, pas que le niveau 
         switch (ctx->sdl_ctx->currMenu) {
         case NONE_MENU:
             break;
