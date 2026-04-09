@@ -14,10 +14,10 @@
 #define EVENT_H_
 
 #include "common.h"
+#include "guns.h"
 #include "level.h"
 #include "player.h"
 #include "sdl_helpers.h"
-#include "guns.h"
 
 /**
  * @fn basic_keyboard_events(struct sdl_context_s *ctx)
@@ -27,6 +27,6 @@
  * @param[in] guns list of guns to be able to equip them
  * @brief Listens to keyboard inputs for mapped keys
  */
-void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t * guns);
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t *guns);
 
 #endif // EVENT_H_

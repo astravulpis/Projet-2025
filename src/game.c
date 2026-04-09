@@ -90,6 +90,7 @@ bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
 bool gameLoop(gameContext *ctx, int argc, char **argv)
 {
     size_t mark = temp_save();
+    bool needsFpsCap = false;
     int frameCounter = 0;
     float deltaTime = 0;
     int frameRate = 0;
@@ -104,7 +105,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     // 0st place in taking a lot of time -> Loads every SDL contexts (i.e. SDL, SDL Image, ttf, mixer)
     if (!createCtx(&ctx->sdl_ctx)) return false; // Error handling is done in the function
     SDL_GetMouseState(&mouseCoord.x, &mouseCoord.y);
-    // disableVsync(ctx->sdl_ctx);
+    disableVsync(ctx->sdl_ctx);
 
     // 1st place in taking a lot of time -> Loads the player
     if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
@@ -150,6 +151,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
             frameCounter = 0;
             frameStart = now;
         }
+        if (frameRate > 60) needsFpsCap = true;
 
         while (SDL_PollEvent(&ctx->sdl_ctx->event)) {
             switch (ctx->sdl_ctx->event.type) {
@@ -228,7 +230,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         frameCounter++;
-        // SDL_Delay(16); // 16.6667 ms ~= 60fps
+        // if (needsFpsCap)
+        //     SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
     destroyBar(&hpBar);

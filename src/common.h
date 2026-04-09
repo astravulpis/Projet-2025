@@ -103,7 +103,7 @@ struct sdl_context_s {
     menu_kind currMenu;
     MIX_Mixer *mixer;
     MIX_Track *tracks[TRACK_COUNT];
-    MIX_Audio * ennemy_death;
+    MIX_Audio *ennemy_death;
 };
 
 typedef struct {

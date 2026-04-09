@@ -4,7 +4,6 @@
 #include "common.h"
 #include "level.h"
 
-
 /**
  * @struct bullet
  * @brief bullet bounding box and current velocity
@@ -15,7 +14,7 @@ typedef struct {
     SDL_FRect *boundingBox;
     V2f velocity;
     SDL_Texture *texture;
-    float dmg; 
+    float dmg;
 } bullet;
 
 /**
@@ -39,7 +38,7 @@ typedef struct {
  *
  * creates one bullet by putting in the dynamic array with its corresponding position and velocity
  */
-bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture * texture, float dmg);
+bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *texture, float dmg);
 
 /**
  * @fn updateBulletState(bullets *arr, float deltaTime)
@@ -49,7 +48,7 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture * t
  *
  * moves all bullets according to delta time
  */
-void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t * p);
+void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *p);
 
 /**
  * @fn checkCollision(bullets *arr, objs *level)
@@ -59,7 +58,7 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *
  *
  * goes through all the bullets and removes any that are colliding with elements of the level
  */
-bool checkCollision(bullet *bullet, level_t *level, player_t * p);
+bool checkCollision(bullet *bullet, level_t *level, player_t *p);
 
 /**
  * @fn renderBullets(sdl_ctx_t *ctx, bullets *arr)

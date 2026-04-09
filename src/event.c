@@ -19,7 +19,7 @@
  *
  * for now this is just to quit the game but we might add menu buttons and such in the future unless we go with a new function?
  */
-void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t * guns)
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t *guns)
 {
     const bool *state = SDL_GetKeyboardState(NULL);
     static bool prev[SDL_SCANCODE_COUNT] = {0};
