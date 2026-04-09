@@ -63,6 +63,21 @@ room_t *beginLevel(int argc, char **argv, gameContext *ctx)
     return curr;
 }
 
+bool loadAllLevels(gameContext *ctx)
+{
+    char *paths[5] = {"levelA","levelB","levelC","levelD","levelE"};
+
+    for (int i = 1; i < 5; i++) {
+        level_t *level = NULL;
+        parseFile(paths[i], &ctx->sdl_ctx, &level);
+        //assert(level != NULL && "Parse file didn't work");
+
+        ctx->levels[i] = level;
+    }
+
+    return true;
+}
+
 bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
 {
     if (ctx->menus == NULL) {
@@ -129,6 +144,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     // 2rd place in taking a lot of time -> parse the file and loads the level
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
     level_t *currLevel = getLoadedLevel(ctx);
+
+    if (!loadAllLevels(ctx)) return false;
 
     if (!addMenu(ctx, createPauseMenu(ctx->sdl_ctx), PAUSE_MENU)) return false;
     if (!addMenu(ctx, createOptionsMenu(ctx->sdl_ctx), OPTIONS_MENU)) return false;
@@ -211,19 +228,19 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         case NONE_MENU:
             break;
         case PAUSE_MENU: {
-            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[ctx->sdl_ctx->currMenu], updatePauseMenu);
+            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[ctx->sdl_ctx->currMenu], updatePauseMenu, NULL);
             renderMenu(ctx->sdl_ctx, ctx->menus[ctx->sdl_ctx->currMenu]);
         } break;
         case OPTIONS_MENU: {
-            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[OPTIONS_MENU], updateOptionsMenu);
+            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[OPTIONS_MENU], updateOptionsMenu, NULL);
             renderMenu(ctx->sdl_ctx, ctx->menus[OPTIONS_MENU]);
         } break;
         case START_MENU: {
-            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[START_MENU], updateHomeMenu);
+            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[START_MENU], updateHomeMenu, NULL);
             renderMenu(ctx->sdl_ctx, ctx->menus[START_MENU]);
         } break;
         case LEVEL_SELECTION_MENU: {
-            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[LEVEL_SELECTION_MENU], updateLevelMenu);
+            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[LEVEL_SELECTION_MENU], updateLevelMenu, &(ctx->loadedLevelIdx));
             renderMenu(ctx->sdl_ctx, ctx->menus[LEVEL_SELECTION_MENU]);
             renderText_Ex(ctx->sdl_ctx, temp_sprintf("choose a level :", ctx->player->velocity.x), BLACK, (V2f){94.0f, 198.0f}); // ombre
             renderText_Ex(ctx->sdl_ctx, temp_sprintf("choose a level :", ctx->player->velocity.x), WHITE, (V2f){92.0f, 196.0f});
@@ -235,6 +252,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         frameCounter++;
+        currLevel = getLoadedLevel(ctx);
+        SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
     destroyBar(&hpBar);

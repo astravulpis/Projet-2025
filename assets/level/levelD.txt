@@ -1,0 +1,4 @@
+info "levelD" 0
+bg "./assets/img/flare.jpg"
+mus "./assets/audio/OST/SneakySnitch.mp3"
+room 0

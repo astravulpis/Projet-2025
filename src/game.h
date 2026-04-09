@@ -50,6 +50,13 @@ level_t *getLoadedLevel(gameContext *ctx);
 room_t *beginLevel(int argc, char **argv, gameContext *ctx);
 
 /**
+ * @fn loadAllLevels(gameContext *ctx)
+ * @param[in] ctx the context of the game to load all the levels on the levels tab
+ * @brief load all of the levels (not render)
+ */
+bool loadAllLevels(gameContext *ctx);
+
+/**
  * @fn addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
  * @param[in] ctx our context variable
  * @param[in] menu menu structure

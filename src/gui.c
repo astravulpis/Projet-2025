@@ -17,6 +17,7 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "sliders.h"
+#include "level.h"
 
 gui_menu *createMenu(SDL_Color bgColor)
 {
@@ -76,7 +77,7 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
 {
 
     // Resume button
@@ -130,7 +131,7 @@ gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
 {
     static float sfx = 0;
 
@@ -184,7 +185,7 @@ gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
 {
 
     // Play button
@@ -209,11 +210,11 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
 
     SDL_FRect boxLevelB = (SDL_FRect){boxLevelA.x, boxLevelA.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxLevelC = (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelB.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelC = (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxLevelD = (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelC.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelD = (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxLevelE = (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelD.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelE = (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
     SDL_FRect boxBackToHomeMenu = (SDL_FRect){30, 64, 384.0f, 96.0f};
     boxToScale(&boxBackToHomeMenu, sdl_ctx->screenRatio);
@@ -254,7 +255,7 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, size_t *loadedLevelIdx)
 {
 
     // Level button's
@@ -262,26 +263,31 @@ void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
     if (menu->btns.items[0]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
+        *loadedLevelIdx = 0;
     }
     // Level B
     if (menu->btns.items[1]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
+        *loadedLevelIdx = 1;
     }
     // Level C
     if (menu->btns.items[2]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
+        *loadedLevelIdx = 2;
     }
     // Level D
     if (menu->btns.items[3]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
+        *loadedLevelIdx = 3;
     }
     // Level E
     if (menu->btns.items[4]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
+        *loadedLevelIdx = 4;
     }
 
     // Back to Home menu button
@@ -290,7 +296,7 @@ void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
     }
 }
 
-void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helper_function updateFunc)
+void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helper_function updateFunc, size_t *loadedLevelIdx)
 {
     da_foreach (button *, button, &menu->btns) {
         updateButtonState(*button, mouseCoord, mouseInputFlag);
@@ -298,7 +304,8 @@ void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu
     da_foreach (slider *, slider, &menu->sliders) {
         updateSliderStates(*slider, mouseCoord, mouseInputFlag, NULL);
     }
-    updateFunc(sdl_ctx, menu);
+
+    updateFunc(sdl_ctx, menu, loadedLevelIdx);
 }
 
 void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)

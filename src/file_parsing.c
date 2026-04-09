@@ -134,11 +134,11 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 // bg "[PATH_TO_IMG]"
                 String_View bgTemp = sv_chop_by_delim(&line, ' ');
                 sv_chop_left(&bgTemp, 1);
-#ifdef _WIN32
-                sv_chop_right(&bgTemp, 2);
-#else
+
                 sv_chop_right(&bgTemp, 1);
-#endif
+                if (bgTemp.data[bgTemp.count-1]  == '"')
+                    sv_chop_right(&bgTemp, 1);
+
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 if (!loadBackgroundImage((*ctx), path)) return false;
 
@@ -209,6 +209,10 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 String_View temp = sv_chop_by_delim(&line, ' ');
                 sv_chop_left(&temp, 1);
                 sv_chop_right(&temp, 1);
+
+                if (temp.data[temp.count-1]  == '"')
+                    sv_chop_right(&temp, 1);
+
                 const char *path = nob_temp_sv_to_cstr(temp);
                 if (!loadTrack(*ctx, BACKGROUND_MUSIC, path)) return false;
             } else {
