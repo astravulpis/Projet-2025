@@ -143,4 +143,17 @@ void destroyGun(Gun_t *gun);
 void destroyGuns(Guns_t **guns);
 
 void setBulletTexture(Gun_t *gun, const char *path);
+
+/**
+ * @fn createGun(Guns_t *guns, gun_kind kind, float dmg, float size, char *sfxPath, char *gunImage, char *bulletTexture)
+ * @param[in] guns list of guns
+ * @param[in] kind the gun type
+ * @param[in] dmg the gun damage value
+ * @param[in] size the bullet size
+ * @param[in] sfxPath path to the sound effect associated
+ * @param[in] gunImage path to the gun texture
+ * @param[in] bulletTexture texture of the bullet, unique with each gun
+ * @brief creates a gun by giving it all of its corresponding attributes
+ */
+void createGun(Guns_t *guns, gun_kind kind, float dmg, float size, char *sfxPath, char *gunImage, char *bulletTexture);
 #endif // GUNS_H_

@@ -165,4 +165,27 @@ void destroyPlayerStatusBar(bar **b1, bar **b2, bar **b3, bar **hpB);
  */
 bool initAllPlayerAnimation(sdl_ctx_t *sdl_ctx, player_t *player);
 
+/**
+ * @fn inputUpdate(player_t *p, const float dt)
+ * @param[in] p player structure
+ * @param[in] dt delta time
+ * @brief updates the player's inputs and adjusts them according to the delta time
+ */
+V2f inputUpdate(player_t *p, const float dt);
+
+/**
+ * @fn collision_test_player(player_t *p, objs *tiles)
+ * @param[in] p player structure
+ * @param[in] tiles list of all objects
+ * @brief checks to see if the player is colliding with anything by going through the entire list of objects in the room
+ */
+objs collision_test_player(player_t *p, objs *tiles);
+
+/**
+ * @fn resetAnimationStates(player_t *player, player_anim_kind excluded_anim)
+ * @param[in] player player structure
+ * @param[in] excluded_anim animation we are excluding
+ * @brief resets the player's animation state
+ */
+void resetAnimationStates(player_t *player, player_anim_kind excluded_anim);
 #endif // PLAYER_H_

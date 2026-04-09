@@ -191,6 +191,13 @@ void updateTriggers(level_t *level, player_t *p);
  * @param[in] trigger the trigger to be checked for potential updates
  * @brief updates a trigger's state and executes the corresponding function
  */
-void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
+void updateTrigger(level_t *level, player_t *p, trigger_t *trigger);
+
+/**
+ * @fn typeDisplayName(String_View sv)
+ * @param[in] sv currently viewed string
+ * @brief returns the type of the entity that corresponds to the given string
+ */
+entity_type typeDisplayName(String_View sv);
 
 #endif // LEVEL_H_
