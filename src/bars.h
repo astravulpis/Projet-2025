@@ -17,15 +17,15 @@
 
 /**
  * @struct bar
- * @brief Act as our sdl context with multiple variables used about everywhere
+ * @brief a type with attributes used to display information such as the player's health or stamina
  *
- * It holds multiple variable for the rendering of the window, the surface of
- * said window, the event that can be pulled and if it's running or not
+ * a structure that includes all the features of a bar,
+ * a bar represents a value via a gauge on a bar relative to a maximum
  */
 typedef struct bar {
-    SDL_FRect *BarBox;
-    SDL_Color bgColor;
-    SDL_Color fillColor;
+    SDL_FRect *BarBox; //!< represents the rectangle that the bar occupies in the game window, including the borders
+    SDL_Color bgColor; //!< 
+    SDL_Color fillColor; //!<
     SDL_Color cursorColor;
 
     float val;      // pour avoir le bon ratio dans la jauge
