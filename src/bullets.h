@@ -14,7 +14,7 @@
 typedef struct {
     SDL_FRect *boundingBox;
     V2f velocity;
-    SDL_Color color;
+    SDL_Texture *texture;
     float dmg; 
 } bullet;
 
@@ -39,7 +39,7 @@ typedef struct {
  *
  * creates one bullet by putting in the dynamic array with its corresponding position and velocity
  */
-bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Color color, float dmg);
+bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture * texture, float dmg);
 
 /**
  * @fn updateBulletState(bullets *arr, float deltaTime)

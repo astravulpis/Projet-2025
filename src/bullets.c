@@ -5,13 +5,13 @@
 #include "player.h"
 #include "sdl_helpers.h"
 
-bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Color color, float dmg)
+bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture * texture, float dmg)
 {
     bullet projectile = {0};
     projectile.boundingBox = createRect(init_pos.x, init_pos.y, size, size);
     projectile.velocity.x = vel.x;
     projectile.velocity.y = vel.y;
-    projectile.color = color;
+    projectile.texture = texture;
     projectile.dmg = dmg;
 
     da_append(arr, projectile);
@@ -68,7 +68,7 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime)
 void renderBullets(sdl_ctx_t *ctx, bullets *arr)
 {
     da_foreach (bullet, it, arr) {
-        renderFillRect(ctx->renderer, it->boundingBox, it->color);
+        renderImage(ctx, it->texture, it->boundingBox);
     }
 }
 

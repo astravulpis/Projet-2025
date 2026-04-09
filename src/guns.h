@@ -15,6 +15,7 @@ typedef struct {
     float size;
     float dmg;
     char *bullet_path;
+    SDL_Texture *bullet_texture;
 } Gun_t;
 
 typedef struct {
@@ -78,6 +79,14 @@ void setGunImage(Gun_t *gun, const char *path);
  */
 void loadGunImage(Gun_t *gun, sdl_ctx_t *ctx);
 
+/**
+ * @fn loadBulletTexture(Gun_t *gun, sdl_ctx_t *ctx)
+ * @param[in] gun gun structure
+ * @param[in] ctx our sdl context variable
+ * @brief loads the bullet's texture
+ */
+void loadBulletTexture(Gun_t *gun, sdl_ctx_t *ctx);
+
 // Interactions
 /**
  * @fn shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position, V2f direction)
@@ -121,4 +130,5 @@ void destroyGun(Gun_t *gun);
  */
 void destroyGuns(Guns_t **guns);
 
+void setBulletTexture(Gun_t *gun, const char *path);
 #endif // GUNS_H_
