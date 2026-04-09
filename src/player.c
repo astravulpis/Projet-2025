@@ -59,6 +59,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
     p->flight = false;
     p->noclip = false;
     p->run = false;
+    p->speed = 0.0f;
 
     p->dashAnimationTime = 500; // en ms
     p->prevDashTick = -1;

@@ -56,8 +56,9 @@ typedef enum {
     SFX_ENEMY_MOVE,
     SFX_ENEMY_INTERACTIONS,
     SFX_ENEMY_DIE,
+    SFX_ENEMY_SPAWN,
 
-    TRACK_COUNT = 9,
+    TRACK_COUNT = 10,
 } track_kind;
 
 typedef enum {
@@ -144,6 +145,7 @@ typedef struct {
     SDL_Texture *tex;       //!< Player's texture
     float hp;
     float maxHp;
+    float score;
 } entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \

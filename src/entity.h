@@ -68,6 +68,7 @@ typedef struct {
     float jumpForce; //!< Unsure whenever it is needed, or not.
     float hp;
     float maxHP;
+    float score;
     // BEHAVIOUR PART
     entity_state state;
 

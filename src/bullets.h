@@ -49,7 +49,7 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture * t
  *
  * moves all bullets according to delta time
  */
-void updateBulletState(bullets *arr, level_t *level, float deltaTime);
+void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t * p);
 
 /**
  * @fn checkCollision(bullets *arr, objs *level)
@@ -59,7 +59,7 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime);
  *
  * goes through all the bullets and removes any that are colliding with elements of the level
  */
-bool checkCollision(bullet *arr, level_t *level);
+bool checkCollision(bullet *bullet, level_t *level, player_t * p);
 
 /**
  * @fn renderBullets(sdl_ctx_t *ctx, bullets *arr)

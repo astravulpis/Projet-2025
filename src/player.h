@@ -48,6 +48,8 @@ typedef struct {
 
     float hp;
 
+    float score;
+
     bool onGround; //!< State to tell whenever the player is on the ground or not
     bool onWall; //!< State to tell whenever the player is glued to a wall or not
     bool isSlamming;

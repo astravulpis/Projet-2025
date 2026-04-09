@@ -19,7 +19,7 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
     return true;
 }
 
-bool checkCollision(bullet *bullet, level_t *level)
+bool checkCollision(bullet *bullet, level_t *level, player_t * p)
 {
     room_t *currRoom = level->items[level->currentLoadedRoomID];
     da_foreach (obj, tile, &currRoom->structures) {
@@ -33,7 +33,10 @@ bool checkCollision(bullet *bullet, level_t *level)
         if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(entity))) {
             entity->entity_attribs.hp -= bullet->dmg;
             if (entity->entity_attribs.hp <= 0) {
+                printf("reached line 36 whaho! \n");
                 playSfx(*entity->entity_attribs.ctx, &entity->audios, "death");
+                p->score+=entity->attributs.score;
+                printf("this is the current player score: %f \n", p->score);
                 da_remove_unordered(s, i);
                 destroyEntity(&entity);
             }
@@ -44,7 +47,7 @@ bool checkCollision(bullet *bullet, level_t *level)
     return false;
 }
 
-void updateBulletState(bullets *arr, level_t *level, float deltaTime)
+void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t * p)
 {
     da_foreach (bullet, it, arr) {
         it->boundingBox->x += it->velocity.x * deltaTime;
@@ -55,7 +58,7 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime)
     while (i < arr->count) {
         bullet *it = &arr->items[i];
         if ((it->boundingBox->x < -64 || it->boundingBox->x >= WINDOW_WIDTH * 2) ||
-            (it->boundingBox->y < -64 || it->boundingBox->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level)) {
+            (it->boundingBox->y < -64 || it->boundingBox->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level, p)) {
             deleteBullet(&it);
             da_remove_unordered(arr, i);
             i -= 1;

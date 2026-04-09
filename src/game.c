@@ -190,7 +190,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
 
         if (!ctx->sdl_ctx->currMenu) {
             updateTriggers(currLevel, ctx->player);
-            updateBulletState(&ctx->bullet_arr, currLevel, deltaTime);
+            updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
             updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime);
             updatePlayer(ctx->player, getRoomObjects(currLevel), deltaTime);
         }

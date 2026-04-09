@@ -63,7 +63,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.tex = getEntityTex(*sdl_ctx, type);
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
-
+    loadSfx((*sdl_ctx), &e->audios, SFX_ENEMY_SPAWN, "spawn", "./assets/audio/SFX/spawn.ogg");
     loadSfx((*sdl_ctx), &e->audios, SFX_ENEMY_DIE, "death", "./assets/audio/SFX/die.ogg");
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
@@ -71,7 +71,8 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     case E_FILTH: {
         e->entity_attribs.boundingBox =
             createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
-        setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f);
+        setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f, .score = 20);
+        playSfx(*e->entity_attribs.ctx, &e->audios, "spawn");
         break;
     }
     case E_STRAY: {
@@ -139,6 +140,8 @@ void _setEntityAttributs(ennemy_t *e, entity_attributs attrib)
     if (attrib.state >= 0) setEntityState(e, attrib.state);
 
     if (attrib.jumpForce > 0) e->attributs.jumpForce = attrib.jumpForce;
+
+    if (attrib.score > 0) e->attributs.score = attrib.score;
 }
 
 void setEntityState(ennemy_t *e, entity_state state)
