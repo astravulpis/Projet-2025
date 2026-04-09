@@ -55,4 +55,12 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
 gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx);
 void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
 
+// Home menu related
+gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx);
+void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
+
+// Level selection related
+gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx);
+void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
+
 #endif // GUI_H_

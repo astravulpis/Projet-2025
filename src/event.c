@@ -29,8 +29,22 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, G
             sdl_ctx->currMenu = NONE_MENU;
             MIX_ResumeAllTracks(sdl_ctx->mixer);
         } else {
-            MIX_PauseAllTracks(sdl_ctx->mixer);
-            sdl_ctx->currMenu = PAUSE_MENU;
+            if (sdl_ctx->currMenu != START_MENU && sdl_ctx->currMenu != LEVEL_SELECTION_MENU) { // on ne va pas rendre un le menu pause si on est déja dans un menu
+                MIX_PauseAllTracks(sdl_ctx->mixer);
+                sdl_ctx->currMenu = PAUSE_MENU;
+            }
+        }
+    }
+
+    if (isKeyPressed(SDL_SCANCODE_H, state, prev)) {
+        if (sdl_ctx->currMenu != NONE_MENU) {
+            sdl_ctx->currMenu = NONE_MENU;
+            MIX_ResumeAllTracks(sdl_ctx->mixer);
+        } else {
+            if (sdl_ctx->currMenu != LEVEL_SELECTION_MENU) { // on ne va pas rendre un le menu pause si on est déja dans un menu
+                MIX_PauseAllTracks(sdl_ctx->mixer);
+                sdl_ctx->currMenu = START_MENU;
+            }
         }
     }
 

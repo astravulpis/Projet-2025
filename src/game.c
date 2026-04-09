@@ -132,6 +132,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
 
     if (!addMenu(ctx, createPauseMenu(ctx->sdl_ctx), PAUSE_MENU)) return false;
     if (!addMenu(ctx, createOptionsMenu(ctx->sdl_ctx), OPTIONS_MENU)) return false;
+    if (!addMenu(ctx, createHomeMenu(ctx->sdl_ctx), START_MENU)) return false;
+    if (!addMenu(ctx, createLevelMenu(ctx->sdl_ctx), LEVEL_SELECTION_MENU)) return false;
 
     // 3rd place in taking a lot of time -> idk
     ctx->guns = initialiseGuns(ctx->sdl_ctx);
@@ -217,10 +219,14 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
             renderMenu(ctx->sdl_ctx, ctx->menus[OPTIONS_MENU]);
         } break;
         case START_MENU: {
-            TODO("start menu");
+            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[START_MENU], updateHomeMenu);
+            renderMenu(ctx->sdl_ctx, ctx->menus[START_MENU]);
         } break;
         case LEVEL_SELECTION_MENU: {
-            TODO("level selection menu");
+            updateMenu(ctx->sdl_ctx, mouseCoord, mouseInputFlag, ctx->menus[LEVEL_SELECTION_MENU], updateLevelMenu);
+            renderMenu(ctx->sdl_ctx, ctx->menus[LEVEL_SELECTION_MENU]);
+            renderText_Ex(ctx->sdl_ctx, temp_sprintf("choose a level :", ctx->player->velocity.x), BLACK, (V2f){94.0f, 198.0f}); // ombre
+            renderText_Ex(ctx->sdl_ctx, temp_sprintf("choose a level :", ctx->player->velocity.x), WHITE, (V2f){92.0f, 196.0f});
         } break;
         default:
             break;

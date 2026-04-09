@@ -152,6 +152,144 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
     sfx = sdl_ctx->opts.sfxVolume;
 }
 
+// ******************* HOME MENU ***********************
+gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
+{
+    SDL_FRect boxPlay = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 120.0f), 384.0f, 96.0f};
+    boxToScale(&boxPlay, sdl_ctx->screenRatio);
+
+    SDL_FRect boxLevelSelect = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f), 384.0f, 96.0f};
+    boxToScale(&boxLevelSelect, sdl_ctx->screenRatio);
+
+    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f + 120.0f), 384.0f, 96.0f};
+    boxToScale(&boxQuit, sdl_ctx->screenRatio);
+
+    button *playButton = NULL;
+    createButton(sdl_ctx, &playButton, "PLAY", boxPlay, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *levelButton = NULL;
+    createButton(sdl_ctx, &levelButton, "LEVEL SELECTION", boxLevelSelect, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *quitButton = NULL;
+    createButton(sdl_ctx, &quitButton, "QUIT", boxQuit, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
+                 "./assets/img/buttons/click128.png");
+
+    gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
+    addButtonToMenu(menu, playButton);
+    addButtonToMenu(menu, levelButton);
+    addButtonToMenu(menu, quitButton);
+
+    return menu;
+}
+
+void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+{
+
+    // Play button
+    if (menu->btns.items[0]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+    }
+    // Level Selection button
+    if (menu->btns.items[1]->isLeftClicked == true) {
+        sdl_ctx->currMenu = LEVEL_SELECTION_MENU;
+    }
+
+    // Quit button
+    if (menu->btns.items[2]->isLeftClicked == true) sdl_ctx->quit = true;
+}
+
+// ******************* LEVEL SELECTION MENU ***********************
+gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
+{
+    SDL_FRect boxLevelA = (SDL_FRect){92, 256, 256.0f, 64.0f};
+    boxToScale(&boxLevelA, sdl_ctx->screenRatio); // pas utilisé pour les autres boutons de niveau car ils vont être crée a partir de cette box (ratio déja fait)
+
+    SDL_FRect boxLevelB = (SDL_FRect){boxLevelA.x, boxLevelA.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+
+    SDL_FRect boxLevelC = (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelB.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+
+    SDL_FRect boxLevelD = (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelC.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+
+    SDL_FRect boxLevelE = (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelD.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+
+    SDL_FRect boxBackToHomeMenu = (SDL_FRect){30, 64, 384.0f, 96.0f};
+    boxToScale(&boxBackToHomeMenu, sdl_ctx->screenRatio);
+
+    button *levelAButton = NULL;
+    createButton(sdl_ctx, &levelAButton, "A", boxLevelA, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *levelBButton = NULL;
+    createButton(sdl_ctx, &levelBButton, "B", boxLevelB, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *levelCButton = NULL;
+    createButton(sdl_ctx, &levelCButton, "C", boxLevelC, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *levelDButton = NULL;
+    createButton(sdl_ctx, &levelDButton, "D", boxLevelD, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *levelEButton = NULL;
+    createButton(sdl_ctx, &levelEButton, "E", boxLevelE, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    button *backButton = NULL;
+    createButton(sdl_ctx, &backButton, "BACK TO HOME MENU", boxBackToHomeMenu, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
+                 "./assets/img/buttons/click128.png");
+
+    gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
+    addButtonToMenu(menu, levelAButton);
+    addButtonToMenu(menu, levelBButton);
+    addButtonToMenu(menu, levelCButton);
+    addButtonToMenu(menu, levelDButton);
+    addButtonToMenu(menu, levelEButton);
+
+    addButtonToMenu(menu, backButton);
+
+    return menu;
+}
+
+void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
+{
+
+    // Level button's
+    // Level A
+    if (menu->btns.items[0]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+    }
+    // Level B
+    if (menu->btns.items[1]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+    }
+    // Level C
+    if (menu->btns.items[2]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+    }
+    // Level D
+    if (menu->btns.items[3]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+    }
+    // Level E
+    if (menu->btns.items[4]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+    }
+
+    // Back to Home menu button
+    if (menu->btns.items[5]->isLeftClicked == true){
+        sdl_ctx->currMenu = START_MENU;
+    }
+}
+
 void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helper_function updateFunc)
 {
     da_foreach (button *, button, &menu->btns) {
