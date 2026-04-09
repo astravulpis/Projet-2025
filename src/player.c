@@ -110,7 +110,7 @@ void destroyPlayer(player_t **p)
 V2f inputUpdate(player_t *p, const float dt)
 {
     V2f deltaPos = {0};
-    float dashSpeed = (p->speed * 1.65f) * dt;
+    float dashSpeed = (p->speed * 2.65f) * dt;
     float wallJumpStrenght = (p->speed * 1.3f) * dt;
     const bool *currState = SDL_GetKeyboardState(NULL); // Not a bool. Just a bit-wise mask
     static bool prevState[SDL_SCANCODE_COUNT] = {0};
@@ -175,7 +175,7 @@ V2f inputUpdate(player_t *p, const float dt)
             } else if (p->lastKey == SDL_SCANCODE_D) {
                 p->velocity.x = -wallJumpStrenght * temp;
             }
-            p->velocity.y = -dashSpeed * temp;
+            p->velocity.y = -wallJumpStrenght * temp;
         } else if (p->onGround) {
             p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
         }
@@ -311,7 +311,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, triggers_t *trigg_arr
     }
     wasOnGround = p->onGround;
 
-    if (!p->flight) p->velocity.y = MIN(50.0f, p->velocity.y + (gravity * deltaTime));
+    if (!p->flight) p->velocity.y = MAX(150.0f, p->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
     keepRectInbounds(p->boundingBox, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

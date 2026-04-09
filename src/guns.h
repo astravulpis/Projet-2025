@@ -1,25 +1,23 @@
 #ifndef GUNS_H_
 #define GUNS_H_
 
+#include "bullets.h"
 #include "common.h"
 #include "music.h"
-#include "bullets.h"
 
-#define GUN_COUNT 6
+typedef enum { PIERCER, SHARPSHOOTER, SHOTGUN, MACHINEGUN, RAILCANNON, ROCKET, __gun_kind_count = 6 } gun_kind;
 
 typedef struct {
-    // bulletPattern pattern;
-    const char *sfx_path;
-    const char *img_path;
-    const char *name;
+    gun_kind kind;
+    char *sfx_path;
+    char *img_path;
     SDL_Texture associatedImage;
-    int idx;
-    int size;
-    int dmg;
+    float size;
+    float dmg;
 } Gun_t;
 
 typedef struct {
-    Gun_t * arsenal;
+    Gun_t *arsenal;
     int selectedGun;
 } Guns_t;
 
@@ -29,7 +27,7 @@ typedef struct {
  * @brief Allocates and initializes all guns with their properties
  * @return Pointer to the allocated Guns_t structure, or NULL on error
  */
-Guns_t *initialiseGuns(sdl_ctx_t * ctx);
+Guns_t *initialiseGuns(sdl_ctx_t *ctx);
 
 // SFX
 /**
@@ -53,7 +51,7 @@ void setGunSfx(Gun_t *gun, const char *path);
  * @param[in] ctx our own sdl context variable
  * @brief loads the gun's sound effect using MIX_LoadAudio
  */
-void loadGunSfx(Gun_t *gun, sdl_ctx_t * ctx);
+void loadGunSfx(Gun_t *gun, sdl_ctx_t *ctx);
 
 // Image
 /**
@@ -102,10 +100,10 @@ int getCurrentGun(Guns_t *guns);
 /**
  * @fn setCurrentGun(Guns_t *guns, int idx)
  * @param[in] guns gun structure
- * @param[in] idx id of the new gun to equip
+ * @param[in] kind the kind of gun you'd like to use
  * @brief equips the gun with ID idx
  */
-void setCurrentGun(Guns_t *guns, int idx);
+void setCurrentGun(Guns_t *guns, gun_kind kind);
 
 // Initialize guns
 /**

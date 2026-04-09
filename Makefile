@@ -24,7 +24,7 @@ LDFLAGS   := -L$(VENDOR)/SDL3/lib \
 LIBS      := -lSDL3 -lSDL3_image -lSDL3_ttf -lSDL3_mixer -lm
 RPATH     := -Wl,-rpath,$(VENDOR)/SDL3/lib:$(VENDOR)/SDL_Image/lib:$(VENDOR)/SDL_ttf/lib:$(VENDOR)/SDL_Mixer/lib
 
-SRC       := buttons.c event.c main.c sdl_ctx.c bars.c checkboxes.c file_parsing.c music.c sdl_helpers.c bullets.c entity.c gui.c player.c sliders.c
+SRC       := event.c sdl_ctx.c sdl_helpers.c player.c file_parsing.c buttons.c gui.c bullets.c entity.c music.c bars.c sliders.c checkboxes.c level.c game.c guns.c main.c
 OBJS      := $(SRC:%.c=$(BUILD_DIR)/%.o)
 
 

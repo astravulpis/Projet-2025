@@ -100,6 +100,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
     V2f mouseCoord = {0};
 
     if (!createCtx(&ctx->sdl_ctx)) return false; // Error handling is done in the function
+    disableVsync(ctx->sdl_ctx);
     if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx, "assets/img/V1.png")) return false;
     room_t *currRoom = NULL;
     if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
@@ -164,8 +165,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
             V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
 
             shootGun(ctx->sdl_ctx, &guns->arsenal[guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
-            //createBullet(&ctx->bullet_arr, startingPos, vel);
-            //playSfx(ctx->sdl_ctx, &ctx->audios, "piercerPrimary");
+            // createBullet(&ctx->bullet_arr, startingPos, vel);
+            // playSfx(ctx->sdl_ctx, &ctx->audios, "piercerPrimary");
         }
         // else if (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)))
         // {
@@ -231,6 +232,8 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         if (addition) healthBarTest += 10 * deltaTime;
         else
             healthBarTest -= 10 * deltaTime;
+
+        SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
     destroyBar(&hpBar);
