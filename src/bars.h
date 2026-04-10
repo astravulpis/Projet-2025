@@ -28,11 +28,11 @@ typedef struct bar {
     SDL_Color fillColor; //!< represents the gauge color
     SDL_Color cursorColor; //!< represents the cursor color
 
-    float val;      // pour avoir le bon ratio dans la jauge
-    float barPadding; // proportion que la jauge prend dans BarBox
+    float val;      //!< pour avoir le bon ratio dans la jauge
+    float barPadding; //!< proportion que la jauge prend dans BarBox
     float minCursorWidth;
 
-    bool displayHpValue; // booléen qui permet d'indiquer si l'on doit afficher hpValue au rendu ou pas
+    bool displayHpValue; //!< booléen qui permet d'indiquer si l'on doit afficher hpValue au rendu ou pas
 } bar;
 
 /**
