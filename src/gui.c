@@ -14,10 +14,10 @@
 #include "gui.h"
 #include "buttons.h"
 #include "common.h"
+#include "level.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "sliders.h"
-#include "level.h"
 
 gui_menu *createMenu(SDL_Color bgColor)
 {
@@ -77,9 +77,9 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
+void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
-
+    UNUSED(opts);
     // Resume button
     if (menu->btns.items[0]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
@@ -132,9 +132,10 @@ gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
+void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
     static float sfx = 0;
+    UNUSED(opts);
 
     // Go back button
     if (menu->btns.items[0]->isLeftClicked == true) {
@@ -161,15 +162,17 @@ gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
     SDL_FRect boxPlay = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 120.0f), 384.0f, 96.0f};
     boxToScale(&boxPlay, sdl_ctx->screenRatio);
 
-    SDL_FRect boxLevelSelect = (SDL_FRect){boxPlay.x, boxPlay.y + boxPlay.h + (15 *sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
-    
-    SDL_FRect boxOption = (SDL_FRect){boxLevelSelect.x, boxLevelSelect.y + boxPlay.h + (15 *sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
+    SDL_FRect boxLevelSelect =
+        (SDL_FRect){boxPlay.x, boxPlay.y + boxPlay.h + (15 * sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
 
-    SDL_FRect boxQuit = (SDL_FRect){boxOption.x, boxOption.y + boxPlay.h + (15 *sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
+    SDL_FRect boxOption =
+        (SDL_FRect){boxLevelSelect.x, boxLevelSelect.y + boxPlay.h + (15 * sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
+
+    SDL_FRect boxQuit = (SDL_FRect){boxOption.x, boxOption.y + boxPlay.h + (15 * sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
 
     button *playButton = NULL;
-    createButton(sdl_ctx, &playButton, "PLAY", boxPlay, "./assets/img/buttons/base128.png",
-                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &playButton, "PLAY", boxPlay, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
+                 "./assets/img/buttons/click128.png");
 
     button *levelButton = NULL;
     createButton(sdl_ctx, &levelButton, "LEVEL SELECTION", boxLevelSelect, "./assets/img/buttons/base128.png",
@@ -192,8 +195,9 @@ gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
+void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
+    UNUSED(opts);
 
     // Play button
     if (menu->btns.items[0]->isLeftClicked == true) {
@@ -217,15 +221,20 @@ void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, ...)
 gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
 {
     SDL_FRect boxLevelA = (SDL_FRect){92, 256, 256.0f, 64.0f};
-    boxToScale(&boxLevelA, sdl_ctx->screenRatio); // pas utilisé pour les autres boutons de niveau car ils vont être crée a partir de cette box (ratio déja fait)
+    boxToScale(&boxLevelA, sdl_ctx->screenRatio); // pas utilisé pour les autres boutons de niveau car ils vont être crée a
+                                                  // partir de cette box (ratio déja fait)
 
-    SDL_FRect boxLevelB = (SDL_FRect){boxLevelA.x, boxLevelA.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelB =
+        (SDL_FRect){boxLevelA.x, boxLevelA.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxLevelC = (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelC =
+        (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxLevelD = (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelD =
+        (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxLevelE = (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+    SDL_FRect boxLevelE =
+        (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
     SDL_FRect boxBackToHomeMenu = (SDL_FRect){30, 64, 384.0f, 96.0f};
     boxToScale(&boxBackToHomeMenu, sdl_ctx->screenRatio);
@@ -251,8 +260,8 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
                  "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     button *backButton = NULL;
-    createButton(sdl_ctx, &backButton, "BACK TO HOME MENU", boxBackToHomeMenu, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
-                 "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &backButton, "BACK TO HOME MENU", boxBackToHomeMenu, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
     addButtonToMenu(menu, levelAButton);
@@ -266,48 +275,46 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
     return menu;
 }
 
-void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, size_t *loadedLevelIdx)
+void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
-
-    // Level button's
     // Level A
     if (menu->btns.items[0]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
         MIX_ResumeAllTracks(sdl_ctx->mixer);
-        *loadedLevelIdx = 0;
-    }
-    // Level B
-    if (menu->btns.items[1]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        *loadedLevelIdx = 1;
-    }
-    // Level C
-    if (menu->btns.items[2]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        *loadedLevelIdx = 2;
-    }
-    // Level D
-    if (menu->btns.items[3]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        *loadedLevelIdx = 3;
-    }
-    // Level E
-    if (menu->btns.items[4]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        *loadedLevelIdx = 4;
-    }
+        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 0;
 
-    // Back to Home menu button
-    if (menu->btns.items[5]->isLeftClicked == true){
+        // Level B
+    } else if (menu->btns.items[1]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 1;
+
+        // Level C
+    } else if (menu->btns.items[2]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 2;
+
+        // Level D
+    } else if (menu->btns.items[3]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 3;
+
+        // Level E
+    } else if (menu->btns.items[4]->isLeftClicked == true) {
+        sdl_ctx->currMenu = NONE_MENU;
+        MIX_ResumeAllTracks(sdl_ctx->mixer);
+        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 4;
+
+        // Back to Home menu button
+    } else if (menu->btns.items[5]->isLeftClicked == true) {
         sdl_ctx->currMenu = START_MENU;
     }
 }
 
-void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helper_function updateFunc, size_t *loadedLevelIdx)
+void __updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helperFunc updateFunc,
+                  helperFuncOpts opts)
 {
     da_foreach (button *, button, &menu->btns) {
         updateButtonState(*button, mouseCoord, mouseInputFlag);
@@ -316,7 +323,7 @@ void updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu
         updateSliderStates(*slider, mouseCoord, mouseInputFlag, NULL);
     }
 
-    updateFunc(sdl_ctx, menu, loadedLevelIdx);
+    updateFunc(sdl_ctx, menu, opts);
 }
 
 void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu)
