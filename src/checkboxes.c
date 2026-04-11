@@ -1,3 +1,15 @@
+/**
+ * @file checkboxes.c
+ * @brief File to implement a checkbox (create, update, render and destroy)
+ *
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-03-31
+ * @remark last modified 2026-03-31
+ *
+ * Contributors:
+ * Rossignol François <francois_rossignol@outlook.fr>
+ **/
+
 #include "checkboxes.h"
 #include "common.h"
 #include "sdl_helpers.h"
@@ -12,11 +24,11 @@ bool createCheckbox(sdl_ctx_t *sdl_ctx, checkbox **c, SDL_FRect checkRect, SDL_F
         return false;
     }
 
-    // création des FRect
+    // FRect are created
     (*c)->checkBox = createRect_Ex(checkRect);
     (*c)->tickBox = createRect_Ex(tickRect);
 
-    // chargement des images
+    // Images are loaded
     if (bgImg_Path != NULL) (*c)->checkboxImg = IMG_LoadTexture(sdl_ctx->renderer, bgImg_Path);
     else
         (*c)->checkboxImg = NULL;
@@ -25,13 +37,18 @@ bool createCheckbox(sdl_ctx_t *sdl_ctx, checkbox **c, SDL_FRect checkRect, SDL_F
     else
         (*c)->tickImg = NULL;
 
-    if (tickImg_Path != NULL) (*c)->tickHoverImg = IMG_LoadTexture(sdl_ctx->renderer, tickHoverImg_Path);
+    if (tickHoverImg_Path != NULL) (*c)->tickHoverImg = IMG_LoadTexture(sdl_ctx->renderer, tickHoverImg_Path);
     else
         (*c)->tickHoverImg = NULL;
 
+    // it's used to have sharp images, by default the images are upscaled and smooth, here we want pixel !
+    SDL_SetTextureScaleMode((*c)->checkboxImg, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode((*c)->tickImg, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode((*c)->tickHoverImg, SDL_SCALEMODE_NEAREST);
+
     (*c)->spaceWithText = spaceWithText;
     (*c)->boxBorderSize =
-        boxBorderSize; // utile seulement si il n'y pas d'image de chargé -> utilisé par insideBox dans le rendu
+        boxBorderSize; // its usefull only if there is no image loaded (error or NULL in path parameter)
 
     (*c)->hovered = false;
     (*c)->prevClicked = false;
@@ -60,19 +77,19 @@ void updateCheckboxStates(checkbox *c, V2f mouseCoord, int mouseFlag)
     if (SDL_PointInRectFloat(&coords, c->checkBox)) {
         c->hovered = true;
 
-        if (c->clicked) // empêche le checked d'osciller entre true et false lorsque l'ont maintiens le clic
+        if (c->clicked) // prevents the checkbox from toggling between true and false when you hold down the click
             c->prevClicked = true;
 
-        // Right or Left click, pas de distinction pour ce composant
+        // Right-click or left-click—it makes no difference for this component
         if ((mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) || (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT))) {
             c->clicked = true;
 
-            // checked est mis a jour seulement si la checkBox n'a pas déja été clickée a la frame précédente
+            // The `checked` attribute is updated only if the checkbox has not already been clicked in the previous frame
             if (!c->checked && !c->prevClicked) c->checked = true;
             else if (c->checked && !c->prevClicked)
                 c->checked = false;
         } else {
-            // remise des 2 booléens liés aux clics a false si pas de hover
+            // Set the two Booleans associated with clicks to false if there is no hover
             c->clicked = false;
             c->prevClicked = false;
         }
@@ -85,10 +102,10 @@ void updateCheckboxStates(checkbox *c, V2f mouseCoord, int mouseFlag)
 
 void renderCheckbox(sdl_ctx_t *sdl_ctx, checkbox *c, char *text)
 {
-    // rendu de l'arrière plan
+    // render of the background
     if (c->checkboxImg == NULL) { // image inexistante
 
-        // tout ce qui arrive ici doit déja avoir subi un screenRatio
+        // Everything that comes in here must have already been screen-ratio-adjusted
         SDL_FRect insideBox = {
             c->checkBox->x + c->boxBorderSize,
             c->checkBox->y + c->boxBorderSize,
@@ -96,11 +113,10 @@ void renderCheckbox(sdl_ctx_t *sdl_ctx, checkbox *c, char *text)
             c->checkBox->h - (c->boxBorderSize * 2),
         };
 
-        // étant donné qu'il est censé exister une image pour la box, on ne donne pas le moyen de paramétrer la couleur des
-        // rectangles de remplacement
+        // Since there is supposed to be an image for the box, there is no option to set the color of the placeholder rectangles
         renderFillRect(sdl_ctx->renderer, c->checkBox, (SDL_Color){25, 25, 25, 255});
 
-        // change la couleur de insideBox si hover ou !hover
+        // changes the color of insideBox when hovered over or when not hovered over
         if (c->hovered) {
             renderFillRect(sdl_ctx->renderer, &insideBox, (SDL_Color){40, 40, 40, 255});
         } else
@@ -109,23 +125,23 @@ void renderCheckbox(sdl_ctx_t *sdl_ctx, checkbox *c, char *text)
         renderImage(sdl_ctx, c->checkboxImg, c->checkBox);
     }
 
-    // rendu d'un fantôme du de l'image/rect du tick, si la box est survolée, et qu'elle n'est pas checked
+    // Render a ghost version of the image/rect from the tick, if the checkbox is hovered over and is not checked
     if (!c->checked && c->hovered) {
-        if (c->tickHoverImg == NULL) // image inexistante
+        if (c->tickHoverImg == NULL) // Image not found
             renderFillRect(sdl_ctx->renderer, c->tickBox,
-                           (SDL_Color){50, 50, 50, 50}); // affiche le rectangle du tick avec une transparence
+                           (SDL_Color){50, 50, 50, 50}); // displays the tick rectangle with transparency
         else
             renderImage(sdl_ctx, c->tickHoverImg, c->tickBox);
     }
 
-    // rendu du tick, si la box est bien checked
+    // display the checkmark if the box is checked
     if (c->checked) {
         if (c->tickImg == NULL) renderFillRect(sdl_ctx->renderer, c->tickBox, (SDL_Color){19, 179, 19, 255});
         else
             renderImage(sdl_ctx, c->tickImg, c->tickBox);
     }
 
-    // rendu texte, spaceWithText doit avoir été multiplié par le ratio quand il arrive ici
+    // When rendered as text, `spaceWithText` must have been multiplied by the ratio by the time it reaches this point
     int checkTextHeight = 0;
 
     // Measure the width of the button's text
@@ -133,8 +149,7 @@ void renderCheckbox(sdl_ctx_t *sdl_ctx, checkbox *c, char *text)
 
     float YCentering = (c->checkBox->h / 2.0f) - checkTextHeight / 2.0f;
 
-    // le texte va se trouver a côté du carré de checkbox, en fonction de spaceWithText et sera centré verticalement par rapport
-    // a checkBox
+    // The text will appear next to the checkbox, depending on `spaceWithText`, and will be vertically centered relative to the checkbox attribute.
     V2f textPos = {c->checkBox->x + c->checkBox->w + c->spaceWithText, c->checkBox->y + YCentering};
 
     renderText_Ex(sdl_ctx, temp_sprintf("%s", text), WHITE, textPos);
