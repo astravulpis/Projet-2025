@@ -37,7 +37,7 @@ bool checkCollision(bullet *bullet, level_t *level, player_t *p)
                 if (entity->entity_attribs.hp <= 0) {
                     playEnemyDeath(*entity->entity_attribs.ctx);
                     p->score += entity->attributs.score;
-                    printf("Score: %f\n", p->score);
+                    printf("Player score after killing an enemy: %f\n", p->score);
                     da_remove_unordered(s, i);
                     destroyEntity(&entity);
                 }

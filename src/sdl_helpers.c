@@ -46,6 +46,7 @@ SDL_FRect *createRect_Ex(SDL_FRect rect)
 
     return res;
 }
+
 void renderImage(sdl_ctx_t *sdl_ctx, SDL_Texture *textureImg, SDL_FRect *rect)
 {
     if (textureImg != NULL) {

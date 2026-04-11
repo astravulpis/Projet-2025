@@ -203,6 +203,8 @@ int main(int argc, char **argv)
     da_append(&modules, "guns");
     da_append(&modules, "triggers");
     da_append(&modules, "game");
+    da_append(&modules, "jsonParsing");
+    da_append(&modules, "cJSON");
     if (!compile_submodules(&libs, &modules, &needsRecompile)) return_defer(1);
 
     // IMPORTANT: `Tests` cannot be run with other commands.

@@ -19,6 +19,7 @@
 #include "sdl_helpers.h"
 #include <math.h>
 #include <string.h>
+#include "jsonParsing.h"
 
 void movePlayer(player_t *p, V2f newPos)
 {
@@ -60,8 +61,14 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
     p->flight = false;
     p->noclip = false;
     p->run = false;
-    p->score = 0.0f;
     p->wallJumps = 3;
+
+    if (!readJSON(p)) {
+        printf("total fail in reading the JSON file, score will be set to 0\n");
+    }
+    else{
+        printf("this is the player score at the start of the game: %f \n", p->score);
+    }
 
     p->dashAnimationTime = 500; // en ms
     p->prevDashTick = -1;

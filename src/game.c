@@ -8,9 +8,13 @@
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "triggers.h"
+#include "jsonParsing.h"
 
 void closeGame(gameContext *ctx)
 {
+    printf("value of the player's score at the end of the runtime: %f\n", ctx->player->score);
+    writeJSON(ctx->player);
+
     if (ctx->levels != NULL) {
         for (size_t i = 0; i < ctx->level_count; ++i) {
             destroyLevel(&ctx->levels[i]);
