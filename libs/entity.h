@@ -57,19 +57,19 @@ typedef enum {
  * contains all the attributes one entity can have such as speed and jump force, health and score value
  */
 typedef struct {
-    float entity_speed;
-    float projectile_speed;
+    float entity_speed; //!< entity movement speed, self explanatory
+    float projectile_speed; //!< the speed of the projectiles shot by the entity (only those who can shoot (played is excluded because of the guns))
     // -------------
     // projectile_pattern pattern;
     // This will be useful for when we create bullet pattern for the player's gun and need to
     // re-use for the ennemies.
     // -------------
     float jumpForce; //!< Unsure whenever it is needed, or not.
-    float hp;
-    float maxHP;
-    float score;
+    float hp; //!< the current HP of the entity, used to check for death and such
+    float maxHP; //!< the maximum HP of the entity, used when initializing the entity
+    float score; //!< the score value of the entity, used to give the player points when killed
     // BEHAVIOUR PART
-    entity_state state;
+    entity_state state; //!< the current state of the entity, used to determine its behaviour in the update function
 
 } entity_attributs;
 
@@ -80,12 +80,12 @@ typedef struct {
  * contains all the relevant and corresponding entity information
  */
 typedef struct {
-    entity_t entity_attribs;
-    entity_type type;
-    entity_attributs attributs;
-    V2f velocity;
-    bool onGround;
-    char *attackSfx;
+    entity_t entity_attribs; //!< all the entity's attributes
+    entity_type type; //!< the type of the entity this is then used for texture and behaviour
+    entity_attributs attributs; //!< i have no idea
+    V2f velocity; //!< not used for now
+    bool onGround; //!< used for the jump functions
+    char *attackSfx; //!< path to the entity's attack sound effect
 } ennemy_t;
 
 /**
@@ -93,9 +93,9 @@ typedef struct {
  * @brief list of entities
  */
 typedef struct {
-    ennemy_t **items;
-    size_t count;
-    size_t capacity;
+    ennemy_t **items; //!< list of all entities
+    size_t count; //!< current amount of entities in the list
+    size_t capacity; //!< upper capacity of the list (should never be reached since it's a dynamic array)
 } entities;
 
 /**
@@ -104,6 +104,10 @@ typedef struct {
  * @param[in] basePos spawning location
  * @param[in] type entity type (i.e. E_FILTH)
  * @brief creates a creature of a certain type and with a set default spawning location
+ * 
+ * allocates the entity in memory, initializes it's attributes and ctx with calls to \ref getEntityTex and 
+ * \ref loadEnemySfx, gives it a bounding box and its attributes through \ref setEntityAttributs and then 
+ * returns the newly created entity
  */
 ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
 
@@ -111,6 +115,8 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
  * @fn playEnemySpawning(sdl_ctx_t *ctx)
  * @param[in] sdl_ctx our sdl context variable
  * @brief plays the spawning sfx
+ * 
+ * calls \ref playSfx with the corresponding sound effect for the enemy spawning
  */
 void playEnemySpawning(sdl_ctx_t *ctx);
 
@@ -118,6 +124,8 @@ void playEnemySpawning(sdl_ctx_t *ctx);
  * @fn playEnemySpawning(sdl_ctx_t *ctx)
  * @param[in] sdl_ctx our sdl context variable
  * @brief plays the death sfx
+ * 
+ * calls \ref playSfx with the corresponding sound effect for the enemy death
  */
 void playEnemyDeath(sdl_ctx_t *ctx);
 
@@ -125,6 +133,10 @@ void playEnemyDeath(sdl_ctx_t *ctx);
  * @fn renderEntity(entity_t *e)
  * @param[in] e The entity to render
  * @brief renders the texture of the entity onto the screen
+ * 
+ * gets the angle of the entity with \ref getAngle to know if it should be flipped 
+ * or not and then renders it with the corresponding texture and hitbox by calling 
+ * \ref SDL_RenderTextureRotated
  */
 void renderEntity(ennemy_t *e);
 
@@ -132,6 +144,8 @@ void renderEntity(ennemy_t *e);
  * @fn renderEntities(entities *entities)
  * @param[in] entities The array of entities to loop through and render
  * @brief wrapper for render in a for-loop of each entity in the current level
+ * 
+ * goes through the list of entities and calls \ref renderEntity for each of them to render them
  */
 void renderEntities(entities *entities);
 
@@ -143,8 +157,8 @@ void renderEntities(entities *entities);
  * @param[in] deltaTime time interval used to control the enemy speeds
  * @brief updates the attributs and behaviour of the entity
  *
- * takes one entity and tests it for collisions against all elements of the level
- * and updates its related information
+ * takes one entity and tests it for collisions against all elements of the level with \ref collision_test_entity
+ * then moves it and makes sure it's still in bounds with \ref keepRectInbounds
  */
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime);
 
@@ -156,7 +170,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
  * @param[in] deltaTime time interval used to control the enemy speeds
  * @brief wrapper for the update in a for-loop of each entity in the current level
  *
- * goes through a loop to check on every entity by then calling the updateEntity function
+ * goes through a loop to check on every entity by then calling \ref updateEntity for each of them
  */
 void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime);
 
@@ -168,7 +182,8 @@ void updateEntities(entities *entities, player_t *player, objs *objects, float d
  * @param[in] attributs enemy attributs
  * @brief sets corresponding enemy attributs
  *
- * takes one entity and gives it all the necessary attributs
+ * wrapper to call all the attribute functions with them being \ref setEntitySpeed, \ref setMaxHP,
+ * \ref setHP, \ref setEntityState, then the projectile speed, jump force and the score
  */
 void _setEntityAttributs(ennemy_t *e, entity_attributs attributs);
 
@@ -215,6 +230,8 @@ void setEntitySpeed(ennemy_t *e, float speed);
  * @fn destroyEntity(entity_t **e)
  * @param[in] e structure of 1 entity
  * @brief destroys one entity
+ * 
+ * frees the entity's bounding box then the entity itself
  */
 void destroyEntity(ennemy_t **e);
 
@@ -223,7 +240,7 @@ void destroyEntity(ennemy_t **e);
  * @param[in] e structure of the entities
  * @brief destorys all entities
  *
- * Goes through the list of all entities and destroys them one by one by calling the destroyEntity function
+ * Goes through the list of all entities and destroys them one by one by calling \ref destroyEntity
  */
 void destroyEntities(entities *entities);
 
@@ -254,6 +271,9 @@ float getAngle(ennemy_t *e);
  * @param[in] e enemy structure
  * @param[in] tiles list of objects
  * @brief collision test of the entity with the level objects
+ * 
+ * takes the entity and all the level objects and checks it for collisions with \ref SDL_HasRectIntersectionFloat to
+ * put the collisions intto an array which it returns
  */
 objs collision_test_entity(ennemy_t *e, objs *tiles);
 

@@ -136,8 +136,8 @@ typedef struct {
  * Contains an SDL_FRect and SDL_Texture for the bounding box and textures respectively
  */
 typedef struct {
-    SDL_FRect *boundingBox;
-    SDL_Texture *texture;
+    SDL_FRect *boundingBox; //!< the hitbox of the object
+    SDL_Texture *texture; //!< the texture of the object
 } obj;
 
 /**
@@ -147,9 +147,9 @@ typedef struct {
  * contains a list of obj called items, with a count and a upper capacity
  */
 typedef struct {
-    obj *items;
-    size_t count;
-    size_t capacity;
+    obj *items; //!< list of all objects
+    size_t count; //!< current amount of objects in the list
+    size_t capacity; //!< upper capacity of the list (should never be reached since it's a dynamic array)
 } objs;
 
 /**
@@ -162,9 +162,9 @@ typedef struct {
     sdl_ctx_t **ctx;        //!< Address of our sdl context to be saved
     SDL_FRect *boundingBox; //!< Player's BB
     SDL_Texture *tex;       //!< Player's texture
-    float hp;
-    float maxHp;
-    float score;
+    float hp; //!< Player's current HP
+    float maxHp; //!< Player's max HP
+    float score; //!< Player's score
 } entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \
