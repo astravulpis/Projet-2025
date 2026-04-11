@@ -1,13 +1,14 @@
 /**
  * @file sliders.c
- * @brief File to implement a text input box
+ * @brief File to implement a slider
+*
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-03-30
+ * @remark last Modified: 2026-04-07
  *
- * Author: Rossignol François <francois_rossignol@outlook.fr>
- * Last Modified: 2026-03-30
- * Date: 2026-03-30
- *
- * * Contributors:
+ * Contributors:
  * Rossignol François <francois_rossignol@outlook.fr>
+ * Liam B. <liam.berge72@gmail.com>
  **/
 
 #include "sliders.h"
@@ -50,10 +51,10 @@ void destroySlider(slider **s)
     }
 
     free(*s);
-    s = NULL;
+    *s = NULL;
 }
 
-// incrémente le X d'un FRect, selon un step, et permet de limiter la valeur dans une intervale
+// Increments the X value of an FRect by a specified step and allows the value to be restricted to a specific range
 void FRect_Change_x(SDL_FRect *rect, float step, float minLimit, float maxLimit)
 {
     bool inLimits = ((rect->x + step) >= minLimit) && ((rect->x + step) <= maxLimit);
@@ -73,7 +74,7 @@ void FRect_Change_x(SDL_FRect *rect, float step, float minLimit, float maxLimit)
         return;
     }
 
-    // normalement on n'arrive jamais ici, mais si un malheur se produit, alors, rien ne se passe
+    // Normally, we never end up here, but if something bad happens, then nothing happens
     return;
 }
 
@@ -81,27 +82,26 @@ void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, float *val)
 {
     SDL_FPoint coords = (SDL_FPoint){mouseCoord.x, mouseCoord.y};
 
-    // vérification pour voir si le curseur subis un focus (cliqué précédemment, et encore en clic)
+    // Check whether the cursor has focus (was previously clicked and is still being clicked)
     s->focused = s->clicked && mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 
-    // mise a jour des autres booléens, et increment du x de cursor box si focused
+    // Update the other Booleans, and increment the cursor box's x value if it is focused
     if (SDL_PointInRectFloat(&coords, s->cursorBox)) {
         s->hovered = true;
         s->clicked = mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
         s->prevX = mouseCoord.x;
     } else if (s->focused) {
-        // prevX est normalement toujours différent de -1 si on est arrivé ici
-        // difference représente la distance entre la dernière position X de la souris et l'actuelle
+        // prevX is normally always different from -1 if you've reached this point; difference 
+        // represents the distance between the mouse's last X position and the current one
         float difference = mouseCoord.x - s->prevX;
         // step est la largeur d'une valeur dans la représentation du slider
         float step = (s->sliderBox->w - (2 * s->borderSize) - s->cursorBox->w) / (float)(s->nbValue - 1);
 
-        // si la différence est supérieure a une largeur de valeur, alors on bouge le curseur en fonction de cela
+        // If the difference is greater than a certain threshold, then the cursor is moved accordingly
         if (fabsf(difference) >= step) {
-            // arrondi utile pour avoir un 'snap' des différentes valeurs, cela empêche le curseur de se trouver n'importe ou
-            // sur le slider
+            // Useful rounding to get a “snap” to different values; this prevents the cursor from ending up anywhere on the slider
             float moveStep = roundf(difference / step);
-            float move = moveStep * step; // déplacement que va subir le curseur ->  cursorBox.x + move (négatif ou positif)
+            float move = moveStep * step; // the distance the cursor will move -> cursorBox.x + move (negative or positive)
 
             if (move != 0) {
                 float minX = s->sliderBox->x + s->borderSize;

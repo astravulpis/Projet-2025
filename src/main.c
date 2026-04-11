@@ -2,11 +2,11 @@
  * @file main.c
  * @brief Main translation unit to initialise and run the core loop of the game
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Last Modified: 2026-03-18
- * Date: 2026-02-02
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-02-02
+ * @remark last modified: 2026-03-18
  *
- * * Contributors:
+ * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  * Rossignol François <francois_rossignol@outlook.fr>
  * Reeves Guillaume <greeves2306@gmail.com>

@@ -2,11 +2,11 @@
  * @file event.h
  * @brief Here lies event handlers
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Last Modified: 2026-03-18
- * Date: 2026-03-03
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-03
+ * @remark last modified: 2026-04-09
  *
- * * Contributors:
+ * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  **/
 

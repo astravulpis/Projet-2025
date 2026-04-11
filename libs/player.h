@@ -2,11 +2,11 @@
  * @file player.h
  * @brief Header file to represent the player and all of its related features
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Last Modified: 2026-03-18
- * Date: 2026-03-16
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-16
+ * @remark last modified: 2026-03-18
  *
- * * Contributors:
+ * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  * François Rossignol <francois_rossignol@outlook.fr>
  **/

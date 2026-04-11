@@ -1,6 +1,6 @@
 /**
  * @file checkboxes.h
- * @brief File to define what a checkbox is and how it works
+ * @brief File to define what a \ref checkbox is and how it works
  *
  * @author Rossignol François <francois_rossignol@outlook.fr>
  * @date 2026-03-31
@@ -81,7 +81,7 @@ void destroyCheckbox(checkbox **c);
  * @param mouseFlag Boolean mask to determine which mouse buttons are pressed
  * @brief This function updates the status booleans of a \ref checkbox
  *
- * This function updates the status booleans ( \ref hovered, \ref prevClicked and \ref clicked and \ref checked) of a \ref checkbox using SDL_PointInRectFloat with mouseCoord
+ * This function updates the status booleans ( \ref hovered, \ref prevClicked, \ref clicked and \ref checked) of a \ref checkbox using SDL_PointInRectFloat with \ref mouseCoord
  * after mouseFlag is compare with SDL MASK to get the mouse input
  * To toggle the \ref checked state, we detect when the mouse checkbox is released, 
  * not when it's \ref clicked, because a frame is so short that by the next frame, the checkbox would still be clicked, so timing would be a bit of a gamble.

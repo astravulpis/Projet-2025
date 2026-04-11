@@ -2,9 +2,9 @@
  * @file gui.h
  * @brief Declarations for the Graphical User Interface (GUI)
  *
- * Author: Rossignol François <francois_rossignol@outlook.fr>
- * Last Modified: 2026-03-26
- * Date: 2026-03-25
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-03-25
+ * @remark last modified: 2026-04-9
  *
  * * Contributors:
  * Rossignol François <francois_rossignol@outlook.fr>

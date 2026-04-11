@@ -1,6 +1,6 @@
 /**
  * @file buttons.c
- * @brief File to implement a button (create, update, render and destroy)
+ * @brief File to implement a \ref button (create, update, render and destroy)
  *
  * @author Rossignol François <francois_rossignol@outlook.fr>
  * @date 2026-03-19

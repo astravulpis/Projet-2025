@@ -2,10 +2,10 @@
  * @file entity.c
  * @brief Implementation of the entity structures
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Date: 2026-03-28
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-28
  *
- * * Contributors:
+ * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  **/
 

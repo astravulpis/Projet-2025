@@ -1,3 +1,16 @@
+/**
+ * @file bars.c
+ * @brief File to implement a \ref bar (create, update, render and destroy)
+ *
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-03-31
+ * @remark last modified 2026-02-07
+ *
+ * Contributors:
+ * Rossignol François <francois_rossignol@outlook.fr>
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #include "bars.h"
 #include "common.h"
 #include "sdl_helpers.h"
@@ -18,9 +31,9 @@ bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, 
 
     (*h)->val = baseVal;
     (*h)->barPadding = barPadding;
-    (*h)->minCursorWidth = minCursorWidth; // doit avoir subis un ratio
+    (*h)->minCursorWidth = minCursorWidth; // must have experienced a ratio
 
-    (*h)->displayHpValue = displayHpValue; // par défaut hpValue sera affiché en numérique en plus de la jauge
+    (*h)->displayHpValue = displayHpValue; // By default, hpValue will be displayed as a number in addition to the gauge
 
     return true;
 }
@@ -33,35 +46,34 @@ void destroyBar(bar **h)
     }
 
     free(*h);
-    h = NULL;
+    *h = NULL;
 }
 
 // s = shadow et l = light
 void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l_intensity, int ls_opacity)
 {
-    // Compare hpValue a la valeur maximum de la barre, copie la valeur dans hp, la rabaisse si trop grande, la met a 0 si
-    // négative cela ne se fait que sur la jauge, pas le nombre affiché (cela me parraît utile d'avoir la vrai valeur qui
-    // est mise en paramètre pour un potentiel debug)
+    //Compare hpValue to the bar's maximum value, copy the value to hp, scale it down if it's too large, and set it to 0 if it's negative.
+    // This only applies to the gauge, not the displayed number (it would be useful to have the actual value stored as a parameter for potential debugging).
     float hp = hpValue;
     if (hpValue > h->val) hp = h->val;
     else if (hpValue < 0)
         hp = 0;
 
-    // Calcul de fillBox via barPadding (normalement plus petite que h->BarBox, sinon il y'a un problème XD), largeur
-    // calculées en fonction de hp, représente la jauge de vie
+    // Calculate fillBox using barPadding (which is normally smaller than h->BarBox; otherwise, there's a problem XD), 
+    // with widths calculated based on hp; represents the health bar
     SDL_FRect fillBox = {(h->BarBox)->x + ((h->barPadding / 2) * sdl_ctx->screenRatio),
                          (h->BarBox)->y + ((h->barPadding / 2) * sdl_ctx->screenRatio),
                          ((h->BarBox)->w - (h->barPadding * sdl_ctx->screenRatio)) / h->val * hp,
                          (h->BarBox)->h - (h->barPadding * sdl_ctx->screenRatio)};
 
-    // Calcul de emptyFillBox, qui représente l'espace que ne prend pas fillBox
+    // Calculation of emptyFillBox, which represents the space not occupied by fillBox
     SDL_FRect emptyFillBox = {fillBox.x + fillBox.w, fillBox.y,
                               ((h->BarBox)->w - (h->barPadding * sdl_ctx->screenRatio)) / h->val * (h->val - hp), fillBox.h};
     SDL_Color emptyBgColor = {(h->bgColor.r + 20) < 255 ? (h->bgColor.r + 20) : 255,
                               (h->bgColor.g + 20) < 255 ? (h->bgColor.g + 20) : 255,
                               (h->bgColor.b + 20) < 255 ? (h->bgColor.b + 20) : 255, 200};
 
-    // rectangles et couleur de rendu pour effets d'ombres sur la barre de vie
+    // rectangles and fill color for shadow effects on the health bar
     SDL_FRect horizontal_shadowFillBox = {fillBox.x, fillBox.y + fillBox.h - (h->barPadding * sdl_ctx->screenRatio), fillBox.w,
                                           h->barPadding * sdl_ctx->screenRatio};
     SDL_FRect vertical_shadowFillBox = {fillBox.x, fillBox.y, h->barPadding * sdl_ctx->screenRatio, fillBox.h};
@@ -70,7 +82,7 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
         ((h->fillColor.g - s_intensity) >= 0) && ((h->fillColor.g - s_intensity) <= 255) ? (h->fillColor.g - s_intensity) : 0,
         ((h->fillColor.b - s_intensity) >= 0) && ((h->fillColor.b - s_intensity) <= 255) ? (h->fillColor.b - s_intensity) : 0,
         (ls_opacity >= 0 && ls_opacity <= 255) ? ls_opacity
-                                               : 255}; // si l'opacité n'est pas bonne, alors l'ombre n'aura aucune transparence
+                                               : 255}; // If the opacity isn't set correctly, the shadow won't be transparent
 
     // rectangles et couleur de rendu pour effets de lumières sur la barre de vie
     SDL_FRect horizontal_lightFillBox = {fillBox.x, fillBox.y, fillBox.w, h->barPadding * sdl_ctx->screenRatio};
@@ -81,38 +93,36 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
         ((h->fillColor.g + l_intensity) >= 0) && ((h->fillColor.g + l_intensity) <= 255) ? (h->fillColor.g + l_intensity) : 255,
         ((h->fillColor.b + l_intensity) >= 0) && ((h->fillColor.b + l_intensity) <= 255) ? (h->fillColor.b + l_intensity) : 255,
         (ls_opacity >= 0 && ls_opacity <= 255) ? (ls_opacity * (hp / h->val))
-                                               : 255}; // si l'opacité n'est pas bonne, alors l'ombre n'aura aucune transparence
+                                               : 255}; // If the opacity isn't set correctly, the shadow won't be transparent
 
-    // initialisations des boxs et couleurs pour le curseur et ses ombres/ lumières (fmaxf est utilisée pour être sûr que la
-    // largeur soit toujours supérieure ou égale a minCursorWidth)
+    // Initialization of boxes and colors for the cursor and its shadows/highlights 
+    // (fmaxf is used to ensure that the width is always greater than or equal to minCursorWidth)
     SDL_FRect cursorBox = {fillBox.x + fillBox.w - (h->barPadding * sdl_ctx->screenRatio / 2), fillBox.y,
                            fmaxf(h->barPadding * sdl_ctx->screenRatio / 2, h->minCursorWidth), fillBox.h};
 
     SDL_FRect cursorShadowBox = {cursorBox.x, cursorBox.y, cursorBox.w / 3, cursorBox.h};
-    SDL_Color cursorShadowColor = {50, 50, 50, 100}; // valeurs en dur, je vais peut être revenir dessus, mais il me semble que
-                                                     // les barres de vies sont déja assez personnalisables
+    SDL_Color cursorShadowColor = {50, 50, 50, 100}; // Fixed values—I might revisit this later, but it seems to me that the health bars are already pretty customizable
 
     SDL_FRect cursorLightBox = {cursorBox.x + cursorBox.w - (cursorBox.w / 3), cursorBox.y, cursorBox.w / 3, cursorBox.h};
-    SDL_Color cursorLightColor = {205, 205, 205, 100}; // valeurs en dur, je vais peut être revenir dessus, mais il me semble
-                                                       // que les barres de vies sont déja assez personnalisables
+    SDL_Color cursorLightColor = {205, 205, 205, 100}; // Fixed values—I might revisit this later, but it seems to me that the health bars are already pretty customizable
 
-    // rendu de la barre et de son arrière plan
+    // rendering of the bar and its background
     renderFillRect(sdl_ctx->renderer, h->BarBox, h->bgColor);
     renderFillRect(sdl_ctx->renderer, &fillBox, h->fillColor);
     renderFillRect(sdl_ctx->renderer, &emptyFillBox, emptyBgColor);
 
-    // rendu des ombres et lumières sur la barre de vie
+    // shading on the health bar
     renderFillRect(sdl_ctx->renderer, &horizontal_shadowFillBox, shadowColor);
     renderFillRect(sdl_ctx->renderer, &vertical_shadowFillBox, shadowColor);
     renderFillRect(sdl_ctx->renderer, &horizontal_lightFillBox, lightColor);
     renderFillRect(sdl_ctx->renderer, &vertical_lightFillBox, lightColor);
 
-    // rendu du curseur et ses ombres/lumières
+    // Cursor rendering and its shadows/highlights
     renderFillRect(sdl_ctx->renderer, &cursorBox, h->cursorColor);
     renderFillRect(sdl_ctx->renderer, &cursorShadowBox, cursorShadowColor);
     renderFillRect(sdl_ctx->renderer, &cursorLightBox, cursorLightColor);
 
-    if (h->displayHpValue) { // affiche hpValue en numérique en plus de la jauge si le booléen est vrai
+    if (h->displayHpValue) { // Displays the hpValue numerically in addition to the gauge if the boolean is true
         int textWidth = 0;
         int textHeight = 0;
 
@@ -130,7 +140,7 @@ void barRender(sdl_ctx_t *sdl_ctx, bar *h, float hpValue, int s_intensity, int l
         V2f barTextPosShadow = {(h->BarBox)->x + XCentering + 2 * sdl_ctx->screenRatio,
                                 (h->BarBox)->y + YCentering + 1 * sdl_ctx->screenRatio};
 
-        // rendu du texte, avec un effet d'ombre qui imite a la perfection le raytracing
+        // text rendering, with a shadow effect that perfectly mimics ray tracing
         renderText_Ex(sdl_ctx, hpText, BLACK, barTextPosShadow);
         renderText_Ex(sdl_ctx, hpText, WHITE, barTextPos);
     }

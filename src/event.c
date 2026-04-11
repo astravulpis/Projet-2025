@@ -2,12 +2,13 @@
  * @file event.c
  * @brief Implementation of the different event handler
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Date: 2026-03-15
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-15
  *
  * * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  * Reeves Guillaume <greeves2306@gmail.com>
+ * Rossignol François <francois_rossignol@outlook.fr>
  **/
 
 #include "event.h"

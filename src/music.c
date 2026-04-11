@@ -2,11 +2,11 @@
  * @file music.c
  * @brief File to implement music and sounds
  *
- * Author: Reeves Guillaume <greeves2306@gmail.com>
- * Last Modified: 2026-03-26
- * Date: 2026-03-22
+ * @author Reeves Guillaume <greeves2306@gmail.com>
+ * @remark last modified: 2026-03-26
+ * @date 2026-03-22
  *
- * * Contributors:
+ * Contributors:
  * Reeves Guillaume <greeves2306@gmail.com>
  **/
 

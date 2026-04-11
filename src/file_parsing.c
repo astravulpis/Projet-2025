@@ -2,11 +2,11 @@
  * @file file_parsing.c
  * @brief Implementation of the different file parsing function
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Last Modified: 2026-03-26
- * Date: 2026-03-21
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-21
+ * @remark last modified: 2026-03-26
  *
- * * Contributors:
+ * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  * Reeves Guillaume <greeves2306@gmail.com>
  **/

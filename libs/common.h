@@ -2,10 +2,11 @@
  * @file common.h
  * @brief Regroups all of the common includes, defines and structures used across the program
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Last Modified: 2026-03-18
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-01
+ * @remark last lodified: 2026-04-11
  *
- * * Contributors:
+ * Contributors:
  * Liam B. <liam.berge72@gmail.com>
  * Rossignol François <francois_rossignol@outlook.fr>
  **/

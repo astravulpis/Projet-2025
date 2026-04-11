@@ -2,9 +2,9 @@
  * @file file_parsing.h
  * @brief Declarations to parse a file
  *
- * Author: Liam B. <liam.berge72@gmail.com>
- * Last Modified: 2026-03-26
- * Date: 2026-03-21
+ * @author Liam B. <liam.berge72@gmail.com>
+ * @date 2026-03-21
+ * @remark last modified: 2026-03-26
  *
  * * Contributors:
  * Liam B. <liam.berge72@gmail.com>

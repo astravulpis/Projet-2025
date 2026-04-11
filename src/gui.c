@@ -2,11 +2,11 @@
  * @file gui.c
  * @brief Implementation of the GUI
  *
- * Author: Rossignol François <francois_rossignol@outlook.fr>
- * Last Modified: 2026-03-26
- * Date: 2026-03-25
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-03-25
+ * @remark last modified: 2026-03-26
  *
- * * Contributors:
+ * Contributors:
  * Rossignol François <francois_rossignol@outlook.fr>
  * Liam B. <liam.berge72@gmail.com>
  **/
