@@ -1,12 +1,12 @@
 /**
  * @file buttons.c
- * @brief File to implement a button
+ * @brief File to implement a button (create, update, render and destroy)
  *
- * Author: Rossignol François <francois_rossignol@outlook.fr>
- * Last Modified: 2026-03-26
- * Date: 2026-03-22
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-03-19
+ * @remark last modified 2026-03-31 (added image support)
  *
- * * Contributors:
+ * Contributors:
  * Rossignol François <francois_rossignol@outlook.fr>
  * Liam B. <liam.berge72@gmail.com>
  **/
@@ -31,7 +31,7 @@ bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect re
     (*b)->hoverImg = IMG_LoadTexture(sdl_ctx->renderer, hoverImgPath);
     (*b)->clickImg = IMG_LoadTexture(sdl_ctx->renderer, clickImgPath);
 
-    // j'ai mis cela car sinon le rendu lisse l'image, alors que moi, j'aime les pixels
+    // it's used to have sharp images, by default the images are upscaled and smooth, here we want pixel !
     SDL_SetTextureScaleMode((*b)->baseImg, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode((*b)->hoverImg, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode((*b)->clickImg, SDL_SCALEMODE_NEAREST);
@@ -54,7 +54,7 @@ void destroyButton(button **b)
     free((*b)->buttonBox);
     (*b)->buttonBox = NULL;
     free(*b);
-    b = NULL;
+    *b = NULL;
 }
 
 void updateButtonState(button *b, V2f mouseCoord, int mouseFlag)
@@ -64,7 +64,7 @@ void updateButtonState(button *b, V2f mouseCoord, int mouseFlag)
 
         b->isHovered = true;
 
-        // Right click
+        // Left click
         if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) b->isLeftClicked = true;
         else
             b->isLeftClicked = false;
@@ -99,7 +99,7 @@ void renderButton(sdl_ctx_t *sdl_ctx, button *b)
     V2f buttonPos = {(b->buttonBox)->x + XCentering, (b->buttonBox)->y + YCentering};
 
     if (b->isLeftClicked || b->isRightClicked) {
-        if (b->clickImg == NULL) // si l'image n'a pa été chargée avec succès un rectangle s'affiche par défaut
+        if (b->clickImg == NULL) // there is a fallback monochrome rectangle if image loading went wrong
             renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){20, 20, 20, 255});
         else
             renderImage(sdl_ctx, b->clickImg, b->buttonBox);
@@ -108,7 +108,7 @@ void renderButton(sdl_ctx_t *sdl_ctx, button *b)
         else
             renderImage(sdl_ctx, b->hoverImg, b->buttonBox);
     } else {
-        // rendu de la'arrière plan du bouton
+        // render of the background
         if (b->baseImg == NULL) renderFillRect(sdl_ctx->renderer, b->buttonBox, (SDL_Color){60, 60, 60, 255});
         else
             renderImage(sdl_ctx, b->baseImg, b->buttonBox);
