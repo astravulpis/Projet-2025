@@ -13,6 +13,7 @@
  **/
 
 #include "player.h"
+#include "SDL3/SDL_scancode.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "common.h"
 #include "sdl_helpers.h"
@@ -55,11 +56,12 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
     p->stamina = 3.0f;
     p->lastKey = SDL_SCANCODE_UNKNOWN;
     p->lastX = -1;
-    p->hp = 100;
+    p->entity_attribs.hp = 100;
     p->flight = false;
     p->noclip = false;
     p->run = false;
     p->score = 0.0f;
+    p->wallJumps = 3;
 
     p->dashAnimationTime = 500; // en ms
     p->prevDashTick = -1;
@@ -71,6 +73,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "dash", "./assets/audio/SFX/dash.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "wallSlide", "./assets/audio/SFX/wallSlide.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "notEnoughStamina", "./assets/audio/SFX/notEnoughStamina.wav");
+    loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "wallJumpError", "./assets/audio/SFX/wallJumpError.wav");
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_INTERACTIONS, "staminaRegen", "./assets/audio/SFX/staminaRegen.wav");
 
 defer:
@@ -165,17 +168,20 @@ V2f inputUpdate(player_t *p, const float dt)
     // Jump & slam
     if (isKeyPressed(SDL_SCANCODE_SPACE, currState, prevState) && !prevState[SDL_SCANCODE_LCTRL]) {
         float temp = 1.35f;
-        if (p->onWall && !p->onGround) {
+        if (p->onWall && !p->onGround && p->wallJumps > 0) {
             if (p->lastKey == SDL_SCANCODE_A) {
                 p->velocity.x = wallJumpStrenght * temp;
-            } else if (p->lastKey == SDL_SCANCODE_D) {
+            } else if (p->lastKey == SDL_SCANCODE_D || p->lastKey == SDL_SCANCODE_UNKNOWN) {
                 p->velocity.x = -wallJumpStrenght * temp;
             }
             p->velocity.y = -wallJumpStrenght * temp;
+            p->wallJumps -= 1;
             playSfx(*p->entity_attribs.ctx, &p->audios, "jump");
         } else if (p->onGround) {
             p->velocity.y += p->jumpForce * dt; // Up is towards negatives in SDL
             playSfx(*p->entity_attribs.ctx, &p->audios, "jump");
+        } else if (p->onWall && !p->onGround && p->wallJumps <= 0) {
+            playSfx(*p->entity_attribs.ctx, &p->audios, "wallJumpError");
         }
     } else if ((isKeyPressed(SDL_SCANCODE_LCTRL, currState, prevState) && !p->onGround) && !p->isSlamming) {
         p->isSlamming = true;
@@ -277,6 +283,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime)
                     if (p->isSlamming) playSfx(*p->entity_attribs.ctx, &p->audios, "hardFall");
                     else
                         playSfx(*p->entity_attribs.ctx, &p->audios, "softFall");
+                    p->wallJumps = 3;
                 }
                 p->isSlamming = false;
             }
@@ -374,7 +381,7 @@ void renderPlayerStatusBar(sdl_ctx_t *sdl_ctx, player_t *player, bar *b1, bar *b
                            hpB->BarBox->h - (3)};
     boxToScale(&dashBgBox, sdl_ctx->screenRatio);
 
-    barRender(sdl_ctx, hpB, player->hp, 50, 50, 50);
+    barRender(sdl_ctx, hpB, player->entity_attribs.hp, 50, 50, 50);
 
     // valeur de chacune des bars de dash
     // le min est pris, car dash1 peut être supérieur a 1, ce que je ne veux pas !

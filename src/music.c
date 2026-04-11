@@ -89,9 +89,11 @@ void destroySfx(sfx **sfx)
 
 void destroySfxs(sfxs *sfxs)
 {
-    da_foreach (sfx *, sfx, sfxs) {
-        destroySfx(sfx);
+    da_foreach (sfx *, s, sfxs) {
+        destroySfx(s);
     }
 
     free(sfxs->items);
+    sfxs->items = NULL;
+    sfxs->count = 0;
 }

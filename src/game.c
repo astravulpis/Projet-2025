@@ -4,6 +4,7 @@
 #include "entity.h"
 #include "event.h"
 #include "file_parsing.h"
+#include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "triggers.h"
@@ -73,6 +74,7 @@ bool loadAllLevels(gameContext *ctx)
         // assert(level != NULL && "Parse file didn't work");
 
         ctx->levels[i] = level;
+        ctx->level_count++;
     }
 
     return true;
@@ -258,6 +260,6 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         if (needsFpsCap) SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
-    destroyBar(&hpBar);
+    destroyPlayerStatusBar(&dashBar1, &dashBar2, &dashBar3, &hpBar);
     return true;
 }

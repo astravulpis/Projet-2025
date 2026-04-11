@@ -2,6 +2,7 @@
 #include "common.h"
 #include "entity.h"
 #include "player.h"
+#include "sdl_helpers.h"
 #include "triggers.h"
 
 room_t *createRoom(int id)
@@ -13,6 +14,7 @@ room_t *createRoom(int id)
     }
 
     r->roomID = (assert(id >= 0 && "`id` is below 0, which is undefined behaviour"), id);
+    r->currWaveIdx = -1;
     // memset(&r->structures, 0, sizeof(objs)); // Delete the trash values in the structures
     // memset(&r->e_waves, 0, sizeof(entities) * MAX_WAVE_COUNT); // Delete the trash values in the waves
     // memset(&r->startPos, 0, sizeof(V2f)); // set start pos at 0, 0
@@ -43,8 +45,10 @@ void renderRoom(sdl_ctx_t *ctx, level_t *level)
             renderImage(ctx, it->texture, it->boundingBox);
         }
 
-        da_foreach (ennemy_t *, e, getCurrentEntityWave(level)) {
-            renderEntity(*e);
+        if (level->items[level->currentLoadedRoomID]->currWaveIdx >= 0) {
+            da_foreach (ennemy_t *, e, getCurrentEntityWave(level)) {
+                renderEntity(*e);
+            }
         }
     }
 }
@@ -61,7 +65,11 @@ room_t *getLoadedRoom(level_t *level)
 
 entities *getCurrentEntityWave(level_t *level)
 {
-    return &level->items[level->currentLoadedRoomID]->e_waves[level->items[level->currentLoadedRoomID]->currWaveIdx];
+    if (level->items[level->currentLoadedRoomID]->currWaveIdx >= 0) {
+        return &level->items[level->currentLoadedRoomID]->e_waves[level->items[level->currentLoadedRoomID]->currWaveIdx];
+    } else {
+        return NULL;
+    }
 }
 
 level_t *createLevel(char *title, int id)
@@ -193,6 +201,9 @@ void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
         } break;
         case SPAWNER: {
             getLoadedRoom(level)->currWaveIdx = trigger->waveId;
+            da_foreach (ennemy_t *, e, getCurrentEntityWave(level)) {
+                playEnemySpawning(*p->entity_attribs.ctx);
+            }
         } break;
         default:
             break;

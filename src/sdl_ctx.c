@@ -48,7 +48,7 @@ void setMusicTrackGain(sdl_ctx_t *ctx)
 
 void setSfxTrackGain(sdl_ctx_t *ctx)
 {
-    for (int id = BACKGROUND_MUSIC + 1; id < TRACK_COUNT; ++id) {
+    for (int id = BACKGROUND_MUSIC + 1; id < __count_tracks; ++id) {
         MIX_SetTrackGain(ctx->tracks[id], ctx->opts.sfxVolume / 100.f);
     }
 }
@@ -134,7 +134,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    for (size_t i = 0; i < TRACK_COUNT; ++i) {
+    for (size_t i = 0; i < __count_tracks; ++i) {
         sdl_ctx->tracks[i] = MIX_CreateTrack(sdl_ctx->mixer);
         if (!sdl_ctx->tracks[i]) {
             nob_log(ERROR, "%s:%d: Couldn't create a mixer track: %s", __FILE__, __LINE__, SDL_GetError());

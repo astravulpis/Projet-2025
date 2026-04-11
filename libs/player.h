@@ -52,7 +52,7 @@ typedef struct {
     float dashAnimationTime;
     float prevDashTick;
 
-    float hp;
+    int wallJumps;
 
     float score;
 

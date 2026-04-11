@@ -58,10 +58,10 @@ typedef enum {
     SFX_PLAYER_GUNS,
     SFX_PLAYER_INTERACTIONS,
     SFX_ENEMY_MOVE,
-    SFX_ENEMY_INTERACTIONS,
     SFX_ENEMY_DIE,
+    SFX_ENEMY_INTERACTIONS,
     SFX_ENEMY_SPAWN,
-    TRACK_COUNT = 10,
+    __count_tracks = 10,
 } track_kind;
 
 /**
@@ -96,7 +96,7 @@ typedef struct sdl_context_s sdl_ctx_t;
 
 /**
  * @struct sdl_context_s
- * @brief Act as structure 
+ * @brief Act as structure
  *
  * It holds multiple variable for the rendering of the window, the surface of
  * said window, the event that can be pulled and if it's running or not
@@ -116,8 +116,7 @@ struct sdl_context_s {
     menu_kind currMenu;
     menu_kind prevMenu;
     MIX_Mixer *mixer;
-    MIX_Track *tracks[TRACK_COUNT];
-    MIX_Audio *ennemy_death;
+    MIX_Track *tracks[__count_tracks];
 };
 
 /**

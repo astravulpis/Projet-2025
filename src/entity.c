@@ -10,14 +10,16 @@
  **/
 
 #include "entity.h"
-#include "SDL3/SDL_render.h"
+#include "common.h"
+#include "music.h"
 #include "player.h"
+#include "sdl_helpers.h"
 
 static struct entityBaseAttributs {
     entity_type type;
     entity_attributs stats;
     V2f size;
-} baseStats[E_TYPE_COUNT] = {
+} baseStats[__count_enemy_type] = {
     {.type = E_FILTH, .stats = {.maxHP = 0.5f, .entity_speed = 300.0f}, .size = (V2f){60, 100}},
     {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
     {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
@@ -28,11 +30,17 @@ static struct entityBaseAttributs {
     {.type = E_SISYPHUS, .stats = {}, .size = (V2f){140, 200}},
 };
 
-SDL_Texture *entity_textures[E_TYPE_COUNT] = {0};
+SDL_Texture *entity_textures[__count_enemy_type] = {0};
+
+// 2 tracks per enemy:
+//    - interact (e.g. hurt, attack, fall)
+//    - death
+// +1 for the spawn track
+sfxs enemySfxs = {0};
 
 void loadEntityTex(sdl_ctx_t *ctx)
 {
-    const char *texPaths[E_TYPE_COUNT] = {
+    const char *texPaths[__count_enemy_type] = {
         "./assets/img/filth.png",
     };
 
@@ -41,9 +49,62 @@ void loadEntityTex(sdl_ctx_t *ctx)
     }
 }
 
+char *enemyDisplayName(entity_type type)
+{
+    switch (type) {
+    case E_FILTH:
+        return "filth";
+    case E_STRAY:
+        return "STRAY";
+    case E_SWORDSMACHINE:
+        return "SWORDSMACHINE";
+    case E_PROVIDENCE:
+        return "PROVIDENCE";
+    case E_VERTU:
+        return "VERTU";
+    case E_MAURICE:
+        return "MAURICE";
+    case E_MINOS_PRIME:
+        return "MINOS_PRIME";
+    case E_SISYPHUS:
+        return "SISYPHUS";
+    default:
+        break;
+    }
+    UNREACHABLE("enemy display name");
+}
+
+char *loadEnemySfx(ennemy_t *e, sdl_ctx_t *ctx, char *sfxName)
+{
+    // "spawn", "./assets/audio/SFX/spawn.ogg"
+    // "death", "./assets/audio/SFX/die.ogg"
+    static const char *WorldSfx[2] = {
+        "./assets/audio/SFX/spawn.wav",
+        "./assets/audio/SFX/die.ogg",
+    };
+
+    static const char *enemySfx[__count_enemy_type] = {
+        "./assets/audio/SFX/filth.wav",
+        "./assets/audio/SFX/stray.wav",
+    };
+
+    size_t mark = temp_save();
+    if (enemySfxs.count == 0) {
+        for (size_t i = 0; i < __count_enemy_type; ++i) {
+            temp_rewind(mark);
+            loadSfx(ctx, &enemySfxs, SFX_ENEMY_INTERACTIONS, temp_sprintf("%s%s", enemyDisplayName(e->type), sfxName),
+                    enemySfx[e->type]);
+        }
+        loadSfx(ctx, &enemySfxs, SFX_ENEMY_SPAWN, "enemySpawn", WorldSfx[0]);
+        loadSfx(ctx, &enemySfxs, SFX_ENEMY_DIE, "enemyDie", WorldSfx[1]);
+    }
+
+    return enemySfxs.items[e->type]->name;
+}
+
 SDL_Texture *getEntityTex(sdl_ctx_t *ctx, int index)
 {
-    if (entity_textures[assert(index < E_TYPE_COUNT && index >= 0), index] == NULL) {
+    if (entity_textures[assert(index < __count_enemy_type && index >= 0), index] == NULL) {
         loadEntityTex(ctx);
     }
     return entity_textures[index];
@@ -61,8 +122,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.tex = getEntityTex(*sdl_ctx, type);
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
-    loadSfx((*sdl_ctx), &e->audios, SFX_ENEMY_SPAWN, "spawn", "./assets/audio/SFX/spawn.ogg");
-    loadSfx((*sdl_ctx), &e->audios, SFX_ENEMY_DIE, "death", "./assets/audio/SFX/die.ogg");
+    e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
@@ -70,7 +130,6 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
         e->entity_attribs.boundingBox =
             createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
         setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f, .score = 20);
-        playSfx(*e->entity_attribs.ctx, &e->audios, "spawn");
         break;
     }
     case E_STRAY: {
@@ -172,6 +231,7 @@ objs collision_test_entity(ennemy_t *e, objs *tiles)
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
+    UNUSED(player);
     float gravity = 28.0f;
     SDL_FRect *rect = getBB(e);
     V2f frame_movement = {e->velocity.x, e->velocity.y};
@@ -199,10 +259,23 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
     // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
+void playEnemySpawning(sdl_ctx_t *ctx)
+{
+    playSfx(ctx, &enemySfxs, "enemySpawn");
+}
+
+void playEnemyDeath(sdl_ctx_t *ctx)
+{
+    playSfx(ctx, &enemySfxs, "enemyDie");
+}
+
 void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime)
 {
-    da_foreach (ennemy_t *, e, entities) {
-        updateEntity((*e), player, objects, deltaTime);
+    UNUSED(player);
+    if (entities != NULL) {
+        da_foreach (ennemy_t *, e, entities) {
+            updateEntity((*e), player, objects, deltaTime);
+        }
     }
 }
 
@@ -214,8 +287,10 @@ void renderEntity(ennemy_t *e)
 
 void renderEntities(entities *entities)
 {
-    da_foreach (ennemy_t *, e, entities) {
-        renderEntity(*e);
+    if (entities != NULL) {
+        da_foreach (ennemy_t *, e, entities) {
+            renderEntity(*e);
+        }
     }
 }
 
@@ -225,8 +300,6 @@ void destroyEntity(ennemy_t **e)
         // Bounding box
         free((*e)->entity_attribs.boundingBox);
         (*e)->entity_attribs.boundingBox = NULL;
-
-        destroySfxs(&(*e)->audios);
     }
 
     free(*e);
@@ -240,9 +313,10 @@ void destroyEntities(entities *entities)
         *e = NULL;
     }
 
-    for (int i = 0; i < E_TYPE_COUNT; ++i) {
+    for (int i = 0; i < __count_enemy_type; ++i) {
         SDL_DestroyTexture(entity_textures[i]);
     }
+    destroySfxs(&enemySfxs);
 
     free(entities->items);
 }

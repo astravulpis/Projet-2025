@@ -27,19 +27,22 @@ bool checkCollision(bullet *bullet, level_t *level, player_t *p)
             return true;
         }
     }
-    entities *s = &currRoom->e_waves[currRoom->currWaveIdx];
-    for (size_t i = 0; i < s->count; i++) {
-        ennemy_t *entity = s->items[i];
-        if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(entity))) {
-            entity->entity_attribs.hp -= bullet->dmg;
-            if (entity->entity_attribs.hp <= 0) {
-                playSfx(*entity->entity_attribs.ctx, &entity->audios, "death");
-                p->score += entity->attributs.score;
-                printf("Score: %f\n", p->score);
-                da_remove_unordered(s, i);
-                destroyEntity(&entity);
+
+    if (currRoom->currWaveIdx >= 0) {
+        entities *s = &currRoom->e_waves[currRoom->currWaveIdx];
+        for (size_t i = 0; i < s->count; i++) {
+            ennemy_t *entity = s->items[i];
+            if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(entity))) {
+                entity->entity_attribs.hp -= bullet->dmg;
+                if (entity->entity_attribs.hp <= 0) {
+                    playEnemyDeath(*entity->entity_attribs.ctx);
+                    p->score += entity->attributs.score;
+                    printf("Score: %f\n", p->score);
+                    da_remove_unordered(s, i);
+                    destroyEntity(&entity);
+                }
+                return true;
             }
-            return true;
         }
     }
 

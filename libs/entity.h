@@ -14,7 +14,6 @@
 
 #include "common.h"
 #include "player.h"
-#include "sdl_helpers.h"
 
 #define BASE_SPEED 250
 
@@ -34,10 +33,10 @@ typedef enum {
     E_MINOS_PRIME,
     E_SISYPHUS,
 
-    E_TYPE_COUNT = 8
+    __count_enemy_type = 8
 } entity_type;
 
-extern SDL_Texture *entity_textures[E_TYPE_COUNT];
+extern SDL_Texture *entity_textures[__count_enemy_type];
 
 /**
  * @enum entity_state
@@ -86,7 +85,7 @@ typedef struct {
     entity_attributs attributs;
     V2f velocity;
     bool onGround;
-    sfxs audios;
+    char *attackSfx;
 } ennemy_t;
 
 /**
@@ -107,6 +106,20 @@ typedef struct {
  * @brief creates a creature of a certain type and with a set default spawning location
  */
 ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
+
+/**
+ * @fn playEnemySpawning(sdl_ctx_t *ctx)
+ * @param[in] sdl_ctx our sdl context variable
+ * @brief plays the spawning sfx
+ */
+void playEnemySpawning(sdl_ctx_t *ctx);
+
+/**
+ * @fn playEnemySpawning(sdl_ctx_t *ctx)
+ * @param[in] sdl_ctx our sdl context variable
+ * @brief plays the death sfx
+ */
+void playEnemyDeath(sdl_ctx_t *ctx);
 
 /**
  * @fn renderEntity(entity_t *e)

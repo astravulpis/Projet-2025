@@ -27,8 +27,11 @@ bool createBar(bar **h, SDL_FRect rect, SDL_Color bgColor, SDL_Color fillColor, 
 
 void destroyBar(bar **h)
 {
-    free((*h)->BarBox);
-    (*h)->BarBox = NULL;
+    if (*h != NULL) {
+        free((*h)->BarBox);
+        (*h)->BarBox = NULL;
+    }
+
     free(*h);
     h = NULL;
 }

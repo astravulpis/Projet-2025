@@ -4,9 +4,9 @@
 #include <math.h>
 #include <string.h>
 
-static MIX_Audio *gun_sfx[__gun_kind_count] = {0};
-static SDL_Texture *gun_textures[__gun_kind_count] = {0};
-static SDL_Texture *bullet_textures[__gun_kind_count] = {0};
+static MIX_Audio *gun_sfx[__count_gun_kind] = {0};
+static SDL_Texture *gun_textures[__count_gun_kind] = {0};
+static SDL_Texture *bullet_textures[__count_gun_kind] = {0};
 
 void createGun(Guns_t *guns, gun_kind kind, float dmg, float size, char *sfxPath, char *gunImage, char *bulletTexture)
 {
@@ -26,7 +26,7 @@ Guns_t *initialiseGuns(sdl_ctx_t *ctx)
     if (guns == NULL) {
         return NULL;
     }
-    guns->arsenal = malloc(sizeof(Gun_t) * __gun_kind_count);
+    guns->arsenal = malloc(sizeof(Gun_t) * __count_gun_kind);
     if (guns->arsenal == NULL) {
         free(guns);
         return NULL;
@@ -56,7 +56,7 @@ Guns_t *initialiseGuns(sdl_ctx_t *ctx)
               "./assets/img/weapons/rocketlauncher.png");
 
     // Load all textures and sounds
-    for (int i = 0; i < __gun_kind_count; i++) {
+    for (int i = 0; i < __count_gun_kind; i++) {
         loadGunSfx(&guns->arsenal[i], ctx);
         loadGunImage(&guns->arsenal[i], ctx);
         loadBulletTexture(&guns->arsenal[i], ctx);
@@ -79,7 +79,7 @@ void setGunSfx(Gun_t *gun, const char *path)
 
 void loadGunSfx(Gun_t *gun, sdl_ctx_t *ctx)
 {
-    if (gun_sfx[(assert(gun->kind < __gun_kind_count), gun->kind)] == NULL) {
+    if (gun_sfx[(assert(gun->kind < __count_gun_kind), gun->kind)] == NULL) {
         gun_sfx[gun->kind] = MIX_LoadAudio(ctx->mixer, gun->sfx_path, 1);
     }
 }
@@ -102,14 +102,14 @@ void setBulletTexture(Gun_t *gun, const char *path)
 
 void loadGunImage(Gun_t *gun, sdl_ctx_t *ctx)
 {
-    if (gun_textures[(assert(gun->kind < __gun_kind_count), gun->kind)] == NULL) {
+    if (gun_textures[(assert(gun->kind < __count_gun_kind), gun->kind)] == NULL) {
         gun_textures[gun->kind] = IMG_LoadTexture(ctx->renderer, gun->img_path);
     }
 }
 
 void loadBulletTexture(Gun_t *gun, sdl_ctx_t *ctx)
 {
-    if (bullet_textures[(assert(gun->kind < __gun_kind_count), gun->kind)] == NULL) {
+    if (bullet_textures[(assert(gun->kind < __count_gun_kind), gun->kind)] == NULL) {
         bullet_textures[gun->kind] = IMG_LoadTexture(ctx->renderer, gun->bullet_path);
     }
     gun->bullet_texture = bullet_textures[gun->kind];
@@ -180,15 +180,20 @@ void destroyGun(Gun_t *gun)
 
     free(gun->img_path);
     gun->img_path = NULL;
+
+    free(gun->bullet_path);
+    gun->bullet_path = NULL;
 }
 
 void destroyGuns(Guns_t **guns)
 {
     if (*guns != NULL) {
-        for (int i = 0; i < __gun_kind_count; ++i) {
+        for (int i = 0; i < __count_gun_kind; ++i) {
             destroyGun(&(*guns)->arsenal[i]);
             SDL_DestroyTexture(gun_textures[i]);
             gun_textures[i] = NULL;
+            SDL_DestroyTexture(bullet_textures[i]);
+            bullet_textures[i] = NULL;
         }
         free((*guns)->arsenal);
         (*guns)->arsenal = NULL;
