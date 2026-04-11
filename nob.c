@@ -77,6 +77,7 @@ void compile_command(Cmd *cmd, SDL_Libraries *libs, const char *input_path, cons
         cmd_append(cmd, input_path);
         cmd_append(cmd, LIBPATH);
     }
+    cmd_append(cmd, "-I./libs/");
 
     da_foreach(library, lib, libs) {
         cmd_append(cmd, lib->include);
