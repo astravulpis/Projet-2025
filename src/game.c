@@ -214,7 +214,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
         prevMouseInput = mouseInputFlag;
 
-        if (!ctx->sdl_ctx->currMenu) {
+        if (!ctx->sdl_ctx->currMenu) { //updates the game elements only if we aren't in a menu
             updateTriggers(currLevel, ctx->player);
             updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
             updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime);
