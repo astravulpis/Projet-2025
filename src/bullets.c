@@ -78,7 +78,10 @@ void renderBullets(sdl_ctx_t *ctx, bullets *arr)
 
 void deleteBullet(bullet **bullet)
 {
-    if (*bullet != NULL) free((*bullet)->boundingBox);
+    if (*bullet != NULL){
+        free((*bullet)->boundingBox);
+        (*bullet)->boundingBox = NULL;
+    }
 }
 
 void deleteBullets(bullets *arr)

@@ -11,10 +11,10 @@
  * individual bullet information
  */
 typedef struct {
-    SDL_FRect *boundingBox;
-    V2f velocity;
-    SDL_Texture *texture;
-    float dmg;
+    SDL_FRect *boundingBox; //!< the bullet's hitbox
+    V2f velocity; //!< the speed of the bullet in both x and y direction
+    SDL_Texture *texture; //!< the texture of the bullet
+    float dmg; //!< the damage of the bullet
 } bullet;
 
 /**
@@ -24,9 +24,9 @@ typedef struct {
  * contains all bullets with count and capacity
  */
 typedef struct {
-    bullet *items;
-    size_t count;
-    size_t capacity;
+    bullet *items; //!< list of all bullets
+    size_t count;  //!< current amount of bullets in the list
+    size_t capacity; //!< upper capacity of the list (should never be reached since it's a dynamic array)
 } bullets;
 
 /**
@@ -39,7 +39,8 @@ typedef struct {
  * @param[in] dmg bullet damage
  * @brief creates bullet and puts it in the bullets array
  *
- * creates one bullet by putting in the dynamic array with its corresponding position and velocity
+ * appends the bullet into the bullets array, gives it the corresponding damage, texture, speed and hitbox
+ * that are dependent on the gun that shot said bullet
  */
 bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *texture, float dmg);
 
@@ -51,7 +52,9 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
  * @param[in] p pointer to the player
  * @brief updates bullet position
  *
- * moves all bullets according to delta time
+ * goes through the list of all bullets to updat their positions.
+ * then it goes back through said list to check for collisions between the bullets and everything else 
+ * by calling the \ref checkCollision function
  */
 void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *p);
 
@@ -62,7 +65,9 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *
  * @param[in] p pointer to the player to pppass in update bullet state
  * @brief checks collisions between bullets and level pieces
  *
- * goes through all the bullets and removes any that are colliding with elements of the level
+ * goes through all the bullets and checks for collisions against the level's structures (aka objects)
+ * then does so for all the ennemies based on the current wave index. If there is a collision with an enemy,
+ * the enemy's hp is reduced by the bullet's damage and if it reaches 0, the enemy is killed and the player score is increased by the enemy's score value
  */
 bool checkCollision(bullet *bullet, level_t *level, player_t *p);
 
@@ -72,7 +77,7 @@ bool checkCollision(bullet *bullet, level_t *level, player_t *p);
  * @param[in] arr bullets array
  * @brief renders all bullets
  *
- * moves through the bullets array to render each individual one as a simple coloured rectangle
+ * moves through the bullets array to render each individual one with it's texture and hitbox
  */
 void renderBullets(sdl_ctx_t *ctx, bullets *arr);
 
@@ -80,6 +85,8 @@ void renderBullets(sdl_ctx_t *ctx, bullets *arr);
  * @fn deleteBullets(bullets *arr)
  * @param[in] bullet Address of the bullet to delete
  * @brief detroys the bullet
+ * 
+ * frees the bullet's hitbox, not the texture however as it's handled by \ref SDL_DestroyRenderer
  */
 void deleteBullet(bullet **bullet);
 
@@ -88,7 +95,7 @@ void deleteBullet(bullet **bullet);
  * @param[in] arr bullets array
  * @brief detroyes all bullets
  *
- * moves through the bullets array to destroy each individual one to avoid leaks
+ * moves through the bullets array to destroy each individual one to avoid leaks by calling the \ref deleteBullet function
  */
 void deleteBullets(bullets *arr);
 
