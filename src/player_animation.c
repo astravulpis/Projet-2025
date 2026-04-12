@@ -1,3 +1,16 @@
+/**
+ * @file player_animation.c
+ * @brief File to implement player animations
+*
+ * @author Rossignol François <francois_rossignol@outlook.fr>
+ * @date 2026-04-08
+ * @remark last Modified: 2026-04-09
+ *
+ * Contributors:
+ * Rossignol François <francois_rossignol@outlook.fr>
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #include "player_animation.h"
 #include "common.h"
 #include "sdl_helpers.h"
@@ -29,7 +42,7 @@ bool createPlayerAnimation(sdl_ctx_t *sdl_ctx, player_animation **pa, char *fram
     (*pa)->currentAnimationIndex = 0;
     (*pa)->cumulateTime = -1;
 
-    // loopInterval permet de controler la vitesse d'animation
+    // loopInterval allows you to control the animation speed
     (*pa)->imgPerMs = loopInterval / ANIMATION_NB_FRAME;
     (*pa)->loopInterval = loopInterval;
 
@@ -63,7 +76,7 @@ void renderPlayerAnimation(sdl_ctx_t *sdl_ctx, player_animation *pa, SDL_FlipMod
             float currentTick = SDL_GetTicks();
 
             if (currentTick - pa->cumulateTime >
-                pa->loopInterval) { // si cumulateTime a été initialisé il y'a loopInterval il est remis au tick actuel
+                pa->loopInterval) { // If `cumulateTime` was initialized `loopInterval` ago, it is reset to the current tick
                 pa->cumulateTime = currentTick;
                 pa->currentAnimationIndex = 0;
             } else {
@@ -73,7 +86,7 @@ void renderPlayerAnimation(sdl_ctx_t *sdl_ctx, player_animation *pa, SDL_FlipMod
 
             SDL_RenderTextureRotated(sdl_ctx->renderer, pa->animationTab[pa->currentAnimationIndex], NULL, animationBox, deg,
                                      NULL, flipped);
-        } else {// normalement si on arrive ici, currentAnimationIndex est a 0 (car il y'a eu reset)
+        } else {// Normally, if we get here, `currentAnimationIndex` is 0 (because it has been reset)
             pa->cumulateTime = SDL_GetTicks();
             SDL_RenderTextureRotated(sdl_ctx->renderer, pa->animationTab[pa->currentAnimationIndex], NULL, animationBox, deg,
                                      NULL, flipped);
