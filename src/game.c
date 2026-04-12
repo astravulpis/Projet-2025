@@ -24,7 +24,6 @@ void getMouseState(gameContext *ctx);
 level_t *getLoadedLevel(gameContext *ctx);
 float getDeltaTime();
 bool hasMouseLeftClicked(gameContext *ctx);
-int calculateFPS();
 
 // Render helper functions
 void beginRendering(gameContext *ctx);
@@ -39,21 +38,28 @@ bool gameLoop(gameContext *ctx)
     size_t mark = temp_save();
     bool needsFpsCap = false;
     float deltaTime = 0;
+    Uint32 last = 0;
+    int frameCounter = 0;
     int frameRate = 0;
 
     while (!ctx->sdl_ctx->quit) {
         temp_rewind(mark);
+        Uint32 now = SDL_GetTicks();
         deltaTime = getDeltaTime();
-        frameRate = calculateFPS();
+        if (now - last >= 1000) {
+            frameRate = frameCounter;
+            frameCounter = 0;
+            last = now;
+        }
         if (frameRate > 60) needsFpsCap = true;
 
         pollEvents(ctx);
         beginRendering(ctx);
 
         if (ctx->loadedLevelIdx < LEVEL_COUNT) {
-            // level_t *currLevel = getLoadedLevel(ctx);
-            // room_t *currRoom = getLoadedRoom(currLevel);
-            // renderRoom(ctx->sdl_ctx, currRoom);
+            level_t *currLevel = getLoadedLevel(ctx);
+            room_t *currRoom = getLoadedRoom(currLevel);
+            renderRoom(ctx->sdl_ctx, currRoom);
             // renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
             // if (!ctx->sdl_ctx->currMenu && hasMouseLeftClicked(ctx)) {
             //     V2f startingPos = (V2f){getBB(ctx->player)->x + getBB(ctx->player)->w / 2.0f,
@@ -67,12 +73,12 @@ bool gameLoop(gameContext *ctx)
             //
             // renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
 
-            // if (!ctx->sdl_ctx->currMenu) { //updates the game elements only if we aren't in a menu
-            //     updateTriggers(currLevel, ctx->player);
-            //     updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
-            //     updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
-            //     updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
-            // }
+            if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
+                //     updateTriggers(currLevel, ctx->player);
+                //     updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
+                //     updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
+                // updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
+            }
             //
             // renderPlayer(ctx->player);
             // renderEntities(getCurrentEntityWave(currRoom));
@@ -87,6 +93,7 @@ bool gameLoop(gameContext *ctx)
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         // currLevel = getLoadedLevel(ctx);
+        frameCounter++;
         if (needsFpsCap) SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
 
@@ -145,11 +152,11 @@ bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
 {
     if (ctx->menus == NULL) {
         // Menus:
+        //   - No menu
         //   - Pause
         //   - Start
         //   - Option
         //   - Level selection
-        //   - "footer"
         assert(__menu_count == 5 && "Amount of menu changed");
         ctx->menus = malloc(sizeof(gui_menu *) * __menu_count); // At best, we'll have 5 menus
 
@@ -182,21 +189,6 @@ float getDeltaTime()
     float deltaTime = (now - last) / 1000.0f; // seconds since last frame
     last = now;
     return deltaTime;
-}
-
-int calculateFPS()
-{
-    static Uint32 last = 0;
-    Uint32 now = SDL_GetTicks();
-    static int frameCounter = 0;
-    int frameRate = 0;
-    if (now - last >= 1000) {
-        frameRate = frameCounter;
-        frameCounter = 0;
-        last = now;
-    }
-    frameCounter++;
-    return frameRate;
 }
 
 void getMouseState(gameContext *ctx)
@@ -315,7 +307,16 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
         if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
 
         // 2rd place in taking a lot of time
-        // if (!loadAllLevels(ctx)) return false;
+        if (ctx->levels == NULL) {
+            ctx->levels = malloc(sizeof(level_t *) * LEVEL_COUNT);
+            if (ctx->levels == NULL) {
+                nob_log(ERROR, "Failed to allocate space for %d levels", LEVEL_COUNT);
+                return NULL;
+            }
+            memset(ctx->levels, 0, sizeof(level_t *) * LEVEL_COUNT);
+        }
+
+        if (!loadAllLevels(ctx)) return false;
 
         // 3rd place in taking a lot of time -> idk
         // ctx->guns = initialiseGuns(ctx->sdl_ctx);
@@ -335,14 +336,14 @@ void closeGame(gameContext **ctx)
         // printf("value of the player's score at the end of the runtime: %f\n", ctx->player->score);
         // writeJSON((*ctx)->player);
         //
-        // if ((*ctx)->levels != NULL) {
-        //     for (size_t i = 0; i < (*ctx)->level_count; ++i) {
-        //         destroyLevel(&(*ctx)->levels[i]);
-        //     }
-        // }
-        // free((*ctx)->levels);
-        // (*ctx)->levels = NULL;
-        //
+        if ((*ctx)->levels != NULL) {
+            for (size_t i = 0; i < (*ctx)->level_count; ++i) {
+                destroyLevel(&(*ctx)->levels[i]);
+            }
+        }
+        free((*ctx)->levels);
+        (*ctx)->levels = NULL;
+
         if ((*ctx)->menus != NULL) {
             for (menu_kind kind = 0; kind < __menu_count; ++kind) {
                 if ((*ctx)->menus[kind] != NULL) {
