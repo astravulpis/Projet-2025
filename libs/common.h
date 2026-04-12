@@ -165,6 +165,8 @@ typedef struct {
     float hp; //!< Player's current HP
     float maxHp; //!< Player's max HP
     float score; //!< Player's score
+    float entity_speed; //!< entity's speed
+    float detection_range; //!< entity's detection range
 } entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \

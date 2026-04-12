@@ -68,6 +68,7 @@ typedef struct {
     float hp; //!< the current HP of the entity, used to check for death and such
     float maxHP; //!< the maximum HP of the entity, used when initializing the entity
     float score; //!< the score value of the entity, used to give the player points when killed
+    float detection_range; //!< the range at which the entity can detect the player, used for the behaviour of the entity
     // BEHAVIOUR PART
     entity_state state; //!< the current state of the entity, used to determine its behaviour in the update function
 
@@ -86,6 +87,8 @@ typedef struct {
     V2f velocity; //!< not used for now
     bool onGround; //!< used for the jump functions
     char *attackSfx; //!< path to the entity's attack sound effect
+    float lastX; // the latest x coord of deltaPos, used for the movement of the entity
+    int direction;
 } ennemy_t;
 
 /**
@@ -276,5 +279,7 @@ float getAngle(ennemy_t *e);
  * put the collisions intto an array which it returns
  */
 objs collision_test_entity(ennemy_t *e, objs *tiles);
+
+void enemyIdle(ennemy_t *e, objs *objects);
 
 #endif // ENTITY_H_

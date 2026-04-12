@@ -14,20 +14,24 @@
 #include "music.h"
 #include "player.h"
 #include "sdl_helpers.h"
+#include <math.h>
+
+#define PURSUIT_STOP_RANGE 50.0
 
 static struct entityBaseAttributs {
     entity_type type;
     entity_attributs stats;
     V2f size;
+    float detection_range;
 } baseStats[__count_enemy_type] = {
-    {.type = E_FILTH, .stats = {.maxHP = 0.5f, .entity_speed = 300.0f}, .size = (V2f){60, 100}},
-    {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
-    {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
-    {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},
-    {.type = E_VERTU, .stats = {}, .size = (V2f){128, 128}},
-    {.type = E_MAURICE, .stats = {}, .size = (V2f){118, 128}},
-    {.type = E_MINOS_PRIME, .stats = {}, .size = (V2f){120, 180}},
-    {.type = E_SISYPHUS, .stats = {}, .size = (V2f){140, 200}},
+    {.type = E_FILTH, .stats = {.maxHP = 0.5f, .entity_speed = 300.0f}, .size = (V2f){60, 100}, .detection_range = 200.0f},
+    {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}, .detection_range = 150.0f},
+    {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}, .detection_range = 180.0f},
+    {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}, .detection_range = 250.0f},
+    {.type = E_VERTU, .stats = {}, .size = (V2f){128, 128}, .detection_range = 200.0f},
+    {.type = E_MAURICE, .stats = {}, .size = (V2f){118, 128}, .detection_range = 160.0f},
+    {.type = E_MINOS_PRIME, .stats = {}, .size = (V2f){120, 180}, .detection_range = 200.0f},
+    {.type = E_SISYPHUS, .stats = {}, .size = (V2f){140, 200}, .detection_range = 250.0f},
 };
 
 SDL_Texture *entity_textures[__count_enemy_type] = {0};
@@ -123,13 +127,14 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
+    e->direction=-1; //default movement direction
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
     case E_FILTH: {
         e->entity_attribs.boundingBox =
             createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
-        setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f, .score = 20);
+        setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f, .score = 20, .detection_range = 300.0f);
         break;
     }
     case E_STRAY: {
@@ -199,6 +204,8 @@ void _setEntityAttributs(ennemy_t *e, entity_attributs attrib)
     if (attrib.jumpForce > 0) e->attributs.jumpForce = attrib.jumpForce;
 
     if (attrib.score > 0) e->attributs.score = attrib.score;
+
+    if (attrib.detection_range > 0) e->attributs.detection_range = attrib.detection_range;
 }
 
 void setEntityState(ennemy_t *e, entity_state state)
@@ -231,6 +238,8 @@ objs collision_test_entity(ennemy_t *e, objs *tiles)
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
+    float distanceToPlayer = sqrt(pow(player->entity_attribs.boundingBox->x - e->entity_attribs.boundingBox->x, 2) + pow(player->entity_attribs.boundingBox->y - e->entity_attribs.boundingBox->y, 2));
+    printf("current distance between the entity and the player: %f \n", distanceToPlayer);
     UNUSED(player);
     float gravity = 28.0f;
     SDL_FRect *rect = getBB(e);
@@ -254,7 +263,32 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
 
     e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
+    switch (e->attributs.state) {
+    case STATE_IDLE:
+        printf("NOT in hot pursuit\n");
 
+        enemyIdle(e, objects);
+
+        if (distanceToPlayer < e->attributs.detection_range) {
+            setEntityState(e, STATE_PURSUING);
+            printf("starting pursuit\n");
+        }
+        break;
+
+    case STATE_PURSUING:
+        printf("in hot pursuit\n");
+
+        if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
+            if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
+                e->entity_attribs.boundingBox->x -= 5.0;
+            } else {
+                e->entity_attribs.boundingBox->x += 5.0;
+            }
+        } else {
+            setEntityState(e, STATE_IDLE);
+        }
+        break;
+}
     keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
@@ -319,6 +353,25 @@ void destroyEntities(entities *entities)
     destroySfxs(&enemySfxs);
 
     free(entities->items);
+}
+
+void enemyIdle(ennemy_t *e, objs *objects) {
+    float accel = 0.3f;
+    float maxSpeed = 2.0f;
+    e->velocity.x += accel * e->direction;
+
+    if (e->velocity.x > maxSpeed) e->velocity.x = maxSpeed;
+    if (e->velocity.x < -maxSpeed) e->velocity.x = -maxSpeed;
+
+    e->entity_attribs.boundingBox->x += e->velocity.x;
+
+    objs collisions = collision_test_entity(e, objects);
+    
+    if (collisions.count>0 || e->entity_attribs.boundingBox->x < 0 || e->entity_attribs.boundingBox->x > WINDOW_WIDTH) {
+        e->entity_attribs.boundingBox->x -= e->velocity.x;
+        e->direction *= -1;
+        e->velocity.x = 0;
+    }
 }
 // TODO(2026-03-30 08:15:26): Create test to test the creation of a valid entity, wrongly typed entity, with both bad and good
 // position (test with keepInbounds)
