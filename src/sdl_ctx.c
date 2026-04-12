@@ -32,7 +32,7 @@ bool createCtx(sdl_ctx_t **ctx)
 void initOptions(options *opts)
 {
     opts->masterVolume = 75.0f;
-    opts->musicVolume = 15.0f;
+    opts->musicVolume = 25.0f;
     opts->sfxVolume = 35.0f;
 }
 
@@ -43,6 +43,7 @@ void setMasterTrackGain(sdl_ctx_t *ctx)
 
 void setMusicTrackGain(sdl_ctx_t *ctx)
 {
+    MIX_SetTrackGain(ctx->tracks[START_MENU_MUSIC], ctx->opts.musicVolume / 100.f);
     MIX_SetTrackGain(ctx->tracks[BACKGROUND_MUSIC], ctx->opts.musicVolume / 100.f);
 }
 

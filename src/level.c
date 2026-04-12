@@ -81,7 +81,6 @@ level_t *createLevel(char *title, int id)
 
     level->title = strdup(title);
     level->levelID = (assert(id >= 0), id);
-    level->currentLoadedRoomID = -1;
 
     return level;
 }
@@ -162,6 +161,8 @@ void destroyLevel(level_t **level)
 
         free((*level)->title);
         (*level)->title = NULL;
+        free((*level)->BGM_path);
+        (*level)->BGM_path = NULL;
     }
 
     // dynamic array's items attribut gets realloced right when you first fill it

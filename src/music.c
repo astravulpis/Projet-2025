@@ -20,7 +20,7 @@ bool loadTrack(sdl_ctx_t *ctx, int trackIdx, const char *path)
     /* load a sound file */
     audio = MIX_LoadAudio(ctx->mixer, path, false);
     if (!audio) {
-        SDL_Log("Couldn't load %s: %s", path, SDL_GetError());
+        SDL_Log("Couldn't load %s: See error: %s", path, SDL_GetError());
         return false;
     }
 

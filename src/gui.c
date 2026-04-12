@@ -14,6 +14,7 @@
 #include "gui.h"
 #include "buttons.h"
 #include "common.h"
+#include "music.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "sliders.h"
@@ -94,6 +95,9 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
     if (menu->btns.items[2]->isLeftClicked == true) {
         sdl_ctx->currMenu = START_MENU;
         *opts.loadedLevelIdx = -1;
+        *opts.isBGMPlaying = false;
+        MIX_StopAllTracks(sdl_ctx->mixer, 0);
+        playTrack(sdl_ctx, START_MENU_MUSIC);
     }
 }
 
@@ -154,6 +158,7 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
     sdl_ctx->opts.sfxVolume = menu->sliders.items[2]->currentValue;
     if (sdl_ctx->opts.sfxVolume - sfx != 0) // Avoids doing a for-loop on the different tracks when not needed
         setSfxTrackGain(sdl_ctx);
+
     sfx = sdl_ctx->opts.sfxVolume;
 }
 
@@ -269,38 +274,18 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
 
 void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
-    // Level A
-    if (menu->btns.items[0]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 0;
+    UNUSED(opts);
+    // Level A -> E
+    for (int i = 0; i < 5; ++i) {
+        if (menu->btns.items[i]->isLeftClicked == true) {
+            sdl_ctx->currMenu = NONE_MENU;
+            MIX_StopAllTracks(sdl_ctx->mixer, 0);
+            if (opts.loadedLevelIdx) *opts.loadedLevelIdx = i;
+        }
+    }
 
-        // Level B
-    } else if (menu->btns.items[1]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 1;
-
-        // Level C
-    } else if (menu->btns.items[2]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 2;
-
-        // Level D
-    } else if (menu->btns.items[3]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 3;
-
-        // Level E
-    } else if (menu->btns.items[4]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-        if (opts.loadedLevelIdx) *opts.loadedLevelIdx = 4;
-
-        // Back to Home menu button
-    } else if (menu->btns.items[5]->isLeftClicked == true) {
+    // Back to Home menu button
+    if (menu->btns.items[5]->isLeftClicked == true) {
         sdl_ctx->currMenu = START_MENU;
     }
 }

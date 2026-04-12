@@ -13,11 +13,10 @@
 
 #include "file_parsing.h"
 #include "common.h"
-#include "entity.h"
 #include "level.h"
-#include "music.h"
 #include "sdl_ctx.h"
 #include "triggers.h"
+#include <string.h>
 
 bool parseFlag(int xs_sz, char **xs, sdl_ctx_t **ctx, level_t **level)
 {
@@ -214,8 +213,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
 
                 if (temp.data[temp.count - 1] == '"') sv_chop_right(&temp, 1);
 
-                const char *path = nob_temp_sv_to_cstr(temp);
-                if (!loadTrack(*ctx, BACKGROUND_MUSIC, path)) return false;
+                (*level)->BGM_path = strdup((char *)nob_temp_sv_to_cstr(temp));
             } else {
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;

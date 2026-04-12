@@ -32,6 +32,7 @@ void renderFooter(gameContext *ctx);
 
 // Other helper functions
 void updateMenus(gameContext *ctx);
+void destroyFooter(gameContext *ctx);
 
 bool gameLoop(gameContext *ctx)
 {
@@ -42,6 +43,7 @@ bool gameLoop(gameContext *ctx)
     int frameCounter = 0;
     int frameRate = 0;
 
+    playTrack(ctx->sdl_ctx, START_MENU_MUSIC);
     while (!ctx->sdl_ctx->quit) {
         temp_rewind(mark);
         Uint32 now = SDL_GetTicks();
@@ -59,8 +61,14 @@ bool gameLoop(gameContext *ctx)
         if (ctx->loadedLevelIdx < LEVEL_COUNT) {
             level_t *currLevel = getLoadedLevel(ctx);
             room_t *currRoom = getLoadedRoom(currLevel);
+            if (!ctx->sdl_ctx->isBGMPlaying) {
+                loadTrack(ctx->sdl_ctx, BACKGROUND_MUSIC, currLevel->BGM_path);
+                playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
+                ctx->sdl_ctx->isBGMPlaying = true;
+            }
+            renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
-            // renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
+            renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
             // if (!ctx->sdl_ctx->currMenu && hasMouseLeftClicked(ctx)) {
             //     V2f startingPos = (V2f){getBB(ctx->player)->x + getBB(ctx->player)->w / 2.0f,
             //                             getBB(ctx->player)->y + getBB(ctx->player)->h / 2.0f};
@@ -223,7 +231,6 @@ void beginRendering(gameContext *ctx)
 {
     SDL_SetRenderDrawColor(ctx->sdl_ctx->renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(ctx->sdl_ctx->renderer);
-    renderBackground(ctx->sdl_ctx);
 }
 
 void updateMenus(gameContext *ctx)
@@ -236,7 +243,8 @@ void updateMenus(gameContext *ctx)
                    .loadedLevelIdx = &ctx->loadedLevelIdx);
     } break;
     case PAUSE_MENU: {
-        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[PAUSE_MENU], updatePauseMenu, .loadedLevelIdx = &ctx->loadedLevelIdx);
+        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[PAUSE_MENU], updatePauseMenu, .loadedLevelIdx = &ctx->loadedLevelIdx,
+                   .isBGMPlaying = &ctx->sdl_ctx->isBGMPlaying);
     } break;
     case OPTIONS_MENU: {
         updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[OPTIONS_MENU], updateOptionsMenu);
@@ -297,6 +305,7 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
         gameContext *ctx = *gameCtx;
         // 0st place in taking a lot of time -> Loads every SDL contexts (i.e. SDL, SDL Image, ttf, mixer)
         if (!createCtx(&ctx->sdl_ctx)) return false;
+        loadTrack(ctx->sdl_ctx, START_MENU_MUSIC, "./assets/audio/OST/startMenu.wav");
         getMouseState(ctx);
         initAllMenus(ctx);
         initFooter(ctx);
@@ -320,7 +329,6 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
 
         // 3rd place in taking a lot of time -> idk
         // ctx->guns = initialiseGuns(ctx->sdl_ctx);
-        // playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
 
     } else {
         nob_log(ERROR, "Failed to initialize game context");
@@ -328,6 +336,11 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
     }
 
     return true;
+}
+
+void destroyFooter(gameContext *ctx)
+{
+    destroyPlayerStatusBar(&ctx->footer.dashBar1, &ctx->footer.dashBar2, &ctx->footer.dashBar3, &ctx->footer.hpBar);
 }
 
 void closeGame(gameContext **ctx)
@@ -356,6 +369,7 @@ void closeGame(gameContext **ctx)
         //
         // destroyGuns(&(*ctx)->guns);
         // deleteBullets(&(*ctx)->bullet_arr);
+        destroyFooter(*ctx);
         destroyPlayer(&(*ctx)->player);
         closeCtx(&(*ctx)->sdl_ctx);
     }

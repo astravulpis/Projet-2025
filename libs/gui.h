@@ -40,6 +40,7 @@ typedef struct {
 
 typedef struct {
     size_t *loadedLevelIdx;
+    bool *isBGMPlaying;
     // other data pointers
     // here ...
 } helperFuncOpts;

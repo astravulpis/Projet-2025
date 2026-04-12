@@ -34,6 +34,7 @@ typedef struct {
 
     // Specific attributs to the level
     char *title;
+    char *BGM_path;
     size_t levelID;
     size_t currentLoadedRoomID;
 } level_t;
