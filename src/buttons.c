@@ -57,22 +57,27 @@ void destroyButton(button **b)
     *b = NULL;
 }
 
-void updateButtonState(button *b, V2f mouseCoord, int mouseFlag)
+void updateButtonState(button *b, mouseDevice *mouse)
 {
-    SDL_FPoint coords = (SDL_FPoint){mouseCoord.x, mouseCoord.y};
+    SDL_FPoint coords = (SDL_FPoint){mouse->position.x, mouse->position.y};
     if (SDL_PointInRectFloat(&coords, b->buttonBox)) {
 
         b->isHovered = true;
 
         // Left click
-        if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) b->isLeftClicked = true;
-        else
+        if (mouse->currState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(mouse->prevState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT))) {
+            b->isLeftClicked = true;
+        } else {
             b->isLeftClicked = false;
+        }
 
         // Right click
-        if (mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) b->isRightClicked = true;
-        else
+        if (mouse->currState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) && !(mouse->prevState & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT))) {
+            b->isRightClicked = true;
+        } else {
             b->isRightClicked = false;
+        }
+        mouse->prevState = mouse->currState;
 
     } else {
         // If no collision is detected: reset

@@ -14,7 +14,6 @@
 // All declaration for internal helper functions
 
 // Initialization helper functions
-bool initGameContext(gameContext **gameCtx);
 bool initAllMenus(gameContext *ctx);
 bool loadAllLevels(gameContext *ctx);
 room_t *beginLevel(int argc, char **argv, gameContext *ctx);
@@ -34,7 +33,7 @@ void renderMenus(gameContext *ctx);
 // Other helper functions
 void updateMenus(gameContext *ctx);
 
-bool gameLoop(gameContext *ctx, int argc, char **argv)
+bool gameLoop(gameContext *ctx)
 {
     size_t mark = temp_save();
     bool needsFpsCap = false;
@@ -68,8 +67,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
 
         // renderRoom(ctx->sdl_ctx, currLevel);
         // rendertriggers(ctx->sdl_ctx, currLevel);
-        // if (!ctx->sdl_ctx->currMenu &&
-        //     (mouseInputFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT) && !(prevMouseInput & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)))) {
+        // if (!ctx->sdl_ctx->currMenu && hasMouseLeftClicked(ctx)) {
         //     V2f startingPos = (V2f){getBB(ctx->player)->x + getBB(ctx->player)->w / 2.0f,
         //                             getBB(ctx->player)->y + getBB(ctx->player)->h / 2.0f};
         //     V2f deltaPos = (V2f){ctx->mousePos.x - startingPos.x, ctx->mousePos.y - startingPos.y - 15.0f};
@@ -261,17 +259,17 @@ void updateMenus(gameContext *ctx)
     case NONE_MENU:
         break;
     case LEVEL_SELECTION_MENU: {
-        updateMenu(ctx->sdl_ctx, ctx->mouse.position, ctx->mouse.currState, ctx->menus[LEVEL_SELECTION_MENU], updateLevelMenu,
-                   .loadedLevelIdx = &(ctx->loadedLevelIdx));
+        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[LEVEL_SELECTION_MENU], updateLevelMenu,
+                   .loadedLevelIdx = &ctx->loadedLevelIdx);
     } break;
     case PAUSE_MENU: {
-        updateMenu(ctx->sdl_ctx, ctx->mouse.position, ctx->mouse.currState, ctx->menus[PAUSE_MENU], updatePauseMenu);
+        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[PAUSE_MENU], updatePauseMenu, .loadedLevelIdx = &ctx->loadedLevelIdx);
     } break;
     case OPTIONS_MENU: {
-        updateMenu(ctx->sdl_ctx, ctx->mouse.position, ctx->mouse.currState, ctx->menus[OPTIONS_MENU], updateOptionsMenu);
+        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[OPTIONS_MENU], updateOptionsMenu);
     } break;
     case START_MENU: {
-        updateMenu(ctx->sdl_ctx, ctx->mouse.position, ctx->mouse.currState, ctx->menus[START_MENU], updateHomeMenu);
+        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[START_MENU], updateHomeMenu);
     } break;
     default:
         break;
@@ -298,7 +296,7 @@ void renderMenus(gameContext *ctx)
     }
 }
 
-bool initGameContext(gameContext **gameCtx)
+bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
 {
     *gameCtx = calloc(1, sizeof(gameContext));
     if ((*gameCtx) != NULL) {
@@ -307,13 +305,14 @@ bool initGameContext(gameContext **gameCtx)
         if (!createCtx(&ctx->sdl_ctx)) return false;
         getMouseState(ctx);
         initAllMenus(ctx);
+        ctx->sdl_ctx->currMenu = START_MENU;
 
         // 1st place in taking a lot of time -> Loads the player
         // if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
 
         // room_t *currRoom = NULL;
         // 2rd place in taking a lot of time -> parse the file and loads the level
-        // if ((currRoom = beginLevel(argc, argv, ctx)) == NULL) return false;
+        // if ((currRoom = beginLevel(xs_sz, xs, ctx)) == NULL) return false;
         // level_t *currLevel = getLoadedLevel(ctx);
 
         // 3rd place in taking a lot of time -> idk

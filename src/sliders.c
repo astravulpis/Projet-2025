@@ -1,7 +1,7 @@
 /**
  * @file sliders.c
  * @brief File to implement a slider
-*
+ *
  * @author Rossignol François <francois_rossignol@outlook.fr>
  * @date 2026-03-30
  * @remark last Modified: 2026-04-07
@@ -78,28 +78,29 @@ void FRect_Change_x(SDL_FRect *rect, float step, float minLimit, float maxLimit)
     return;
 }
 
-void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, float *val)
+void updateSliderStates(slider *s, mouseDevice mouse, float *val)
 {
-    SDL_FPoint coords = (SDL_FPoint){mouseCoord.x, mouseCoord.y};
+    SDL_FPoint coords = (SDL_FPoint){mouse.position.x, mouse.position.y};
 
     // Check whether the cursor has focus (was previously clicked and is still being clicked)
-    s->focused = s->clicked && mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
+    s->focused = s->clicked && mouse.currState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 
     // Update the other Booleans, and increment the cursor box's x value if it is focused
     if (SDL_PointInRectFloat(&coords, s->cursorBox)) {
         s->hovered = true;
-        s->clicked = mouseFlag & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
-        s->prevX = mouseCoord.x;
+        s->clicked = mouse.currState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
+        s->prevX = coords.x;
     } else if (s->focused) {
-        // prevX is normally always different from -1 if you've reached this point; difference 
+        // prevX is normally always different from -1 if you've reached this point; difference
         // represents the distance between the mouse's last X position and the current one
-        float difference = mouseCoord.x - s->prevX;
+        float difference = coords.x - s->prevX;
         // step est la largeur d'une valeur dans la représentation du slider
         float step = (s->sliderBox->w - (2 * s->borderSize) - s->cursorBox->w) / (float)(s->nbValue - 1);
 
         // If the difference is greater than a certain threshold, then the cursor is moved accordingly
         if (fabsf(difference) >= step) {
-            // Useful rounding to get a “snap” to different values; this prevents the cursor from ending up anywhere on the slider
+            // Useful rounding to get a “snap” to different values; this prevents the cursor from ending up anywhere on the
+            // slider
             float moveStep = roundf(difference / step);
             float move = moveStep * step; // the distance the cursor will move -> cursorBox.x + move (negative or positive)
 

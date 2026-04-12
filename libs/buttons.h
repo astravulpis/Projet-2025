@@ -33,9 +33,7 @@ typedef struct button {
 
 /**
  * @fn createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect rect, char *baseImgPath, char *hoverImgPath, char *clickImgPath)
- * @param sdl_ctx SDL context, passed as a parameter to the function here to load the various \ref button images
- * @param text the text that will appear next to the \ref button
- * @param b a pointer to a \ref button pointer, which will hold the \ref button created when the function is called
+ * @param sdl_ctx SDL context, passed as a parameter to the function here to load the various \ref button images @param text the text that will appear next to the \ref button @param b a pointer to a \ref button pointer, which will hold the \ref button created when the function is called
  * @param rect the rectangular area where the \ref button will be located
  * @param baseImgPath the path to the base image that needs to be loaded
  * @param hoverImgPath the path to the hovered image that needs to be loaded
@@ -52,22 +50,21 @@ bool createButton(sdl_ctx_t *sdl_ctx, button **b, const char *text, SDL_FRect re
                   char *clickImgPath);
 
 /**
- * @fn updateButtonState(button *b, V2f mouseCoord, int mouseFlag)
+ * @fn updateButtonState(button *b, mouseDevice *mouse)
  * @param b b is a pointer to the \ref button whose states (Booleans) we want to update
- * @param mouseCoord mouse pointer coordinates in the game window ( \ref V2f)
- * @param mouseFlag Boolean mask to determine which mouse buttons are pressed
+ * @param mouse The mouse device used to store the mouse's info ( \ref mouseDevice)
  * @brief This function updates the status booleans of a \ref button
  *
  * This function updates the status booleans ( \ref isHovered, \ref isLeftClicked and \ref isRightClicked) of a \ref button using SDL_PointInRectFloat with mouseCoord
  * after mouseFlag is compare with SDL MASK to get the mouse input
  */
-void updateButtonState(button *b, V2f mouseCoord, int mouseFlag);
+void updateButtonState(button *b, mouseDevice *mouse);
 
 /**
  * @fn renderButton(sdl_ctx_t *sdl_ctx, button *b)
  * @param sdl_ctx SDL context, passed as a parameter to the function here to have acces to the renderer where the \ref button will be rendered
  * @param b b is a pointer to the \ref button to print
- * @brief This function displays a \ref button based on its boolean state 
+ * @brief This function displays a \ref button based on its boolean state
  *
  * This function displays a \ref button based on its boolean state, with \ref renderImage() and \ref renderText_Ex()
  * If there was a problem loading the image, a rectangle is displayed in its place using \ref renderFillRect(), different colors for each state

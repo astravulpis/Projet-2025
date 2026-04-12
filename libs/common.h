@@ -170,4 +170,17 @@ typedef struct {
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \
     da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));
 
+/**
+ * @typedef struct mouseDevice
+ * @brief the mouse's info
+ *
+ * contains the position of the mouse, it's current and previous state
+ */
+typedef struct {
+    V2f position; //!< the mouse's position
+    int currState; //!< the mouse's current state
+    int prevState; //!< the mouse's previous state
+} mouseDevice;
+
+
 #endif // COMMON_H_

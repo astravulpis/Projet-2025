@@ -65,14 +65,13 @@ bool createSlider(slider **s, SDL_FRect rect, float nbValue, float borderSize, f
  * @brief deletes a \ref slider and its properties
  *
  * deletes a \ref slider and its properties with free, there's no specific function called here
- */   
+ */
 void destroySlider(slider **s);
 
 /**
  * @fn updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, float *val)
  * @param s s is a pointer to the \ref slider whose states (Booleans) we want to update
- * @param mouseCoord mouse pointer coordinates in the game window ( \ref V2f)
- * @param mouseFlag Boolean mask to determine which mouse buttons are pressed
+ * @param mouse The mouse device used to store the mouse's info ( \ref mouseDevice)
  * @param val which will contain the same value as \ref currentValue; this is useful for retrieving the value outside the structure
  * @brief This function updates the status booleans of a \ref slider
  *
@@ -80,20 +79,20 @@ void destroySlider(slider **s);
  * using SDL_PointInRectFloat with \ref mouseCoord on \ref cursorBox for \ref hovered attribute
  * after mouseFlag is used for clicked or focused
  * To set the \ref focused boolean to true, a click must be held down across multiple frames.
- * To detect this, we compare \ref clicked (when it hasn't been updated yet) with \ref mouseFlag; if both are true, then \ref focused becomes true. 
+ * To detect this, we compare \ref clicked (when it hasn't been updated yet) with \ref mouseFlag; if both are true, then \ref focused becomes true.
  * else, \ref clicked become true, but not focused
  *
  * To move the cursor, a difference is calculated between \ref prevX and the current mouse position (provided, of course, that \ref is focused).
- * If the absolute value (fabsf(), \ref math.h) of this difference is greater than or equal to the step size (the width of a value displayed on the slider), the difference is divided by the step size, 
+ * If the absolute value (fabsf(), \ref math.h) of this difference is greater than or equal to the step size (the width of a value displayed on the slider), the difference is divided by the step size,
  * the result is rounded (roundf(), \ref math.h), and then multiplied by the step size. \ref cursorBox will be set to this value to move along the X-axis, \ref currentValue will be set a the same method.
  */
-void updateSliderStates(slider *s, V2f mouseCoord, int mouseFlag, float *val);
+void updateSliderStates(slider *s, mouseDevice mouse, float *val);
 
 /**
  * @fn renderSlider(sdl_ctx_t *sdl_ctx, slider *s)
  * @param sdl_ctx SDL context, passed as a parameter to the function here to have acces to the renderer where the \ref slider will be rendered
  * @param s s is a pointer to the \ref slider to print
- * @brief This function displays a \ref slider based on its boolean state 
+ * @brief This function displays a \ref slider based on its boolean state
  *
  * This function displays a \ref slider based on its boolean state, with \ref renderRect_Ex for \ref sliderBox and \ref cursorBox
  * the cursor is rendered a the position updated before with \ref updateSliderStates, and with a darker color if it's clicked (there's a little shadow effect a the top of it)

@@ -14,7 +14,6 @@
 #include "gui.h"
 #include "buttons.h"
 #include "common.h"
-#include "level.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "sliders.h"
@@ -54,8 +53,9 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
     SDL_FRect boxOptions = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f), 384.0f, 96.0f};
     boxToScale(&boxOptions, sdl_ctx->screenRatio);
 
-    SDL_FRect boxQuit = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f + 120.0f), 384.0f, 96.0f};
-    boxToScale(&boxQuit, sdl_ctx->screenRatio);
+    SDL_FRect boxExitLevel =
+        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f + 120.0f), 384.0f, 96.0f};
+    boxToScale(&boxExitLevel, sdl_ctx->screenRatio);
 
     button *resumeButton = NULL;
     createButton(sdl_ctx, &resumeButton, "RESUME", boxResume, "./assets/img/buttons/base128.png",
@@ -65,21 +65,20 @@ gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
     createButton(sdl_ctx, &optionsButton, "OPTIONS", boxOptions, "./assets/img/buttons/base128.png",
                  "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
-    button *quitButton = NULL;
-    createButton(sdl_ctx, &quitButton, "QUIT", boxQuit, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
-                 "./assets/img/buttons/click128.png");
+    button *exitLevelButton = NULL;
+    createButton(sdl_ctx, &exitLevelButton, "EXIT LEVEL", boxExitLevel, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
     addButtonToMenu(menu, resumeButton);
     addButtonToMenu(menu, optionsButton);
-    addButtonToMenu(menu, quitButton);
+    addButtonToMenu(menu, exitLevelButton);
 
     return menu;
 }
 
 void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
-    UNUSED(opts);
     // Resume button
     if (menu->btns.items[0]->isLeftClicked == true) {
         sdl_ctx->currMenu = NONE_MENU;
@@ -91,8 +90,11 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
         sdl_ctx->currMenu = OPTIONS_MENU;
     }
 
-    // Quit button
-    if (menu->btns.items[2]->isLeftClicked == true) sdl_ctx->quit = true;
+    // Exit level button
+    if (menu->btns.items[2]->isLeftClicked == true) {
+        sdl_ctx->currMenu = START_MENU;
+        *opts.loadedLevelIdx = -1;
+    }
 }
 
 // ******************* OPTIONS MENU ***********************
@@ -159,20 +161,15 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
 {
     // Box to scale n'est utilisé qu'avec le premier bouton, car les prochains se base sur lui, donc ils sont déja scale
-    SDL_FRect boxPlay = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 120.0f), 384.0f, 96.0f};
-    boxToScale(&boxPlay, sdl_ctx->screenRatio);
-
     SDL_FRect boxLevelSelect =
-        (SDL_FRect){boxPlay.x, boxPlay.y + boxPlay.h + (15 * sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
+        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 164.0f), 384.0f, 96.0f};
+    boxToScale(&boxLevelSelect, sdl_ctx->screenRatio);
 
-    SDL_FRect boxOption =
-        (SDL_FRect){boxLevelSelect.x, boxLevelSelect.y + boxPlay.h + (15 * sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
+    SDL_FRect boxOption = (SDL_FRect){boxLevelSelect.x, boxLevelSelect.y + boxLevelSelect.h + (64 * sdl_ctx->screenRatio),
+                                      boxLevelSelect.w, boxLevelSelect.h};
 
-    SDL_FRect boxQuit = (SDL_FRect){boxOption.x, boxOption.y + boxPlay.h + (15 * sdl_ctx->screenRatio), boxPlay.w, boxPlay.h};
-
-    button *playButton = NULL;
-    createButton(sdl_ctx, &playButton, "PLAY", boxPlay, "./assets/img/buttons/base128.png", "./assets/img/buttons/hover128.png",
-                 "./assets/img/buttons/click128.png");
+    SDL_FRect boxQuit = (SDL_FRect){boxOption.x, boxOption.y + boxLevelSelect.h + (64 * sdl_ctx->screenRatio), boxLevelSelect.w,
+                                    boxLevelSelect.h};
 
     button *levelButton = NULL;
     createButton(sdl_ctx, &levelButton, "LEVEL SELECTION", boxLevelSelect, "./assets/img/buttons/base128.png",
@@ -187,7 +184,6 @@ gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
                  "./assets/img/buttons/click128.png");
 
     gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
-    addButtonToMenu(menu, playButton);
     addButtonToMenu(menu, levelButton);
     addButtonToMenu(menu, optionsButton);
     addButtonToMenu(menu, quitButton);
@@ -199,22 +195,18 @@ void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
     UNUSED(opts);
 
-    // Play button
-    if (menu->btns.items[0]->isLeftClicked == true) {
-        sdl_ctx->currMenu = NONE_MENU;
-        MIX_ResumeAllTracks(sdl_ctx->mixer);
-    }
     // Level Selection button
-    if (menu->btns.items[1]->isLeftClicked == true) {
+    if (menu->btns.items[0]->isLeftClicked == true) {
         sdl_ctx->currMenu = LEVEL_SELECTION_MENU;
     }
+
     // Options menu button
-    if (menu->btns.items[2]->isLeftClicked == true) {
+    if (menu->btns.items[1]->isLeftClicked == true) {
         sdl_ctx->prevMenu = START_MENU;
         sdl_ctx->currMenu = OPTIONS_MENU;
     }
     // Quit button
-    if (menu->btns.items[3]->isLeftClicked == true) sdl_ctx->quit = true;
+    if (menu->btns.items[2]->isLeftClicked == true) sdl_ctx->quit = true;
 }
 
 // ******************* LEVEL SELECTION MENU ***********************
@@ -313,14 +305,13 @@ void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
     }
 }
 
-void __updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helperFunc updateFunc,
-                  helperFuncOpts opts)
+void __updateMenu(sdl_ctx_t *sdl_ctx, mouseDevice *mouse, gui_menu *menu, helperFunc updateFunc, helperFuncOpts opts)
 {
     da_foreach (button *, button, &menu->btns) {
-        updateButtonState(*button, mouseCoord, mouseInputFlag);
+        updateButtonState(*button, mouse);
     }
     da_foreach (slider *, slider, &menu->sliders) {
-        updateSliderStates(*slider, mouseCoord, mouseInputFlag, NULL);
+        updateSliderStates(*slider, *mouse, NULL);
     }
 
     updateFunc(sdl_ctx, menu, opts);

@@ -63,10 +63,9 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx);
 void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts);
 
 gui_menu *createMenu(SDL_Color bgColor);
-void __updateMenu(sdl_ctx_t *sdl_ctx, V2f mouseCoord, int mouseInputFlag, gui_menu *menu, helperFunc updateFunc,
-                  helperFuncOpts opts);
-#define updateMenu(sdl_ctx, mouseCoord, mouseInputFlag, menu, updateFunc, ...)                                   \
-    __updateMenu((sdl_ctx), (mouseCoord), (mouseInputFlag), (menu), (updateFunc), (helperFuncOpts){__VA_ARGS__})
+void __updateMenu(sdl_ctx_t *sdl_ctx, mouseDevice *mouse, gui_menu *menu, helperFunc updateFunc, helperFuncOpts opts);
+#define updateMenu(sdl_ctx, mouse, menu, updateFunc, ...)                                   \
+    __updateMenu((sdl_ctx), (mouse), (menu), (updateFunc), (helperFuncOpts){__VA_ARGS__})
 void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
 void destroyMenu(gui_menu **menu);
 void addButtonToMenu(gui_menu *menu, button *btn);
