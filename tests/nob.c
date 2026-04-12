@@ -77,6 +77,8 @@ bool compile(const char *test_name, SDL_Libraries *libs)
     cmd_append(&cmd, "-o", bin_path);
     cmd_append(&cmd, src_path);
     cmd_append(&cmd, LIBPATH);
+    cmd_append(&cmd, "-I./libs/");
+    cmd_append(&cmd, "-I./src/");
 
     da_foreach (library, lib, libs) {
         cmd_append(&cmd, lib->include);

@@ -46,8 +46,11 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
         usingDefault = true;
     }
 
-    if (!usingDefault) realPath = temp_sprintf("./assets/level/%s.txt", path);
-    else {
+    if (!usingDefault && sv_starts_with(sv_from_cstr(path), sv_from_cstr("./"))) {
+        realPath = path;
+    } else if (!usingDefault) {
+        realPath = temp_sprintf("./assets/level/%s.txt", path);
+    } else {
         realPath = temp_sprintf("./assets/level/level_debug.txt");
     }
 
@@ -136,8 +139,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 sv_chop_left(&bgTemp, 1);
 
                 sv_chop_right(&bgTemp, 1);
-                if (bgTemp.data[bgTemp.count-1]  == '"')
-                    sv_chop_right(&bgTemp, 1);
+                if (bgTemp.data[bgTemp.count - 1] == '"') sv_chop_right(&bgTemp, 1);
 
                 const char *path = nob_temp_sv_to_cstr(bgTemp);
                 if (!loadBackgroundImage((*ctx), path)) return false;
@@ -210,8 +212,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 sv_chop_left(&temp, 1);
                 sv_chop_right(&temp, 1);
 
-                if (temp.data[temp.count-1]  == '"')
-                    sv_chop_right(&temp, 1);
+                if (temp.data[temp.count - 1] == '"') sv_chop_right(&temp, 1);
 
                 const char *path = nob_temp_sv_to_cstr(temp);
                 if (!loadTrack(*ctx, BACKGROUND_MUSIC, path)) return false;

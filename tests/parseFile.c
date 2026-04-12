@@ -1,6 +1,16 @@
-#include "../src/common.h"
-// #include "../src/file_parsing.h"
+/**
+ * @file parseFile.c
+ * @brief Unit test to test the parsing of files
+ *
+ * Author: Liam B. <liam.berge72@gmail.com>
+ * Date: 2026-03-22
+ *
+ * * Contributors:
+ * Liam B. <liam.berge72@gmail.com>
+ **/
+
 #include "../shared.h"
+#include "common.h"
 #include <stdbool.h>
 
 bool parseFlag(int xs_sz, char **xs);

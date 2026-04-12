@@ -12,8 +12,8 @@
  **/
 
 #include "../shared.h"
-#include "../src/sdl_helpers.h"
 #include "SDL3/SDL_rect.h"
+#include "sdl_helpers.h"
 #include <assert.h>
 #include <stdbool.h>
 

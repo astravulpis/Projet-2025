@@ -3,16 +3,16 @@
 ./assets/img/white.png, 400.00, 0.00, 100.00, 300.00
 ./assets/img/white.png, 0.00, -10.00, 800.00, 15.00
 , 0.00, -10.00, 800.00, 15.00
-tests/parseFile.c:75: Type "oj" is not yet supported
+tests/parseFile.c:85: Type "oj" is not yet supported
 ./assets/img/white.png, -10.00, 800.00, 15.00, 0.00
-tests/parseFile.c:67: |9.0| <-- This should be empty
+tests/parseFile.c:77: |9.0| <-- This should be empty
 ./assets/img/white.ng, 0.00, -10.00, 800.00, 15.00
 NULL, 0.00, -10.00, 800.00, 15.00
 ., -10.00, 800.00, 15.00, 0.00
 wds, 0.00, 0.00, 0.00, 0.00
 , 0.00, 0.00, 0.00, 0.00
-tests/parseFile.c:67: |jkladsjl| <-- This should be empty
-tests/parseFile.c:67: |jasdjksadjl| <-- This should be empty
-tests/parseFile.c:67: |lasjkasdjl| <-- This should be empty
-tests/parseFile.c:75: Type "ajskasdjkl" is not yet supported
-tests/parseFile.c:93: the parsing of flags went smoothly. No error to report. Exiting...
+tests/parseFile.c:77: |jkladsjl| <-- This should be empty
+tests/parseFile.c:77: |jasdjksadjl| <-- This should be empty
+tests/parseFile.c:77: |lasjkasdjl| <-- This should be empty
+tests/parseFile.c:85: Type "ajskasdjkl" is not yet supported
+tests/parseFile.c:103: the parsing of flags went smoothly. No error to report. Exiting...

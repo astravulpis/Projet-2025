@@ -11,143 +11,83 @@
  **/
 
 #include "../shared.h"
-#include "../src/common.h"
-#include "../src/level.h"
+#include "SDL3/SDL_render.h"
+#include "common.h"
+#include "file_parsing.h"
+#include "level.h"
 
-bool parseFile(char *path, level_t **level);
+static bool createCustomCtx(sdl_ctx_t **ctx);
+static bool initCustomCtx(sdl_ctx_t *sdl_ctx);
+static void closeCustomCtx(sdl_ctx_t **sdl_ctx);
 
-bool parseFlag(int xs_sz, char **xs, level_t **level)
+static bool createCustomCtx(sdl_ctx_t **ctx)
 {
-    char *path = NULL;
-    flag_str_var(&path, "-level-path", NULL, "Defines the path to the file where a level or room is stored at");
-
-    if (!flag_parse(xs_sz, xs)) {
-        flag_print_error(stderr);
+    (*ctx) = calloc(1, sizeof(sdl_ctx_t));
+    if ((*ctx) == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to allocate space for sdl_ctx_t. Critical error!", __FILE__, __LINE__);
         return false;
     }
 
-    if (!parseFile(path, level)) return false;
+    if (!initCustomCtx((*ctx))) return false;
 
     return true;
 }
 
-bool parseFile(char *path, level_t **level)
+static bool initCustomCtx(sdl_ctx_t *sdl_ctx)
 {
-    String_Builder sb = {0};
-    bool result = true;
-    size_t mark = temp_save();
+    bool result = true; // true by default to allow fall-through pass the `defer` label
 
-    if (path == NULL) {
-        printf("%s:%d: No path provided.\n", __FILE__, __LINE__);
+    if (!SDL_Init(SDL_INIT_EVENTS)) {
+        nob_log(ERROR, "%s:%d: SDL failed to initialize. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
 
-    if (!file_exists(path)) {
-        printf("%s:%d: %s is not a file or does not exist.\n", __FILE__, __LINE__, path);
+    SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, 0x0, &(sdl_ctx->window), &(sdl_ctx->renderer));
+    if (!sdl_ctx->window) {
+        nob_log(ERROR, "%s:%d: SDL failed to create window and renderer. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
-    }
-
-    if (!read_entire_file(path, &sb)) return_defer(false);
-
-    String_View sv = sb_to_sv(sb);
-
-    float rect[4] = {0};
-
-    // Its own context
-    {
-        String_View line = sv_chop_by_delim(&sv, '\n');
-        String_View header = sv_chop_by_delim(&line, ' ');
-        if (sv_eq(header, sv_from_cstr("info"))) {
-            // header title         level_index
-            // info   "debug level" 0
-            (void)sv_chop_by_delim(&line, '"'); // Remove the left most '"'
-            String_View title = sv_chop_by_delim(&line, '"');
-
-            int level_id = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-            *level = createLevel((char *)nob_temp_sv_to_cstr(title), level_id);
-        } else {
-            printf("INFO LABEL IS NOT SET. FILE IS INVALID\n");
-            return_defer(false);
-        }
-        temp_rewind(mark); // Title was strdup'd in the creation of the level
-    }
-
-    room_t *room = NULL;
-
-    while (sv.count > 0) {
-        temp_rewind(mark);
-        String_View line = sv_chop_by_delim(&sv, '\n');
-        while (line.count > 0) {
-            String_View header = sv_chop_by_delim(&line, ' ');
-
-            // Create the room
-            if (sv_eq(header, sv_from_cstr("room"))) {
-                if (room != NULL) {
-                    printf("Assigning room no.%d to level %d\n", room->roomID, (*level)->levelID);
-                    assignRoomToLevel((*level), room);
-                    room = NULL;
-                }
-                int room_id = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                room = createRoom(room_id);
-                printf("Created room id: %d\n", room_id);
-
-            // Insert objects in the room
-            } else if (sv_eq(header, sv_from_cstr("obj"))) {
-
-                // Path to image
-                String_View temp = sv_chop_by_delim(&line, ' ');
-                if (!sv_eq(temp, sv_from_cstr("")) && !sv_eq(temp, sv_from_cstr("NULL"))) {
-                    sv_chop_left(&temp, 1);
-                    sv_chop_right(&temp, 1);
-                }
-                (void)nob_temp_sv_to_cstr(temp);
-
-                // The rectangle's position, width and height based on screen/FHD ratio
-                for (int i = 0; i < 4; ++i) {
-                    float val = atof(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
-                    rect[i] = val;
-                }
-
-                // Removing unwanted values
-                if (line.count > 0) {
-                    while (line.count > 0) {
-                        String_View unwanted = sv_chop_by_delim(&line, ' ');
-                        printf("%s:%d: |" SV_Fmt "| <-- This should be empty\n", __FILE__, __LINE__, SV_Arg(unwanted));
-                    }
-                    continue;
-                }
-                assignObject_Ex(room, (obj){createRect((rect[0]), (rect[1]), (rect[2]), (rect[3])), NULL});
-
-            // Choose a background image for the level/room
-            } else if (sv_eq(header, sv_from_cstr("bg"))) {
-                (void)sv_chop_by_delim(&line, ' ');
-                nob_log(INFO, "Background loaded");
-            } else if (sv_eq(header, sv_from_cstr("entity"))) { // See TODO(2026-03-30 08:08:45)
-                TODO("entity parsing");
-            } else {
-                printf("%s:%d: Type \"" SV_Fmt "\" is not yet supported\n", __FILE__, __LINE__, SV_Arg(header));
-                break;
-            }
-        }
-    }
-    if (room != NULL) {
-        printf("Assigning room no.%d to level %d\n", room->roomID, (*level)->levelID);
-        assignRoomToLevel((*level), room);
-        loadRoom((*level), (*level)->items[0]->roomID);
     }
 
 defer:
-    temp_rewind(mark);
-    free(sb.items);
+    if (result == false) {
+        closeCustomCtx(&sdl_ctx);
+    }
+
     return result;
+}
+
+static void closeCustomCtx(sdl_ctx_t **sdl_ctx)
+{
+    if ((*sdl_ctx) != NULL) {
+
+        if ((*sdl_ctx)->renderer != NULL) {
+            SDL_DestroyRenderer((*sdl_ctx)->renderer);
+            (*sdl_ctx)->renderer = NULL;
+        }
+
+        if ((*sdl_ctx)->window != NULL) {
+            SDL_DestroyWindow((*sdl_ctx)->window);
+            (*sdl_ctx)->window = NULL;
+        }
+    }
+
+    // Freeing a NULL is fine
+    free(*sdl_ctx);
+    sdl_ctx = NULL;
+    SDL_Quit();
 }
 
 int main(int argc, char *argv[])
 {
     level_t *level = NULL;
-    parseFlag(argc, argv, &level);
+    sdl_ctx_t *ctx = NULL;
+    int result = 0;
+    if (!createCustomCtx(&ctx)) return_defer(1);
+    if (!parseFlag(argc, argv, &ctx, &level)) return_defer(1);
     destroyLevel(&level);
 
     printf("everything went well\n");
-    return 0;
+defer:
+    closeCustomCtx(&ctx);
+    return result;
 }
