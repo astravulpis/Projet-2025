@@ -1,5 +1,5 @@
-info "levelB" 0
-bg "./assets/img/flare.jpg"
+info "levelB" 1
+bg "./assets/img/ice1.jpg"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
 obj "./assets/img/white.png" 0.0 850.0 1980.0 150.0

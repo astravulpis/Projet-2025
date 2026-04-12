@@ -53,6 +53,28 @@ void setSfxTrackGain(sdl_ctx_t *ctx)
     }
 }
 
+float getScreenRatio()
+{
+    int num_displays;
+    float result = -1.0f;
+    SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
+    if (displays == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to get displays. See error: %s", __FILE__, __LINE__, SDL_GetError());
+        return result;
+    }
+
+    const SDL_DisplayMode *screenInformation = SDL_GetCurrentDisplayMode(*displays);
+
+    if (screenInformation == NULL) {
+        nob_log(ERROR, "%s:%d: Failed to get the display's info. See error: %s", __FILE__, __LINE__, SDL_GetError());
+        return result;
+    }
+
+    result = (float)screenInformation->h / (float)WINDOW_HEIGHT;
+    SDL_free(displays);
+    return result;
+}
+
 bool initCtx(sdl_ctx_t *sdl_ctx)
 {
     bool result = true; // true by default to allow fall-through pass the `defer` label
@@ -60,19 +82,25 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
     SDL_WindowFlags windowFlags = 0x0; // To add a flag, use the bit-wise OR, such as:
                                        // SDL_[FLAG1] | SDL_[FLAG2] | SDL_[FLAG3]
 
+    sdl_ctx->quit = false;
+    sdl_ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
+    sdl_ctx->bgTexture = NULL;
+
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         nob_log(ERROR, "%s:%d: SDL failed to initialize. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
 
+    // *********************** WINDOW AND RENDERER ************************** //
     SDL_CreateWindowAndRenderer("ULTRAC00L", WINDOW_WIDTH, WINDOW_HEIGHT, windowFlags, &(sdl_ctx->window),
                                 &(sdl_ctx->renderer));
     if (!sdl_ctx->window) {
-        nob_log(ERROR, "%s:%d: SDL failed to create window and renderer. See: %s", __FILE__, __LINE__, SDL_GetError());
+        nob_log(ERROR, "%s:%d: SDL failed to create window. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
 
-    if (!enableVsync(sdl_ctx)) {
+    if (!sdl_ctx->renderer) {
+        nob_log(ERROR, "%s:%d: SDL failed to create renderer. See: %s", __FILE__, __LINE__, SDL_GetError());
         return_defer(false);
     }
 
@@ -81,37 +109,22 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
-    sdl_ctx->quit = false;
-    sdl_ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!sdl_ctx->bgRect) {
-        nob_log(ERROR, "%s:%d: Failed creating the window's background rectangle surface", __FILE__, __LINE__);
+    if (!enableVsync(sdl_ctx)) {
         return_defer(false);
     }
 
-    sdl_ctx->bgTexture = NULL;
+    sdl_ctx->screenRatio = getScreenRatio();
+    if (sdl_ctx->screenRatio < 0.0f) {
+        return_defer(false);
+    }
 
+    SDL_SetWindowFullscreen(sdl_ctx->window, true);
+
+    // *********************** SDL TTF ************************** //
     if (!TTF_Init()) {
         nob_log(ERROR, "%s:%d: Failed to initialize SDL_ttf", __FILE__, __LINE__);
         return false;
     }
-
-    // Calculate the screen's ratio to make everything on screen fit.
-    int num_displays;
-    SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
-    if (displays == NULL) {
-        nob_log(ERROR, "%s:%d: Failed to use SDL_GetDisplays(). See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return_defer(false);
-    }
-
-    const SDL_DisplayMode *screenInformation = SDL_GetCurrentDisplayMode(*displays);
-
-    if (screenInformation == NULL) {
-        nob_log(ERROR, "%s:%d: Failed to use SDL_GetCurrentDisplayMode(). See error: %s", __FILE__, __LINE__, SDL_GetError());
-        return_defer(false);
-    }
-
-    sdl_ctx->screenRatio = (float)screenInformation->h / (float)WINDOW_HEIGHT;
-    SDL_free(displays);
 
     sdl_ctx->font = loadFont("./assets/font/VCR_OSD_MONO_1.001.ttf", 28.0f * sdl_ctx->screenRatio, TTF_STYLE_NORMAL, 0);
     if (sdl_ctx->font == NULL) {
@@ -119,6 +132,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
         return_defer(false);
     }
 
+    // *********************** SDL MIXER ************************** //
     if (!MIX_Init()) {
         nob_log(ERROR, "%s:%d: Failed to initialise MIX", __FILE__, __LINE__);
         return_defer(false);
@@ -146,8 +160,6 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
     setMasterTrackGain(sdl_ctx);
     setMusicTrackGain(sdl_ctx);
     setSfxTrackGain(sdl_ctx);
-
-    SDL_SetWindowFullscreen(sdl_ctx->window, true);
 
 defer:
     if (result == false) {

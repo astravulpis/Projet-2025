@@ -42,6 +42,16 @@ typedef struct {
 trigger_t *createTrigger(float x, float y, float w, float h, trigger_kind kind);
 
 /**
+ * @fn renderTriggers(sdl_ctx_t *sdl_ctx, triggers_t *triggers)
+ * @param[in] sdl_ctx Our sdl context
+ * @param[in] triggers the triggers to render
+ * @brief renders all of the current room's triggers
+ *
+ * goes through triggers_t to render each individual trigger
+ */
+void renderTriggers(sdl_ctx_t *sdl_ctx, triggers_t *triggers);
+
+/**
  * @fn destroyTriggers(triggers_t *triggers)
  * @param[in] triggers
  * @brief destroys all triggers
@@ -78,5 +88,6 @@ void deathTrigger(entity_t *e);
  * @brief destroys a trigger
  */
 void destroyTrigger(trigger_t **trigger);
+
 
 #endif // TRIGGERS_H_

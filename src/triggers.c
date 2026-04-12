@@ -57,3 +57,10 @@ trigger_kind getTriggerKindFromSV(String_View sv)
     if (sv_eq(sv, sv_from_cstr("SPAWNER"))) return SPAWNER;
     UNREACHABLE(temp_sprintf("trigger type display name |" SV_Fmt "|", SV_Arg(sv)));
 }
+
+void renderTriggers(sdl_ctx_t *sdl_ctx, triggers_t *triggers)
+{
+    da_foreach (trigger_t *, trigger, triggers) {
+        renderFillRect(sdl_ctx->renderer, (*trigger)->boundingBox, (SDL_Color){0xFF, 0x7F, 0x7f, 0x7F});
+    }
+}

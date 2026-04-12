@@ -1,6 +1,7 @@
 #include "jsonParsing.h"
 
-bool readJSON(player_t * player){
+bool readJSON(player_t *player)
+{
     FILE *fp = fopen("./Saves/player_save.json", "r");
     if (fp == NULL) {
         printf("Error: Unable to open the file.\n");
@@ -22,12 +23,13 @@ bool readJSON(player_t * player){
         }
         return 1;
     }
-    //printf("now going to get the score value from the json file \n");
-    // access the JSON data
+    // printf("now going to get the score value from the json file \n");
+    //  access the JSON data
     cJSON *score = cJSON_GetObjectItemCaseSensitive(json, "score");
     if (cJSON_IsNumber(score)) {
         printf("score in JSON: %f\n", score->valuedouble);
-        player->score = (float)cJSON_GetNumberValue(score); //sets the player's score value depending on what it got in the JSON file
+        player->score =
+            (float)cJSON_GetNumberValue(score); // sets the player's score value depending on what it got in the JSON file
     } else {
         printf("Warning: score field missing or invalid type in JSON.\n");
     }
@@ -37,17 +39,18 @@ bool readJSON(player_t * player){
     return 1;
 }
 
-bool writeJSON(player_t * player){
+bool writeJSON(player_t *player)
+{
     cJSON *json = cJSON_CreateObject();
 
-    //printf("player scoreat the end of the game: %f\n", player->score);
-    // modify the JSON data
+    // printf("player scoreat the end of the game: %f\n", player->score);
+    //  modify the JSON data
     cJSON_AddNumberToObject(json, "score", player->score);
 
     // converts the cJSON objects into a string so we can write it intoo the file
     char *json_str = cJSON_Print(json);
 
-    //printf("json_str contents: %s\n", json_str); //just debugging to make sure the values are correct
+    // printf("json_str contents: %s\n", json_str); //just debugging to make sure the values are correct
 
     // write the JSON string to the file
     FILE *fp = fopen("./Saves/player_save.json", "w");

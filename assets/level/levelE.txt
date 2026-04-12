@@ -2,3 +2,7 @@ info "levelE" 0
 bg "./assets/img/flare.jpg"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
+obj "./assets/img/white.png" 0 0 760 1080
+obj "./assets/img/white.png" 930 0 30 520
+obj "./assets/img/white.png" 930 0 1000 480
+obj "./assets/img/white.png" 760 800 1920 800

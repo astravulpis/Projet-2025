@@ -26,16 +26,14 @@
  * @param[in] player player structure
  * @param[in] guns list of guns to be able to equip them
  * @brief Listens to keyboard inputs for mapped keys to execute the corresponding action
- * 
+ *
  * gets the keyboard input with \ref SDL_GetKeyboardState, then goes through the mapped inputs.
  * Inputs being the escape key for the menu which also pauses the music with \ref MIX_PauseAllTracks,
  * however resumes the music if the game was already paused with \ref MIX_ResumeAllTracks.
  * It also changes the current menu based on what is clicked by updating the \ref ctx->currMenu.
- * Then you have Q and E that allow you to change the currently loaded level by changing the currently
- * loaded room ID then moves the player to said room with \ref movePlayer and passes the room's starting position
- * with \ref getLoadedRoom(level)->startPos.
  * Finally it checks for the number row keys to change the currently equipped gun by calling \ref setCurrentGun.
  */
-void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t *guns);
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, Guns_t *guns);
+// void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t *guns);
 
 #endif // EVENT_H_

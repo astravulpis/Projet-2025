@@ -42,7 +42,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
     char *realPath = NULL;
 
     if (path == NULL) {
-        nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
+        // nob_log(WARNING, "%s:%d: No path provided. Fallback to default debug level", __FILE__, __LINE__);
         usingDefault = true;
     }
 

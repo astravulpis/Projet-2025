@@ -20,7 +20,7 @@
  *
  * for now this is just to quit the game but we might add menu buttons and such in the future unless we go with a new function?
  */
-void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, Guns_t *guns)
+void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, Guns_t *guns)
 {
     const bool *state = SDL_GetKeyboardState(NULL);
     static bool prev[SDL_SCANCODE_COUNT] = {0};
@@ -30,7 +30,8 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, G
             sdl_ctx->currMenu = NONE_MENU;
             MIX_ResumeAllTracks(sdl_ctx->mixer);
         } else {
-            if (sdl_ctx->currMenu != START_MENU && sdl_ctx->currMenu != LEVEL_SELECTION_MENU) { // on ne va pas rendre un le menu pause si on est déja dans un menu
+            if (sdl_ctx->currMenu != START_MENU &&
+                sdl_ctx->currMenu != LEVEL_SELECTION_MENU) { // on ne va pas rendre un le menu pause si on est déja dans un menu
                 MIX_PauseAllTracks(sdl_ctx->mixer);
                 sdl_ctx->currMenu = PAUSE_MENU;
             }
@@ -49,16 +50,16 @@ void basicKeyboardEvents(sdl_ctx_t *sdl_ctx, level_t *level, player_t *player, G
         }
     }
 
-    if (isKeyPressed(SDL_SCANCODE_Q, state, prev)) {
-        level->currentLoadedRoomID -= 1;
-        if (level->currentLoadedRoomID > level->count)
-            level->currentLoadedRoomID = level->count - 1; // Underflow since uint = 2^31-1
-        movePlayer(player, getLoadedRoom(level)->startPos);
-    } else if (isKeyPressed(SDL_SCANCODE_E, state, prev)) {
-        level->currentLoadedRoomID += 1;
-        if (level->currentLoadedRoomID > level->count - 1) level->currentLoadedRoomID = 0;
-        movePlayer(player, getLoadedRoom(level)->startPos);
-    }
+    // if (isKeyPressed(SDL_SCANCODE_Q, state, prev)) {
+    //     level->currentLoadedRoomID -= 1;
+    //     if (level->currentLoadedRoomID > level->count)
+    //         level->currentLoadedRoomID = level->count - 1; // Underflow since uint = 2^31-1
+    //     movePlayer(player, getLoadedRoom(level)->startPos);
+    // } else if (isKeyPressed(SDL_SCANCODE_E, state, prev)) {
+    //     level->currentLoadedRoomID += 1;
+    //     if (level->currentLoadedRoomID > level->count - 1) level->currentLoadedRoomID = 0;
+    //     movePlayer(player, getLoadedRoom(level)->startPos);
+    // }
     if (isKeyPressed(SDL_SCANCODE_1, state, prev)) setCurrentGun(guns, 0);
     if (isKeyPressed(SDL_SCANCODE_2, state, prev)) setCurrentGun(guns, 1);
     if (isKeyPressed(SDL_SCANCODE_3, state, prev)) setCurrentGun(guns, 2);
