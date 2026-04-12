@@ -65,6 +65,7 @@ bool gameLoop(gameContext *ctx)
                 loadTrack(ctx->sdl_ctx, BACKGROUND_MUSIC, currLevel->BGM_path);
                 playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
                 ctx->sdl_ctx->isBGMPlaying = true;
+                movePlayer(ctx->player, currRoom->startPos);
             }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
@@ -82,13 +83,13 @@ bool gameLoop(gameContext *ctx)
             // renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
 
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
-                //     updateTriggers(currLevel, ctx->player);
-                //     updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
-                //     updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
-                // updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
+                // updateTriggers(currLevel, ctx->player);
+                // updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
+                // updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
+                updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
             }
             //
-            // renderPlayer(ctx->player);
+            renderPlayer(ctx->player);
             // renderEntities(getCurrentEntityWave(currRoom));
 
             // Everything after the footer being rendered is rendered OVER it.
@@ -142,7 +143,7 @@ room_t *beginLevel(int argc, char **argv, gameContext *ctx)
 
 bool loadAllLevels(gameContext *ctx)
 {
-    char *paths[5] = {"levelA", "levelB", "levelC", "levelD", "levelE"};
+    char *paths[6] = {"levelA", "levelB", "levelC", "levelD", "levelE", "level_debug"};
 
     for (size_t i = ctx->level_count; i < ARRAY_LEN(paths); i++) {
         level_t *level = NULL;

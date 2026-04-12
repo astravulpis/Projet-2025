@@ -36,7 +36,7 @@ typedef struct {
     footer_t footer;
 } gameContext;
 
-#define LEVEL_COUNT 5
+#define LEVEL_COUNT 6
 
 /**
  * @fn initGameContext(gameContext **ctx)

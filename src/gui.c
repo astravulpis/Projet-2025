@@ -217,21 +217,25 @@ void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 // ******************* LEVEL SELECTION MENU ***********************
 gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
 {
+    float offset = 15.f;
     SDL_FRect boxLevelA = (SDL_FRect){92, 256, 256.0f, 64.0f};
     boxToScale(&boxLevelA, sdl_ctx->screenRatio); // pas utilisé pour les autres boutons de niveau car ils vont être crée a
                                                   // partir de cette box (ratio déja fait)
 
     SDL_FRect boxLevelB =
-        (SDL_FRect){boxLevelA.x, boxLevelA.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+        (SDL_FRect){boxLevelA.x, boxLevelA.y + boxLevelA.h + (offset * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
     SDL_FRect boxLevelC =
-        (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+        (SDL_FRect){boxLevelA.x, boxLevelB.y + boxLevelA.h + (offset * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
     SDL_FRect boxLevelD =
-        (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+        (SDL_FRect){boxLevelA.x, boxLevelC.y + boxLevelA.h + (offset * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
     SDL_FRect boxLevelE =
-        (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelA.h + (15 * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+        (SDL_FRect){boxLevelA.x, boxLevelD.y + boxLevelA.h + (offset * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
+
+    SDL_FRect boxLevelDebug =
+        (SDL_FRect){boxLevelA.x, boxLevelE.y + boxLevelA.h + (offset * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
     SDL_FRect boxBackToHomeMenu = (SDL_FRect){30, 64, 384.0f, 96.0f};
     boxToScale(&boxBackToHomeMenu, sdl_ctx->screenRatio);
@@ -256,6 +260,10 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
     createButton(sdl_ctx, &levelEButton, "E", boxLevelE, "./assets/img/buttons/base128.png",
                  "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
 
+    button *levelDebugButton = NULL;
+    createButton(sdl_ctx, &levelDebugButton, "Debug Level", boxLevelDebug, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
     button *backButton = NULL;
     createButton(sdl_ctx, &backButton, "BACK TO HOME MENU", boxBackToHomeMenu, "./assets/img/buttons/base128.png",
                  "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
@@ -266,6 +274,7 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
     addButtonToMenu(menu, levelCButton);
     addButtonToMenu(menu, levelDButton);
     addButtonToMenu(menu, levelEButton);
+    addButtonToMenu(menu, levelDebugButton);
 
     addButtonToMenu(menu, backButton);
 
@@ -276,7 +285,7 @@ void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 {
     UNUSED(opts);
     // Level A -> E
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 6; ++i) {
         if (menu->btns.items[i]->isLeftClicked == true) {
             sdl_ctx->currMenu = NONE_MENU;
             MIX_StopAllTracks(sdl_ctx->mixer, 0);
@@ -285,7 +294,7 @@ void updateLevelMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
     }
 
     // Back to Home menu button
-    if (menu->btns.items[5]->isLeftClicked == true) {
+    if (menu->btns.items[6]->isLeftClicked == true) {
         sdl_ctx->currMenu = START_MENU;
     }
 }
