@@ -104,9 +104,9 @@ typedef struct {
  * @param[in] basePos spawning location
  * @param[in] type entity type (i.e. E_FILTH)
  * @brief creates a creature of a certain type and with a set default spawning location
- * 
- * allocates the entity in memory, initializes it's attributes and ctx with calls to \ref getEntityTex and 
- * \ref loadEnemySfx, gives it a bounding box and its attributes through \ref setEntityAttributs and then 
+ *
+ * allocates the entity in memory, initializes it's attributes and ctx with calls to \ref getEntityTex and
+ * \ref loadEnemySfx, gives it a bounding box and its attributes through \ref setEntityAttributs and then
  * returns the newly created entity
  */
 ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
@@ -115,7 +115,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos);
  * @fn playEnemySpawning(sdl_ctx_t *ctx)
  * @param[in] sdl_ctx our sdl context variable
  * @brief plays the spawning sfx
- * 
+ *
  * calls \ref playSfx with the corresponding sound effect for the enemy spawning
  */
 void playEnemySpawning(sdl_ctx_t *ctx);
@@ -124,7 +124,7 @@ void playEnemySpawning(sdl_ctx_t *ctx);
  * @fn playEnemySpawning(sdl_ctx_t *ctx)
  * @param[in] sdl_ctx our sdl context variable
  * @brief plays the death sfx
- * 
+ *
  * calls \ref playSfx with the corresponding sound effect for the enemy death
  */
 void playEnemyDeath(sdl_ctx_t *ctx);
@@ -133,9 +133,9 @@ void playEnemyDeath(sdl_ctx_t *ctx);
  * @fn renderEntity(entity_t *e)
  * @param[in] e The entity to render
  * @brief renders the texture of the entity onto the screen
- * 
- * gets the angle of the entity with \ref getAngle to know if it should be flipped 
- * or not and then renders it with the corresponding texture and hitbox by calling 
+ *
+ * gets the angle of the entity with \ref getAngle to know if it should be flipped
+ * or not and then renders it with the corresponding texture and hitbox by calling
  * \ref SDL_RenderTextureRotated
  */
 void renderEntity(ennemy_t *e);
@@ -144,7 +144,7 @@ void renderEntity(ennemy_t *e);
  * @fn renderEntities(entities *entities)
  * @param[in] entities The array of entities to loop through and render
  * @brief wrapper for render in a for-loop of each entity in the current level
- * 
+ *
  * goes through the list of entities and calls \ref renderEntity for each of them to render them
  */
 void renderEntities(entities *entities);
@@ -230,7 +230,7 @@ void setEntitySpeed(ennemy_t *e, float speed);
  * @fn destroyEntity(entity_t **e)
  * @param[in] e structure of 1 entity
  * @brief destroys one entity
- * 
+ *
  * frees the entity's bounding box then the entity itself
  */
 void destroyEntity(ennemy_t **e);
@@ -271,7 +271,7 @@ float getAngle(ennemy_t *e);
  * @param[in] e enemy structure
  * @param[in] tiles list of objects
  * @brief collision test of the entity with the level objects
- * 
+ *
  * takes the entity and all the level objects and checks it for collisions with \ref SDL_HasRectIntersectionFloat to
  * put the collisions intto an array which it returns
  */

@@ -188,7 +188,8 @@ void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
         switch (trigger->kind) {
         case PORTAL: {
             loadRoom(level, trigger->room_dst);
-            movePlayer(p, trigger->newPos);
+            movePlayer(p, (V2f){trigger->newPos.x * (*p->entity_attribs.ctx)->screenRatio,
+                                trigger->newPos.y * (*p->entity_attribs.ctx)->screenRatio});
         } break;
         case ONESHOT: {
             deathTrigger(&p->entity_attribs);

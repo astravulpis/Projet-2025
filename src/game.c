@@ -32,6 +32,7 @@ void renderFooter(gameContext *ctx);
 
 // Other helper functions
 void updateMenus(gameContext *ctx);
+void updateProjectileShooting(gameContext *ctx);
 void destroyFooter(gameContext *ctx);
 
 bool gameLoop(gameContext *ctx)
@@ -70,35 +71,27 @@ bool gameLoop(gameContext *ctx)
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
             renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
-            // if (!ctx->sdl_ctx->currMenu && hasMouseLeftClicked(ctx)) {
-            //     V2f startingPos = (V2f){getBB(ctx->player)->x + getBB(ctx->player)->w / 2.0f,
-            //                             getBB(ctx->player)->y + getBB(ctx->player)->h / 2.0f};
-            //     V2f deltaPos = (V2f){ctx->mouse.position.x - startingPos.x, ctx->mouse.position.y - startingPos.y - 15.0f};
-            //     float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
-            //     V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
-            //
-            //     shootGun(ctx->sdl_ctx, &ctx->guns->arsenal[ctx->guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
-            // }
-            //
-            // renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
+            renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
 
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
-                // updateTriggers(currLevel, ctx->player);
-                // updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
-                // updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
+                if (currRoom->currWaveIdx >= 0) {
+                    updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
+                }
+                updateProjectileShooting(ctx);
+                updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
                 updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
+                updateTriggers(currLevel, ctx->player);
             }
-            //
-            renderPlayer(ctx->player);
-            // renderEntities(getCurrentEntityWave(currRoom));
 
-            // Everything after the footer being rendered is rendered OVER it.
+            renderPlayer(ctx->player);
             renderFooter(ctx);
         }
 
         updateMenus(ctx);
         renderMenus(ctx);
         renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), BLACK, (V2f){10.0f, 10.0f});
+        renderText_Ex(ctx->sdl_ctx, temp_sprintf("x : %.2f", ctx->player->entity_attribs.boundingBox->x), BLACK,
+                      (V2f){10.0f, 24.0f});
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         // currLevel = getLoadedLevel(ctx);
@@ -146,11 +139,7 @@ bool loadAllLevels(gameContext *ctx)
     char *paths[6] = {"levelA", "levelB", "levelC", "levelD", "levelE", "level_debug"};
 
     for (size_t i = ctx->level_count; i < ARRAY_LEN(paths); i++) {
-        level_t *level = NULL;
-        parseFile(paths[i], &ctx->sdl_ctx, &level);
-        // assert(level != NULL && "Parse file didn't work");
-
-        ctx->levels[i] = level;
+        parseFile(paths[i], &ctx->sdl_ctx, &ctx->levels[i]);
         ctx->level_count++;
     }
 
@@ -299,8 +288,23 @@ void renderFooter(gameContext *ctx)
                           ctx->footer.hpBar);
 }
 
+void updateProjectileShooting(gameContext *ctx)
+{
+    if (!ctx->sdl_ctx->currMenu && hasMouseLeftClicked(ctx)) {
+        V2f startingPos =
+            (V2f){getBB(ctx->player)->x + getBB(ctx->player)->w / 2.0f, getBB(ctx->player)->y + getBB(ctx->player)->h / 2.0f};
+        V2f deltaPos = (V2f){ctx->mouse.position.x - startingPos.x, ctx->mouse.position.y - startingPos.y - 15.0f};
+        float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
+        V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
+
+        shootGun(ctx->sdl_ctx, &ctx->guns->arsenal[ctx->guns->selectedGun], &ctx->bullet_arr, startingPos, vel);
+    }
+}
+
 bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
 {
+    UNUSED(xs_sz);
+    UNUSED(xs);
     *gameCtx = calloc(1, sizeof(gameContext));
     if ((*gameCtx) != NULL) {
         gameContext *ctx = *gameCtx;
@@ -329,7 +333,7 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
         if (!loadAllLevels(ctx)) return false;
 
         // 3rd place in taking a lot of time -> idk
-        // ctx->guns = initialiseGuns(ctx->sdl_ctx);
+        ctx->guns = initialiseGuns(ctx->sdl_ctx);
 
     } else {
         nob_log(ERROR, "Failed to initialize game context");
@@ -367,9 +371,9 @@ void closeGame(gameContext **ctx)
         }
         free((*ctx)->menus);
         (*ctx)->menus = NULL;
-        //
-        // destroyGuns(&(*ctx)->guns);
-        // deleteBullets(&(*ctx)->bullet_arr);
+
+        destroyGuns(&(*ctx)->guns);
+        deleteBullets(&(*ctx)->bullet_arr);
         destroyFooter(*ctx);
         destroyPlayer(&(*ctx)->player);
         closeCtx(&(*ctx)->sdl_ctx);

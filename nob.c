@@ -68,7 +68,7 @@ void compile_command(Cmd *cmd, SDL_Libraries *libs, const char *input_path, cons
     cmd_append(cmd, "cc");
     cmd_append(cmd, "-Wall");
     cmd_append(cmd, "-Wextra");
-    if (debug) cmd_append(cmd, "-fsanitize=address");
+    // if (debug) cmd_append(cmd, "-fsanitize=address");
     if (debug) cmd_append(cmd, "-g");
     if (debug) cmd_append(cmd, "-ggdb");
     cmd_append(cmd, "-o", output_path);

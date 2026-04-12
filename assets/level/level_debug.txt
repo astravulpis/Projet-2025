@@ -7,9 +7,8 @@ obj "./assets/img/white.png" 0 0 760 1080
 obj "./assets/img/white.png" 930 0 30 520
 obj "./assets/img/white.png" 930 0 1000 480
 obj "./assets/img/white.png" 760 800 1920 800
-trigger 1800 445 200 400 PORTAL 1 50 620
+trigger 1800 445 200 400 PORTAL 1 120 600
 room 1
-player 100 600
 obj "./assets/img/white.png" 0 800 1920 800
 obj "./assets/img/white.png" 0 0 10 480
 obj "./assets/img/white.png" 0 0 1125 10
@@ -29,7 +28,7 @@ entity FILTH 900 250 1
 entity FILTH 960 300 1
 entity FILTH 840 300 1
 entity FILTH 1000 300 1
-trigger 45 460 120 420 SPAWNER 0
+trigger 45 460 220 420 SPAWNER 0
 trigger 100 100 100 100 SPAWNER 1
 trigger 0 460 40 420 PORTAL 0 1650 640
 trigger 1125 0 400 40 PORTAL 2 1475 515

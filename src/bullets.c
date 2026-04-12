@@ -51,14 +51,11 @@ bool checkCollision(bullet *bullet, level_t *level, player_t *p)
 
 void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *p)
 {
-    da_foreach (bullet, it, arr) {
-        it->boundingBox->x += it->velocity.x * deltaTime;
-        it->boundingBox->y += it->velocity.y * deltaTime;
-    }
-
     size_t i = 0;
     while (i < arr->count) {
         bullet *it = &arr->items[i];
+        it->boundingBox->x += it->velocity.x * deltaTime;
+        it->boundingBox->y += it->velocity.y * deltaTime;
         if ((it->boundingBox->x < -64 || it->boundingBox->x >= WINDOW_WIDTH * 2) ||
             (it->boundingBox->y < -64 || it->boundingBox->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level, p)) {
             deleteBullet(&it);
@@ -78,7 +75,7 @@ void renderBullets(sdl_ctx_t *ctx, bullets *arr)
 
 void deleteBullet(bullet **bullet)
 {
-    if (*bullet != NULL){
+    if (*bullet != NULL) {
         free((*bullet)->boundingBox);
         (*bullet)->boundingBox = NULL;
     }

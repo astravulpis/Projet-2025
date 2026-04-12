@@ -123,7 +123,7 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
         MIX_PlayAudio(sdl_ctx->mixer, gun_sfx[gun->kind]);
     }
     // avoid the bullets spawning in the ground (mostly a rocket launcher issue but also just looks nicer)
-    V2f newPos = (V2f){position.x, position.y -= 10};
+    V2f newPos = (V2f){position.x, position.y - 7.27f};
 
     // Create bullets based on gun type
     switch (gun->kind) {
@@ -135,7 +135,7 @@ void shootGun(sdl_ctx_t *sdl_ctx, Gun_t *gun, bullets *bullet_arr, V2f position,
         for (int i = -2; i <= 2; i++) {
             float angle = i * 0.1f; // Spread angle
             V2f spread_dir = {vel.x * cosf(angle) - vel.y * sinf(angle), vel.x * sinf(angle) + vel.y * cosf(angle)};
-            createBullet(bullet_arr, newPos, (V2f){spread_dir.x / 3.f, spread_dir.y / 3.f}, gun->size, gun->bullet_texture,
+            createBullet(bullet_arr, newPos, (V2f){spread_dir.x / 2.f, spread_dir.y / 2.f}, gun->size, gun->bullet_texture,
                          gun->dmg);
         }
         break;

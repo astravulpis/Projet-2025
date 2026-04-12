@@ -20,7 +20,7 @@ static struct entityBaseAttributs {
     entity_attributs stats;
     V2f size;
 } baseStats[__count_enemy_type] = {
-    {.type = E_FILTH, .stats = {.maxHP = 0.5f, .entity_speed = 300.0f}, .size = (V2f){60, 100}},
+    {.type = E_FILTH, .stats = {.maxHP = 7.f, .entity_speed = 300.0f, .score = 20}, .size = (V2f){60, 100}},
     {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
     {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
     {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},
@@ -123,74 +123,24 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
+    memset(&e->velocity, 0, sizeof(V2f));
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
-    switch (type) {
-    case E_FILTH: {
-        e->entity_attribs.boundingBox =
-            createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
-        setEntityAttributs(e, .entity_speed = 240, .maxHP = 15.0f, .score = 20);
-        break;
-    }
-    case E_STRAY: {
-        TODO("stray");
-        break;
-    }
-    case E_SWORDSMACHINE: {
-        TODO("swordmachine");
-        break;
-    }
-    case E_PROVIDENCE: {
-        TODO("providence");
-        break;
-    }
-    case E_VERTU: {
-        TODO("vertu");
-        break;
-    }
-    case E_MAURICE: {
-        TODO("maurice");
-        break;
-    }
-    case E_MINOS_PRIME: {
-        TODO("thy end is now");
-        break;
-    }
-    case E_SISYPHUS: {
-        TODO("you cannot escape");
-        break;
-    }
-    default:
-        UNREACHABLE("entity_type");
-        break;
-    }
-
+    e->entity_attribs.boundingBox =
+        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
+    _setEntityAttributs(e, baseStats[type].stats);
     return e;
-}
-
-void setMaxHP(ennemy_t *e, float maxHP)
-{
-    e->attributs.maxHP = maxHP;
-}
-
-void setHP(ennemy_t *e, float HP)
-{
-    e->attributs.hp = (HP >= e->attributs.maxHP) ? e->attributs.maxHP : HP;
-}
-
-void setEntitySpeed(ennemy_t *e, float speed)
-{
-    e->attributs.entity_speed = speed;
 }
 
 void _setEntityAttributs(ennemy_t *e, entity_attributs attrib)
 {
-    // See TODO(2026-03-30 08:17:02)
-    if (attrib.entity_speed > 0) setEntitySpeed(e, attrib.entity_speed);
+    if (attrib.entity_speed > 0) e->attributs.entity_speed = attrib.entity_speed;
 
-    if (attrib.maxHP > 0) setMaxHP(e, attrib.maxHP);
+    if (attrib.maxHP > 0) e->entity_attribs.maxHp = attrib.maxHP;
 
-    if (attrib.hp > 0) setHP(e, attrib.hp);
+    if (attrib.hp > 0) e->entity_attribs.hp = (attrib.hp >= e->entity_attribs.maxHp) ? e->entity_attribs.maxHp : attrib.hp;
+    else if (e->entity_attribs.maxHp > 0)
+        e->entity_attribs.hp = e->entity_attribs.maxHp;
 
     if (attrib.projectile_speed > 0) e->attributs.projectile_speed = attrib.projectile_speed;
 
@@ -320,6 +270,3 @@ void destroyEntities(entities *entities)
 
     free(entities->items);
 }
-// TODO(2026-03-30 08:15:26): Create test to test the creation of a valid entity, wrongly typed entity, with both bad and good
-// position (test with keepInbounds)
-// TODO(2026-03-30 08:17:02): Test exhausively this function
