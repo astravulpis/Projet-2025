@@ -3,11 +3,21 @@
 
 #include "bullets.h"
 #include "common.h"
+#include "bars.h"
 #include "gui.h"
 #include "guns.h"
 #include "level.h"
 #include "player.h"
 
+typedef struct {
+    SDL_FRect footerBox;
+    SDL_FRect currWeaponBox;
+    SDL_FRect styleMeterBox;
+    bar *hpBar;
+    bar *dashBar1;
+    bar *dashBar2;
+    bar *dashBar3;
+} footer_t;
 /**
  * @typedef struct gameContext
  * @brief contains all the game context variables, and by all i do mean all, from the SDL context itself to the player and bullets
@@ -23,6 +33,7 @@ typedef struct {
     gui_menu **menus;
     size_t menu_count;
     mouseDevice mouse;
+    footer_t footer;
 } gameContext;
 
 #define LEVEL_COUNT 5

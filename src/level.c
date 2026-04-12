@@ -37,25 +37,22 @@ void loadRoom(level_t *level, int id)
     }
 }
 
-void renderRoom(sdl_ctx_t *ctx, level_t *level)
+void renderRoom(sdl_ctx_t *ctx, room_t *room)
 {
-    if (level->count > 0 && level->currentLoadedRoomID <= level->count - 1) {
-        room_t *currRoom = getLoadedRoom(level);
-        da_foreach (obj, it, &currRoom->structures) {
-            renderImage(ctx, it->texture, it->boundingBox);
-        }
+    da_foreach (obj, it, &room->structures) {
+        renderImage(ctx, it->texture, it->boundingBox);
+    }
 
-        if (level->items[level->currentLoadedRoomID]->currWaveIdx >= 0) {
-            da_foreach (ennemy_t *, e, getCurrentEntityWave(level)) {
-                renderEntity(*e);
-            }
+    if (room->currWaveIdx >= 0) {
+        da_foreach (ennemy_t *, e, getCurrentEntityWave(room)) {
+            renderEntity(*e);
         }
     }
 }
 
-objs *getRoomObjects(level_t *level)
+objs *getRoomObjects(room_t *room)
 {
-    return &level->items[level->currentLoadedRoomID]->structures;
+    return &room->structures;
 }
 
 room_t *getLoadedRoom(level_t *level)
@@ -63,13 +60,9 @@ room_t *getLoadedRoom(level_t *level)
     return level->items[level->currentLoadedRoomID];
 }
 
-entities *getCurrentEntityWave(level_t *level)
+entities *getCurrentEntityWave(room_t *room)
 {
-    if (level->items[level->currentLoadedRoomID]->currWaveIdx >= 0) {
-        return &level->items[level->currentLoadedRoomID]->e_waves[level->items[level->currentLoadedRoomID]->currWaveIdx];
-    } else {
-        return NULL;
-    }
+    return &room->e_waves[room->currWaveIdx];
 }
 
 level_t *createLevel(char *title, int id)
@@ -200,8 +193,9 @@ void updateTrigger(level_t *level, player_t *p, trigger_t *trigger)
             deathTrigger(&p->entity_attribs);
         } break;
         case SPAWNER: {
-            getLoadedRoom(level)->currWaveIdx = trigger->waveId;
-            da_foreach (ennemy_t *, e, getCurrentEntityWave(level)) {
+            room_t *currRoom = getLoadedRoom(level);
+            currRoom->currWaveIdx = trigger->waveId;
+            da_foreach (ennemy_t *, e, getCurrentEntityWave(currRoom)) {
                 playEnemySpawning(*p->entity_attribs.ctx);
             }
         } break;

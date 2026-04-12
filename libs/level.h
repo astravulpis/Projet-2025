@@ -58,21 +58,21 @@ room_t *createRoom(int id);
 void loadRoom(level_t *level, int id);
 
 /**
- * @fn renderRoom(sdl_ctx_t *ctx, level_t *level)
+ * @fn renderRoom(sdl_ctx_t *ctx, room_t *room)
  * @param[in] ctx our own sdl context variable
- * @param[in] level level structure
+ * @param[in] room The room to render
  * @brief renders a room
  *
  * renders a room by going through all of its objects and entity for the current wave of entity
  */
-void renderRoom(sdl_ctx_t *ctx, level_t *level);
+void renderRoom(sdl_ctx_t *ctx, room_t *room);
 
 /**
- * @fn getRoomObjects(level_t *level)
- * @param[in] level level structure
+ * @fn getRoomObjects(room_t *room)
+ * @param[in] room The room containing the objects
  * @brief helper function to return the list of all level objects
  */
-objs *getRoomObjects(level_t *level);
+objs *getRoomObjects(room_t *room);
 
 /**
  * @fn getLoadedRoom(level_t *level)
@@ -82,11 +82,11 @@ objs *getRoomObjects(level_t *level);
 room_t *getLoadedRoom(level_t *level);
 
 /**
- * @fn getCurrentEntityWave(level_t *level)
- * @param[in] level level structure
+ * @fn getCurrentEntityWave(room_t *room)
+ * @param[in] room The room of the wave
  * @brief helper function to return the ongoing wave of entities
  */
-entities *getCurrentEntityWave(level_t *level);
+entities *getCurrentEntityWave(room_t *room);
 
 /**
  * @fn createLevel(char *title, int id)
