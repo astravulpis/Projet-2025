@@ -130,7 +130,8 @@ void destroyObjects(objs *objects)
         free(it->boundingBox);
         it->boundingBox = NULL;
 
-        SDL_DestroyTexture(it->texture);
+        // Unsafe function (a.k.a. will crash if you give a NULL)
+        if (it->texture != NULL) SDL_DestroyTexture(it->texture);
         it->texture = NULL;
     }
 

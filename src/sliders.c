@@ -25,9 +25,10 @@ bool createSlider(slider **s, SDL_FRect rect, float nbValue, float borderSize, f
     }
 
     float cursorSize = (rect.w - borderSize * 2.0f) / 20.0f;
+    float xBox = rect.x + (borderSize) + baseVal * nbValue / cursorSize;
+    float yBox = rect.y + (borderSize);
     (*s)->sliderBox = createRect_Ex(rect);
-    (*s)->cursorBox =
-        createRect_Ex((SDL_FRect){rect.x + (borderSize), rect.y + (borderSize), cursorSize, ((rect.h - borderSize * 2))});
+    (*s)->cursorBox = createRect(xBox, yBox, cursorSize, ((rect.h - borderSize * 2)));
 
     (*s)->nbValue = nbValue;
     (*s)->borderSize = borderSize;
@@ -83,6 +84,8 @@ void updateSliderStates(slider *s, mouseDevice mouse, float *val)
     SDL_FPoint coords = (SDL_FPoint){mouse.position.x, mouse.position.y};
 
     // Check whether the cursor has focus (was previously clicked and is still being clicked)
+    float minX = s->sliderBox->x + s->borderSize;
+    float maxX = s->sliderBox->x + s->sliderBox->w - s->cursorBox->w - s->borderSize;
     s->focused = s->clicked && mouse.currState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 
     // Update the other Booleans, and increment the cursor box's x value if it is focused
@@ -105,8 +108,6 @@ void updateSliderStates(slider *s, mouseDevice mouse, float *val)
             float move = moveStep * step; // the distance the cursor will move -> cursorBox.x + move (negative or positive)
 
             if (move != 0) {
-                float minX = s->sliderBox->x + s->borderSize;
-                float maxX = s->sliderBox->x + s->sliderBox->w - s->cursorBox->w - s->borderSize;
 
                 // Moves the cursor & update the value
                 FRect_Change_x(s->cursorBox, move, minX, maxX);

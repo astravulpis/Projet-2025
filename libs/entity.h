@@ -86,6 +86,7 @@ typedef struct {
     V2f velocity; //!< not used for now
     bool onGround; //!< used for the jump functions
     char *attackSfx; //!< path to the entity's attack sound effect
+    sfxs *ptr;
 } ennemy_t;
 
 /**

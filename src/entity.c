@@ -122,6 +122,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.tex = getEntityTex(*sdl_ctx, type);
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
+    e->ptr = &enemySfxs;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
     memset(&e->velocity, 0, sizeof(V2f));
     // Each entity has its own parameters
@@ -266,7 +267,6 @@ void destroyEntities(entities *entities)
     for (int i = 0; i < __count_enemy_type; ++i) {
         SDL_DestroyTexture(entity_textures[i]);
     }
-    destroySfxs(&enemySfxs);
 
     free(entities->items);
 }

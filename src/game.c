@@ -34,7 +34,7 @@ void renderFooter(gameContext *ctx);
 void updateMenus(gameContext *ctx);
 void updateProjectileShooting(gameContext *ctx);
 void destroyFooter(gameContext *ctx);
-void resetLevel(gameContext *ctx, room_t *room, level_t *level);
+void resetLevel(gameContext *ctx);
 
 bool gameLoop(gameContext *ctx)
 {
@@ -61,11 +61,11 @@ bool gameLoop(gameContext *ctx)
         beginRendering(ctx);
 
         if (ctx->loadedLevelIdx < LEVEL_COUNT) {
+            if (!ctx->sdl_ctx->isLevelReset) {
+                resetLevel(ctx);
+            }
             level_t *currLevel = getLoadedLevel(ctx);
             room_t *currRoom = getLoadedRoom(currLevel);
-            if (!ctx->sdl_ctx->isLevelReset) {
-                resetLevel(ctx, currRoom, currLevel);
-            }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
             renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
@@ -135,9 +135,21 @@ room_t *beginLevel(int argc, char **argv, gameContext *ctx)
     return curr;
 }
 
+void loadLevel(gameContext *ctx)
+{
+    static char *paths[6] = {"levelA", "levelB", "levelC", "levelD", "levelE", "level_debug"};
+    if (ctx->levels[ctx->loadedLevelIdx] == NULL) {
+        ctx->level_count++;
+    } else {
+        destroyLevel(&ctx->levels[ctx->loadedLevelIdx]);
+        ctx->levels[ctx->loadedLevelIdx] = NULL;
+    }
+    parseFile(paths[ctx->loadedLevelIdx], &ctx->sdl_ctx, &ctx->levels[ctx->loadedLevelIdx]);
+}
+
 bool loadAllLevels(gameContext *ctx)
 {
-    char *paths[6] = {"levelA", "levelB", "levelC", "levelD", "levelE", "level_debug"};
+    static char *paths[6] = {"levelA", "levelB", "levelC", "levelD", "levelE", "level_debug"};
 
     for (size_t i = ctx->level_count; i < ARRAY_LEN(paths); i++) {
         parseFile(paths[i], &ctx->sdl_ctx, &ctx->levels[i]);
@@ -157,13 +169,12 @@ bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
         //   - Option
         //   - Level selection
         assert(__menu_count == 5 && "Amount of menu changed");
-        ctx->menus = malloc(sizeof(gui_menu *) * __menu_count); // At best, we'll have 5 menus
+        ctx->menus = calloc(1, sizeof(gui_menu *) * __menu_count); // At best, we'll have 5 menus
 
         if (ctx->menus == NULL) {
             nob_log(ERROR, "Failed to allocate space for %d menus", __menu_count);
             return false;
         }
-        memset(ctx->menus, 0, sizeof(gui_menu *) * __menu_count);
     }
 
     ctx->menus[kind] = menu;
@@ -349,16 +360,17 @@ void destroyFooter(gameContext *ctx)
     destroyPlayerStatusBar(&ctx->footer.dashBar1, &ctx->footer.dashBar2, &ctx->footer.dashBar3, &ctx->footer.hpBar);
 }
 
-void resetLevel(gameContext *ctx, room_t *room, level_t *level)
+void resetLevel(gameContext *ctx)
 {
+    loadLevel(ctx);
+    level_t *level = ctx->levels[ctx->loadedLevelIdx];
+    room_t *room = level->items[0];
+    room->currWaveIdx = -1;
+    resetPlayerState(ctx->player, room->startPos);
+    level->currentLoadedRoomID = room->roomID;
+    loadBackgroundImage(ctx->sdl_ctx, level->BG_path);
     loadTrack(ctx->sdl_ctx, BACKGROUND_MUSIC, level->BGM_path);
     playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
-    resetPlayerState(ctx->player, room->startPos);
-    level->currentLoadedRoomID = level->items[0]->roomID;
-    room = level->items[0];
-    room->currWaveIdx = 0;
-    loadBackgroundImage(ctx->sdl_ctx, level->BG_path);
-    room->currWaveIdx = -1;
     ctx->sdl_ctx->isLevelReset = true;
 }
 
@@ -369,8 +381,18 @@ void closeGame(gameContext **ctx)
         // writeJSON((*ctx)->player);
         //
         if ((*ctx)->levels != NULL) {
+            // Destroy the enemies' sfxs da
+            level_t *tempLevel = (*ctx)->levels[0];
+            if (!tempLevel) {
+                (*ctx)->loadedLevelIdx = 0;
+                loadLevel(*ctx);
+            }
+            room_t *tempRoom = tempLevel->items[0];
+            destroySfxs(tempRoom->e_waves->items[0]->ptr);
             for (size_t i = 0; i < (*ctx)->level_count; ++i) {
-                destroyLevel(&(*ctx)->levels[i]);
+                if ((*ctx)->levels[i] != NULL) {
+                    destroyLevel(&(*ctx)->levels[i]);
+                }
             }
         }
         free((*ctx)->levels);

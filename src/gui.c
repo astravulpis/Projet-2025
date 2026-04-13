@@ -14,6 +14,7 @@
 #include "gui.h"
 #include "buttons.h"
 #include "common.h"
+#include "game.h"
 #include "music.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
@@ -94,7 +95,7 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
     // Exit level button
     if (menu->btns.items[2]->isLeftClicked == true) {
         sdl_ctx->currMenu = START_MENU;
-        *opts.loadedLevelIdx = -1;
+        *opts.loadedLevelIdx = LEVEL_COUNT;
         *opts.isBGMPlaying = false;
         MIX_StopAllTracks(sdl_ctx->mixer, 0);
         playTrack(sdl_ctx, START_MENU_MUSIC);
