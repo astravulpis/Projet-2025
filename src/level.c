@@ -163,6 +163,8 @@ void destroyLevel(level_t **level)
         (*level)->title = NULL;
         free((*level)->BGM_path);
         (*level)->BGM_path = NULL;
+        free((*level)->BGM_path);
+        (*level)->BG_path = NULL;
     }
 
     // dynamic array's items attribut gets realloced right when you first fill it

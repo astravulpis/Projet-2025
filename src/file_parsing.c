@@ -140,8 +140,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 sv_chop_right(&bgTemp, 1);
                 if (bgTemp.data[bgTemp.count - 1] == '"') sv_chop_right(&bgTemp, 1);
 
-                const char *path = nob_temp_sv_to_cstr(bgTemp);
-                if (!loadBackgroundImage((*ctx), path)) return false;
+                (*level)->BG_path = strdup((char *)nob_temp_sv_to_cstr(bgTemp));
 
             } else if (sv_eq(header, sv_from_cstr("player"))) {
 

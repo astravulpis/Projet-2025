@@ -357,6 +357,8 @@ void resetLevel(gameContext *ctx, room_t *room, level_t *level)
     level->currentLoadedRoomID = level->items[0]->roomID;
     room = level->items[0];
     room->currWaveIdx = 0;
+    loadBackgroundImage(ctx->sdl_ctx, level->BG_path);
+    room->currWaveIdx = -1;
     ctx->sdl_ctx->isLevelReset = true;
 }
 
