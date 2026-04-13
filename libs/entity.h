@@ -36,8 +36,6 @@ typedef enum {
     __count_enemy_type = 8
 } entity_type;
 
-extern SDL_Texture *entity_textures[__count_enemy_type];
-
 /**
  * @enum entity_state
  * @brief entity states

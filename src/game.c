@@ -250,6 +250,14 @@ void updateMenus(gameContext *ctx)
     } break;
     case OPTIONS_MENU: {
         updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[OPTIONS_MENU], updateOptionsMenu);
+        for (size_t i = 0; i < ctx->level_count; ++i) {
+            if (ctx->levels[i] != NULL) {
+                nob_log(INFO, "Level %zu deleted", i);
+                destroyLevel(&ctx->levels[i]);
+            }
+        }
+        ctx->level_count = 0;
+        nob_log(INFO, "All done here");
     } break;
     case START_MENU: {
         updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[START_MENU], updateHomeMenu);
@@ -328,21 +336,20 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
         initFooter(ctx);
         ctx->sdl_ctx->currMenu = START_MENU;
         ctx->loadedLevelIdx = LEVEL_COUNT;
-
-        // 1st place in taking a lot of time -> Loads the player
+        //
+        // // 1st place in taking a lot of time -> Loads the player
         if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
 
         // 2rd place in taking a lot of time
         if (ctx->levels == NULL) {
-            ctx->levels = malloc(sizeof(level_t *) * LEVEL_COUNT);
+            ctx->levels = calloc(1, sizeof(level_t *) * LEVEL_COUNT);
             if (ctx->levels == NULL) {
                 nob_log(ERROR, "Failed to allocate space for %d levels", LEVEL_COUNT);
                 return NULL;
             }
-            memset(ctx->levels, 0, sizeof(level_t *) * LEVEL_COUNT);
         }
 
-        if (!loadAllLevels(ctx)) return false;
+        // if (!loadAllLevels(ctx)) return false;
 
         // 3rd place in taking a lot of time -> idk
         ctx->guns = initialiseGuns(ctx->sdl_ctx);
@@ -380,23 +387,15 @@ void closeGame(gameContext **ctx)
         // printf("value of the player's score at the end of the runtime: %f\n", ctx->player->score);
         // writeJSON((*ctx)->player);
         //
-        if ((*ctx)->levels != NULL) {
-            // Destroy the enemies' sfxs da
-            level_t *tempLevel = (*ctx)->levels[0];
-            if (!tempLevel) {
-                (*ctx)->loadedLevelIdx = 0;
-                loadLevel(*ctx);
-            }
-            room_t *tempRoom = tempLevel->items[0];
-            destroySfxs(tempRoom->e_waves->items[0]->ptr);
-            for (size_t i = 0; i < (*ctx)->level_count; ++i) {
-                if ((*ctx)->levels[i] != NULL) {
-                    destroyLevel(&(*ctx)->levels[i]);
-                }
-            }
-        }
-        free((*ctx)->levels);
-        (*ctx)->levels = NULL;
+        // if ((*ctx)->levels != NULL) {
+        //     for (size_t i = 0; i < (*ctx)->level_count; ++i) {
+        //         if ((*ctx)->levels[i] != NULL) {
+        //             destroyLevel(&(*ctx)->levels[i]);
+        //         }
+        //     }
+        // }
+        // free((*ctx)->levels);
+        // (*ctx)->levels = NULL;
 
         if ((*ctx)->menus != NULL) {
             for (menu_kind kind = 0; kind < __menu_count; ++kind) {

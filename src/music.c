@@ -96,4 +96,5 @@ void destroySfxs(sfxs *sfxs)
     free(sfxs->items);
     sfxs->items = NULL;
     sfxs->count = 0;
+    sfxs->capacity = 0;
 }

@@ -30,7 +30,7 @@ static struct entityBaseAttributs {
     {.type = E_SISYPHUS, .stats = {}, .size = (V2f){140, 200}},
 };
 
-SDL_Texture *entity_textures[__count_enemy_type] = {0};
+static SDL_Texture *entity_textures[__count_enemy_type] = {0};
 
 // 2 tracks per enemy:
 //    - interact (e.g. hurt, attack, fall)
@@ -38,22 +38,11 @@ SDL_Texture *entity_textures[__count_enemy_type] = {0};
 // +1 for the spawn track
 sfxs enemySfxs = {0};
 
-void loadEntityTex(sdl_ctx_t *ctx)
-{
-    const char *texPaths[__count_enemy_type] = {
-        "./assets/img/filth.png",
-    };
-
-    for (size_t i = 0; i < ARRAY_LEN(texPaths); ++i) {
-        entity_textures[i] = IMG_LoadTexture(ctx->renderer, texPaths[i]);
-    }
-}
-
 char *enemyDisplayName(entity_type type)
 {
     switch (type) {
     case E_FILTH:
-        return "filth";
+        return "FILTH";
     case E_STRAY:
         return "STRAY";
     case E_SWORDSMACHINE:
@@ -104,15 +93,20 @@ char *loadEnemySfx(ennemy_t *e, sdl_ctx_t *ctx, char *sfxName)
 
 SDL_Texture *getEntityTex(sdl_ctx_t *ctx, int index)
 {
-    if (entity_textures[assert(index < __count_enemy_type && index >= 0), index] == NULL) {
-        loadEntityTex(ctx);
+    if (entity_textures[index] == NULL) {
+        static const char *texPaths[__count_enemy_type] = {
+            "./assets/img/filth.png",
+        };
+
+        for (size_t i = 0; i < ARRAY_LEN(texPaths); ++i) {
+            entity_textures[i] = IMG_LoadTexture(ctx->renderer, texPaths[i]);
+        }
     }
     return entity_textures[index];
 }
 
 ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
 {
-    // See TODO(2026-03-30 08:15:26)
     ennemy_t *e = calloc(1, sizeof(ennemy_t));
     if (e == NULL) {
         nob_log(ERROR, "%s:%d: Failed to allocate space for an entity", __FILE__, __LINE__);
@@ -180,7 +174,6 @@ objs collision_test_entity(ennemy_t *e, objs *tiles)
 }
 
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
-                  // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     UNUSED(player);
     float gravity = 28.0f;
@@ -204,10 +197,8 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
     free(collisions.items);
 
     e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
-    // p->velocity.y = p->velocity.y + (gravity * deltaTime);
 
     keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-    // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
 void playEnemySpawning(sdl_ctx_t *ctx)
@@ -266,7 +257,9 @@ void destroyEntities(entities *entities)
 
     for (int i = 0; i < __count_enemy_type; ++i) {
         SDL_DestroyTexture(entity_textures[i]);
+        entity_textures[i] = NULL;
     }
+    destroySfxs(&enemySfxs);
 
     free(entities->items);
 }
