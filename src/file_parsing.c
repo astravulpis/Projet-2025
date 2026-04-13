@@ -189,7 +189,8 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 case SPAWNER: {
                     trigger->waveId = atoi(nob_temp_sv_to_cstr(sv_chop_by_delim(&line, ' ')));
                 } break;
-                case ONESHOT: // Fallthrough
+                case ONESHOT:
+                    break;
                 default:
                     UNREACHABLE("trigger kind");
                 }

@@ -178,14 +178,6 @@ triggers_t *getRoomTriggers(level_t *level);
 void assignTriggerToRoom(room_t *room, trigger_t *trigger);
 
 /**
- * @fn updateTriggers(level_t *level, player_t *p)
- * @param[in] level The level that contains the triggers to update
- * @param[in] p The player that can interact with such triggers
- * @brief Assigns a trigger to a room
- */
-void updateTriggers(level_t *level, player_t *p);
-
-/**
  * @fn assignTriggerToRoom(room_t *room, trigger_t *trigger)
  * @param[in] room current room
  * @param[in] trigger trigger to be assigned to the room itself
@@ -199,16 +191,16 @@ void assignTriggerToRoom(room_t *room, trigger_t *trigger);
  * @param[in] p player pointer
  * @brief goes through the list of triggers in a level to update them if needed
  */
-void updateTriggers(level_t *level, player_t *p);
+void updateTriggers(level_t *level, entity_t *e);
 
 /**
- * @fn updateTriggers(level_t *level, player_t *p)
+ * @fn updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
  * @param[in] level current level
- * @param[in] p player pointer to update the position should it pass through a portal
+ * @param[in] e The entity to tamper with
  * @param[in] trigger the trigger to be checked for potential updates
  * @brief updates a trigger's state and executes the corresponding function
  */
-void updateTrigger(level_t *level, player_t *p, trigger_t *trigger);
+void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger);
 
 /**
  * @fn typeDisplayName(String_View sv)

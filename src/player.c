@@ -13,18 +13,16 @@
  **/
 
 #include "player.h"
-#include "SDL3/SDL_scancode.h"
-#include "SDL3_mixer/SDL_mixer.h"
 #include "common.h"
 #include "jsonParsing.h"
 #include "sdl_helpers.h"
 #include <math.h>
 #include <string.h>
 
-void movePlayer(player_t *p, V2f newPos)
+void moveBox(SDL_FRect *box, V2f newPos)
 {
-    getBB(p)->x = newPos.x;
-    getBB(p)->y = newPos.y;
+    box->x = newPos.x;
+    box->y = newPos.y;
 }
 
 bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)

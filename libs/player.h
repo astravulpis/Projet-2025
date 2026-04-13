@@ -121,7 +121,7 @@ void renderPlayer(player_t *p);
  *
  * moves the player's bounding box based on the new position
  */
-void movePlayer(player_t *p, V2f newPos);
+void moveBox(SDL_FRect *box, V2f newPos);
 
 /**
  * @fn createPlayerStatusBar(sdl_ctx_t *sdl_ctx, bar **b1, bar **b2, bar **b3, bar **hpB)

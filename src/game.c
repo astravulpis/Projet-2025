@@ -66,7 +66,7 @@ bool gameLoop(gameContext *ctx)
                 loadTrack(ctx->sdl_ctx, BACKGROUND_MUSIC, currLevel->BGM_path);
                 playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
                 ctx->sdl_ctx->isBGMPlaying = true;
-                movePlayer(ctx->player, currRoom->startPos);
+                moveBox(getBB(ctx->player), currRoom->startPos);
             }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
@@ -80,7 +80,12 @@ bool gameLoop(gameContext *ctx)
                 updateProjectileShooting(ctx);
                 updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
                 updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
-                updateTriggers(currLevel, ctx->player);
+                updateTriggers(currLevel, (entity_t *)ctx->player);
+                if (currRoom->currWaveIdx >= 0) {
+                    da_foreach (ennemy_t *, en, getCurrentEntityWave(currRoom)) {
+                        updateTriggers(currLevel, (entity_t *)en);
+                    }
+                }
             }
 
             renderPlayer(ctx->player);
@@ -130,7 +135,8 @@ room_t *beginLevel(int argc, char **argv, gameContext *ctx)
     ctx->loadedLevelIdx = level->levelID;
 
     curr = getLoadedRoom(level);
-    movePlayer(ctx->player, (V2f){curr->startPos.x * ctx->sdl_ctx->screenRatio, curr->startPos.y * ctx->sdl_ctx->screenRatio});
+    moveBox(getBB(ctx->player),
+            (V2f){curr->startPos.x * ctx->sdl_ctx->screenRatio, curr->startPos.y * ctx->sdl_ctx->screenRatio});
     return curr;
 }
 
