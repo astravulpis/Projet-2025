@@ -188,4 +188,12 @@ objs collision_test_player(player_t *p, objs *tiles);
  * @brief resets the player's animation state
  */
 void resetAnimationStates(player_t *player, player_anim_kind excluded_anim);
+
+/**
+ * @fn resetPlayerState(player_t *p)
+ * @param[in] player player structure
+ * @param[in] position The position to reset the player at
+ * @brief resets the player's state
+ */
+void resetPlayerState(player_t *p, V2f position);
 #endif // PLAYER_H_

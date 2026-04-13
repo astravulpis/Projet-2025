@@ -49,17 +49,8 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
     // Initialising base values
     p->speed = 325.0f;
     p->jumpForce = -685.0f;
-    p->velocity = (V2f){0.0f, 0.0f};
-    p->onGround = false;
-    p->isDashing = false;
-    p->stamina = 3.0f;
-    p->lastKey = SDL_SCANCODE_UNKNOWN;
     p->lastX = -1;
-    p->entity_attribs.hp = 100;
-    p->flight = false;
-    p->noclip = false;
-    p->run = false;
-    p->wallJumps = 3;
+    resetPlayerState(p, (V2f){0.f, 0.f});
 
     // if (!readJSON(p)) {
     //     printf("total fail in reading the JSON file, score will be set to 0\n");
@@ -98,6 +89,27 @@ void destroyPlayer(player_t **p)
 
     free(*p);
     (*p) = NULL;
+}
+
+void resetPlayerState(player_t *p, V2f position)
+{
+    p->velocity = (V2f){0.0f, 0.0f};
+    p->stamina = 3.0f;
+    p->lastKey = SDL_SCANCODE_UNKNOWN;
+    p->entity_attribs.hp = 100;
+    p->entity_attribs.maxHp = 100;
+    p->wallJumps = 3;
+    p->score = 0;
+    // States
+    p->onGround = false;
+    p->onWall = false;
+    // Cheat states
+    p->noclip = false;
+    p->flight = false;
+    // Anim states
+    p->run = false;
+    p->isDashing = false;
+    moveBox(getBB(p), position);
 }
 
 V2f inputUpdate(player_t *p, const float dt)

@@ -34,6 +34,7 @@ void renderFooter(gameContext *ctx);
 void updateMenus(gameContext *ctx);
 void updateProjectileShooting(gameContext *ctx);
 void destroyFooter(gameContext *ctx);
+void resetLevel(gameContext *ctx, room_t *room, level_t *level);
 
 bool gameLoop(gameContext *ctx)
 {
@@ -62,11 +63,8 @@ bool gameLoop(gameContext *ctx)
         if (ctx->loadedLevelIdx < LEVEL_COUNT) {
             level_t *currLevel = getLoadedLevel(ctx);
             room_t *currRoom = getLoadedRoom(currLevel);
-            if (!ctx->sdl_ctx->isBGMPlaying) {
-                loadTrack(ctx->sdl_ctx, BACKGROUND_MUSIC, currLevel->BGM_path);
-                playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
-                ctx->sdl_ctx->isBGMPlaying = true;
-                moveBox(getBB(ctx->player), currRoom->startPos);
+            if (!ctx->sdl_ctx->isLevelReset) {
+                resetLevel(ctx, currRoom, currLevel);
             }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
@@ -76,22 +74,19 @@ bool gameLoop(gameContext *ctx)
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
                 if (currRoom->currWaveIdx >= 0) {
                     updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
+                    // da_foreach (ennemy_t *, en, getCurrentEntityWave(currRoom)) {
+                    //     updateTriggers(currLevel, (entity_t *)en);
+                    // }
                 }
                 updateProjectileShooting(ctx);
                 updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
                 updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
                 updateTriggers(currLevel, (entity_t *)ctx->player);
-                if (currRoom->currWaveIdx >= 0) {
-                    da_foreach (ennemy_t *, en, getCurrentEntityWave(currRoom)) {
-                        updateTriggers(currLevel, (entity_t *)en);
-                    }
-                }
             }
 
             renderPlayer(ctx->player);
             renderFooter(ctx);
         }
-
         updateMenus(ctx);
         renderMenus(ctx);
         renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), BLACK, (V2f){10.0f, 10.0f});
@@ -240,7 +235,7 @@ void updateMenus(gameContext *ctx)
     } break;
     case PAUSE_MENU: {
         updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[PAUSE_MENU], updatePauseMenu, .loadedLevelIdx = &ctx->loadedLevelIdx,
-                   .isBGMPlaying = &ctx->sdl_ctx->isBGMPlaying);
+                   .isBGMPlaying = &ctx->sdl_ctx->isLevelReset);
     } break;
     case OPTIONS_MENU: {
         updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[OPTIONS_MENU], updateOptionsMenu);
@@ -352,6 +347,17 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
 void destroyFooter(gameContext *ctx)
 {
     destroyPlayerStatusBar(&ctx->footer.dashBar1, &ctx->footer.dashBar2, &ctx->footer.dashBar3, &ctx->footer.hpBar);
+}
+
+void resetLevel(gameContext *ctx, room_t *room, level_t *level)
+{
+    loadTrack(ctx->sdl_ctx, BACKGROUND_MUSIC, level->BGM_path);
+    playTrack(ctx->sdl_ctx, BACKGROUND_MUSIC);
+    resetPlayerState(ctx->player, room->startPos);
+    level->currentLoadedRoomID = level->items[0]->roomID;
+    room = level->items[0];
+    room->currWaveIdx = 0;
+    ctx->sdl_ctx->isLevelReset = true;
 }
 
 void closeGame(gameContext **ctx)

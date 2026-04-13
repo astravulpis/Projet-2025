@@ -115,7 +115,7 @@ struct sdl_context_s {
     float screenRatio;      //!< Ratio for adaptative ui link the screen size
     bool vsyncActivation;   //!< Global state for application to tell if it's in vsyc or not
     bool quit;              //!< Global state to keep the application running or not
-    bool isBGMPlaying;      //!< Global state to tell if the background music is playing or not
+    bool isLevelReset;      //!< Global state to tell if the background music is playing or not
     menu_kind currMenu;
     menu_kind prevMenu;
     MIX_Mixer *mixer;

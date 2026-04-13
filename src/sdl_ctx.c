@@ -86,7 +86,7 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
     sdl_ctx->quit = false;
     sdl_ctx->bgRect = createRect(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT);
     sdl_ctx->bgTexture = NULL;
-    sdl_ctx->isBGMPlaying = false;
+    sdl_ctx->isLevelReset = false;
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         nob_log(ERROR, "%s:%d: SDL failed to initialize. See: %s", __FILE__, __LINE__, SDL_GetError());
