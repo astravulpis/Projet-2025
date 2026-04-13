@@ -33,6 +33,9 @@ void destroyTriggers(triggers_t *triggers)
         destroyTrigger(trigger);
     }
     free(triggers->items);
+    triggers->items = NULL;
+    triggers->capacity = 0;
+    triggers->count = 0;
 }
 
 bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e)

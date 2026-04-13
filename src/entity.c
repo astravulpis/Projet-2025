@@ -257,4 +257,6 @@ void destroyEntities(entities *entities)
     destroySfxs(&enemySfxs);
 
     free(entities->items);
+    entities->count = 0;
+    entities->capacity = 0;
 }

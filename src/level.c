@@ -133,6 +133,9 @@ void destroyObjects(objs *objects)
     }
 
     free(objects->items);
+    objects->items = NULL;
+    objects->capacity = 0;
+    objects->count = 0;
     objects = NULL;
 }
 
@@ -168,6 +171,8 @@ void destroyLevel(level_t **level)
     // dynamic array's items attribut gets realloced right when you first fill it
     // Thus needing to be freed in consequence
     free((*level)->items);
+    (*level)->count = 0;
+    (*level)->capacity = 0;
     free(*level);
     *level = NULL;
 }

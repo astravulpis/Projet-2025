@@ -1,5 +1,5 @@
 info "debug level" 0
-bg "./assets/img/flare.jpg"
+bg "./assets/img/flare.png"
 mus "./assets/audio/OST/Event_Horizon.wav"
 room 0
 player 780 10

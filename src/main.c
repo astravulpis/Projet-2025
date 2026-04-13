@@ -23,8 +23,7 @@
 int main(int argc, char **argv)
 {
     gameContext *ctx = NULL;
-    if (!initGameContext(&ctx, argc, argv)) return 1; // Failed to allocate space for game context = system failure
-    gameLoop(ctx);
+    if (initGameContext(&ctx, argc, argv)) gameLoop(ctx);
     closeGame(&ctx);
     return 0;
 }

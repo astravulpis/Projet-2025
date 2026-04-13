@@ -325,27 +325,28 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
 {
     UNUSED(xs_sz);
     UNUSED(xs);
+    bool result = true;
     *gameCtx = calloc(1, sizeof(gameContext));
     if ((*gameCtx) != NULL) {
         gameContext *ctx = *gameCtx;
         // 0st place in taking a lot of time -> Loads every SDL contexts (i.e. SDL, SDL Image, ttf, mixer)
-        if (!createCtx(&ctx->sdl_ctx)) return false;
-        loadTrack(ctx->sdl_ctx, START_MENU_MUSIC, "./assets/audio/OST/startMenu.wav");
+        if (!createCtx(&ctx->sdl_ctx)) return_defer(false);
+        if (!loadTrack(ctx->sdl_ctx, START_MENU_MUSIC, "./assets/audio/OST/startMenu.wav")) return_defer(false);
         getMouseState(ctx);
-        initAllMenus(ctx);
-        initFooter(ctx);
+        if (!initAllMenus(ctx)) return_defer(false);
+        if (!initFooter(ctx)) return_defer(false);
         ctx->sdl_ctx->currMenu = START_MENU;
         ctx->loadedLevelIdx = LEVEL_COUNT;
         //
         // // 1st place in taking a lot of time -> Loads the player
-        if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return 1;
+        if (!createPlayer(&ctx->player, (V2f){100, 120}, &ctx->sdl_ctx)) return_defer(false);
 
         // 2rd place in taking a lot of time
         if (ctx->levels == NULL) {
             ctx->levels = calloc(1, sizeof(level_t *) * LEVEL_COUNT);
             if (ctx->levels == NULL) {
                 nob_log(ERROR, "Failed to allocate space for %d levels", LEVEL_COUNT);
-                return NULL;
+                return_defer(false);
             }
         }
 
@@ -353,12 +354,15 @@ bool initGameContext(gameContext **gameCtx, int xs_sz, char **xs)
 
         // 3rd place in taking a lot of time -> idk
         ctx->guns = initialiseGuns(ctx->sdl_ctx);
-
+        if (ctx->guns == NULL) return_defer(false);
     } else {
         nob_log(ERROR, "Failed to initialize game context");
         return false;
     }
-
+defer:
+    if (result == false) {
+        free(*gameCtx);
+    }
     return true;
 }
 
@@ -386,16 +390,16 @@ void closeGame(gameContext **ctx)
     if ((*ctx) != NULL) {
         // printf("value of the player's score at the end of the runtime: %f\n", ctx->player->score);
         // writeJSON((*ctx)->player);
-        //
-        // if ((*ctx)->levels != NULL) {
-        //     for (size_t i = 0; i < (*ctx)->level_count; ++i) {
-        //         if ((*ctx)->levels[i] != NULL) {
-        //             destroyLevel(&(*ctx)->levels[i]);
-        //         }
-        //     }
-        // }
-        // free((*ctx)->levels);
-        // (*ctx)->levels = NULL;
+
+        if ((*ctx)->levels != NULL) {
+            for (size_t i = 0; i < (*ctx)->level_count; ++i) {
+                if ((*ctx)->levels[i] != NULL) {
+                    destroyLevel(&(*ctx)->levels[i]);
+                }
+            }
+        }
+        free((*ctx)->levels);
+        (*ctx)->levels = NULL;
 
         if ((*ctx)->menus != NULL) {
             for (menu_kind kind = 0; kind < __menu_count; ++kind) {
