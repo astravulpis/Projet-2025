@@ -68,7 +68,7 @@ bool gameLoop(gameContext *ctx)
             }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
-            renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
+            //renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
             renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
 
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
