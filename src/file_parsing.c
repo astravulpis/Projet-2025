@@ -86,9 +86,9 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
     room_t *room = NULL;
 
     while (sv.count > 0) {
-        temp_rewind(mark);
         String_View line = sv_chop_by_delim(&sv, '\n');
         while (line.count > 0) {
+            size_t chkp = temp_save();
             String_View header = sv_chop_by_delim(&line, ' ');
 
             // Create the room
@@ -172,8 +172,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                     trigger_rect[i] = val * (*ctx)->screenRatio;
                 }
 
-                String_View type = sv_chop_by_delim(&line, ' ');
-                trigger_kind kind = getTriggerKindFromSV(type);
+                trigger_kind kind = getTriggerKindFromSV(sv_chop_by_delim(&line, ' '));
 
                 trigger_t *trigger = createTrigger(trigger_rect[0], trigger_rect[1], trigger_rect[2], trigger_rect[3], kind);
 
@@ -218,6 +217,7 @@ bool parseFile(char *path, sdl_ctx_t **ctx, level_t **level)
                 nob_log(ERROR, "%s:%d: Type \"" SV_Fmt "\" is not yet supported", __FILE__, __LINE__, SV_Arg(header));
                 break;
             }
+            temp_rewind(chkp);
         }
     }
     if (room != NULL) {

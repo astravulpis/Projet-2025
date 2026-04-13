@@ -31,11 +31,6 @@ static struct entityBaseAttributs {
 };
 
 static SDL_Texture *entity_textures[__count_enemy_type] = {0};
-
-// 2 tracks per enemy:
-//    - interact (e.g. hurt, attack, fall)
-//    - death
-// +1 for the spawn track
 sfxs enemySfxs = {0};
 
 char *enemyDisplayName(entity_type type)
