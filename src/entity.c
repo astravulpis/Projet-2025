@@ -15,6 +15,7 @@
 #include "player.h"
 #include "sdl_helpers.h"
 #include <math.h>
+#include "guns.h"
 
 #define PURSUIT_STOP_RANGE 50.0
 
@@ -25,7 +26,7 @@ static struct entityBaseAttributs {
     float detection_range;
 } baseStats[__count_enemy_type] = {
     {.type = E_FILTH, .stats = {.maxHP = 7.f, .entity_speed = 300.0f, .score = 20, .detection_range=200.0f}, .size = (V2f){60, 100}},
-    {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
+    {.type = E_STRAY, .stats = {.maxHP = 12.f, .entity_speed = 150.0f, .score = 35, .detection_range=400.0f}, .size = (V2f){80, 140}},
     {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
     {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},
     {.type = E_VERTU, .stats = {}, .size = (V2f){128, 128}},
@@ -197,76 +198,79 @@ float getDistanceBetween(SDL_FRect *a, SDL_FRect *b)
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
-    float distanceToPlayer = getDistanceBetween(getBB(player), getBB(e));
-    printf("current distance between the ennemy and the player is: %f \n", distanceToPlayer);
-    UNUSED(player);
-    float gravity = 28.0f;
-    SDL_FRect *rect = getBB(e);
-    V2f frame_movement = {e->velocity.x, e->velocity.y};
-    e->onGround = false;
-
-    rect->y += frame_movement.y;
-    objs collisions = collision_test_entity(e, objects);
-    da_foreach (obj, it, &collisions) {
-        SDL_FRect *tile = it->boundingBox;
-        if (frame_movement.y > 0) {
-            rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
-            e->onGround = true;
+    if (e->entity_attribs.isAlive){
+        float distanceToPlayer = getDistanceBetween(getBB(player), getBB(e));
+        printf("current distance between the ennemy and the player is: %f \n", distanceToPlayer);
+        UNUSED(player);
+        float gravity = 28.0f;
+        SDL_FRect *rect = getBB(e);
+        V2f frame_movement = {e->velocity.x, e->velocity.y};
+        e->onGround = false;
+        
+        rect->y += frame_movement.y;
+        objs collisions = collision_test_entity(e, objects);
+        da_foreach (obj, it, &collisions) {
+            SDL_FRect *tile = it->boundingBox;
+            if (frame_movement.y > 0) {
+                rect->y = Top(tile) - rect->h - 0.01f; // Set the player's right edge to the tile's left edge
+                e->onGround = true;
+            }
+            if (frame_movement.y < 0) {
+                rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
+            }
+            e->velocity.y = 0;
         }
-        if (frame_movement.y < 0) {
-            rect->y = Bottom(tile) + 0.01f; // Set the player's left edge to the tile's right edge
-        }
-        e->velocity.y = 0;
-    }
-    free(collisions.items);
-
-    e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
-    // p->velocity.y = p->velocity.y + (gravity * deltaTime);
-    switch (e->attributs.state) {
-    case STATE_IDLE:
-        printf("NOT in hot pursuit\n");
-
-        enemyIdle(e, objects);
-        printf("this is the ennemies detection range: %f \n", e->attributs.detection_range);
-        if (distanceToPlayer < e->attributs.detection_range) {
-            setEntityState(e, STATE_PURSUING);
-            printf("starting pursuit\n");
-        }
-        break;
-
-    case STATE_PURSUING:
-        printf("in hot pursuit\n");
-        switch (e->type) {
-        case E_FILTH: {
-            if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
-                if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
-                    e->entity_attribs.boundingBox->x -= 5.0;
+        free(collisions.items);
+    
+        e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
+        // p->velocity.y = p->velocity.y + (gravity * deltaTime);
+        switch (e->attributs.state) {
+        case STATE_IDLE:
+            printf("NOT in hot pursuit\n");
+        
+            enemyIdle(e, objects);
+            printf("this is the ennemies detection range: %f \n", e->attributs.detection_range);
+            if (distanceToPlayer < e->attributs.detection_range) {
+                setEntityState(e, STATE_PURSUING);
+                printf("starting pursuit\n");
+            }
+            break;
+        
+        case STATE_PURSUING:
+            printf("in hot pursuit\n");
+            switch (e->type) {
+            case E_FILTH: {
+                if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
+                    if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
+                        e->entity_attribs.boundingBox->x -= 5.0;
+                    } else {
+                        e->entity_attribs.boundingBox->x += 5.0;
+                    }
                 } else {
-                    e->entity_attribs.boundingBox->x += 5.0;
+                    setEntityState(e, STATE_IDLE);
                 }
-            } else {
-                setEntityState(e, STATE_IDLE);
-            }
-        } break;
-        /*
-        case E_STRAY: {
-            if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
-                if (lineOfSight(objects, player, e)) {
-                    V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
-                    shootGun(ctx, &guns->arsenal[e->entity_attribs.selectedGunIndex], bullet_array, ennemy_pos,
-                             frame_movement); // cast to V2f idk how this works anymore
+            } break;/*
+            case E_STRAY: {
+                if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
+                    if (lineOfSight(objects, player, e)) {
+                        V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
+                        shootGun(ctx, &guns->arsenal[e->entity_attribs.selectedGunIndex], bullet_array, ennemy_pos,
+                                 frame_movement); // cast to V2f idk how this works anymore
+                    }
                 }
+            } break; */
+            default:
+                UNREACHABLE("enemy type");
             }
-        } break; */
-        default:
-            UNREACHABLE("enemy type");
+        
+            break;
         }
-
-        break;
+    
+        keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        // behaviour_func(e, player, projectiles, objects, deltaTime);
+    } else{
+        return;
     }
-
-    keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-    // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
 
 void playEnemySpawning(sdl_ctx_t *ctx)
@@ -292,7 +296,7 @@ void updateEntities(entities *entities, player_t *player, objs *objects, float d
 void renderEntity(ennemy_t *e)
 {
     SDL_FlipMode flip = (getAngle(e) >= 180.0f) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    SDL_RenderTextureRotated((*e->entity_attribs.ctx)->renderer, e->entity_attribs.tex, NULL, getBB(e), 0.0f, NULL, flip);
+    if (e->entity_attribs.isAlive) SDL_RenderTextureRotated((*e->entity_attribs.ctx)->renderer, e->entity_attribs.tex, NULL, getBB(e), 0.0f, NULL, flip);
 }
 
 void renderEntities(entities *entities)

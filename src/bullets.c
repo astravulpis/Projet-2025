@@ -19,45 +19,52 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
     return true;
 }
 
-bool checkCollision(bullet *bullet, level_t *level, player_t *p)
+bool checkCollision(bullet *bullet, objs *objects, player_t *p, entity_t **entities, size_t count)
 {
-    room_t *currRoom = level->items[level->currentLoadedRoomID];
-    da_foreach (obj, tile, &currRoom->structures) {
+    printf("entering checkCollision \n");
+    da_foreach (obj, tile, objects) {
         if (SDL_HasRectIntersectionFloat(bullet->boundingBox, tile->boundingBox)) {
             return true;
         }
     }
-
-    if (currRoom->currWaveIdx >= 0) {
-        entities *s = &currRoom->e_waves[currRoom->currWaveIdx];
-        for (size_t i = 0; i < s->count; i++) {
-            ennemy_t *entity = s->items[i];
-            if (SDL_HasRectIntersectionFloat(bullet->boundingBox, getBB(entity))) {
-                entity->entity_attribs.hp -= bullet->dmg;
-                if (entity->entity_attribs.hp <= 0) {
-                    playEnemyDeath(*entity->entity_attribs.ctx);
-                    p->score += entity->attributs.score;
+    printf("%p \n", entities);
+    if (entities != NULL) {
+        printf("now entering entity treatement \n");
+        for (size_t idx = 0; idx < count; idx++) {
+            entity_t *e = entities[idx];
+            if (SDL_HasRectIntersectionFloat(bullet->boundingBox, e->boundingBox)) {
+                printf("we have a collision between an enemy and a bullet \n");
+                e->hp -= bullet->dmg;
+                printf("deleting bullet\n");
+                deleteBullet(&bullet);
+                if (e->hp <= 0) {
+                    playEnemyDeath(*e->ctx);
+                    p->score += e->score;
                     printf("Player score after killing an enemy: %f\n", p->score);
-                    da_remove_unordered(s, i);
-                    destroyEntity(&entity);
+                    e->isAlive = false;
                 }
                 return true;
             }
         }
     }
-
     return false;
 }
 
-void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *p)
+//internal function
+bool isInbounds(SDL_FRect *rect)
 {
+    return (rect->x < -64 || rect->x >= WINDOW_WIDTH * 2) || (rect->y < -64 || rect->y >= WINDOW_HEIGHT * 2);
+}
+
+void updateBulletStatePlayer(bullets *arr, objs *objects, entity_t **entities, size_t count, player_t *p, float deltaTime)
+{
+    printf("enteeeeering updateBulletStatePlayer \n");
     size_t i = 0;
     while (i < arr->count) {
         bullet *it = &arr->items[i];
         it->boundingBox->x += it->velocity.x * deltaTime;
         it->boundingBox->y += it->velocity.y * deltaTime;
-        if ((it->boundingBox->x < -64 || it->boundingBox->x >= WINDOW_WIDTH * 2) ||
-            (it->boundingBox->y < -64 || it->boundingBox->y >= WINDOW_HEIGHT * 2) || checkCollision(it, level, p)) {
+        if (isInbounds(it->boundingBox) || checkCollision(it, objects, p, entities, count)) {
             deleteBullet(&it);
             da_remove_unordered(arr, i);
             i -= 1;
