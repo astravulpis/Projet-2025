@@ -128,6 +128,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->type = type;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
     e->direction=-1; //default movement direction
+    e->selectedGunIndex = 0;
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
@@ -292,7 +293,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
                 if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
                     if (lineOfSight(objects, player, e)){
                         V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
-                        shootGun(ctx, &guns->arsenal[0], bullet_array, ennemy_pos, e->velocity); //cast to V2f idk how this works anymore
+                        shootGun(ctx, &guns->arsenal[e->selectedGunIndex], bullet_array, ennemy_pos, frame_movement); //cast to V2f idk how this works anymore
                     }
                 }
         }

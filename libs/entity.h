@@ -90,6 +90,7 @@ typedef struct {
     char *attackSfx; //!< path to the entity's attack sound effect
     float lastX; // the latest x coord of deltaPos, used for the movement of the entity
     int direction;
+    int selectedGunIndex;
 } ennemy_t;
 
 /**
