@@ -129,6 +129,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
     e->direction = -1; // default movement direction
     e->entity_attribs.selectedGunIndex = 0;
+    e->entity_attribs.isAlive=true;
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
@@ -339,7 +340,9 @@ void updateEntities(entities *entities, player_t *player, objs *objects, float d
 void renderEntity(ennemy_t *e)
 {
     SDL_FlipMode flip = (getAngle(e) >= 180.0f) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    SDL_RenderTextureRotated((*e->entity_attribs.ctx)->renderer, e->entity_attribs.tex, NULL, getBB(e), 0.0f, NULL, flip);
+    if (e->entity_attribs.isAlive){
+        SDL_RenderTextureRotated((*e->entity_attribs.ctx)->renderer, e->entity_attribs.tex, NULL, getBB(e), 0.0f, NULL, flip);
+    }
 }
 
 void renderEntities(entities *entities)

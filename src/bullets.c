@@ -25,12 +25,16 @@ bool checkCollision(bullet *bullet, objs *objects, player_t *p, entity_t **entit
             return true;
         }
     }
-
+    printf("%p \n", entities);
     if (entities != NULL) {
-        for (size_t idx = 0; idx < count; ++idx) {
+        printf("now entering entity treatement \n");
+        for (size_t idx = 0; idx < count; idx++) {
             entity_t *e = entities[idx];
             if (SDL_HasRectIntersectionFloat(bullet->boundingBox, e->boundingBox)) {
+                printf("we have a collision between an enemy and a bullet \n");
                 e->hp -= bullet->dmg;
+                printf("deleting bullet\n");
+                deleteBullet(&bullet);
                 if (e->hp <= 0) {
                     playEnemyDeath(*e->ctx);
                     p->score += e->score;

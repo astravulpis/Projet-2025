@@ -216,8 +216,10 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
 
         if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
             updateTriggers(currLevel, ctx->player);
+            printf("this is the current wave id: %d \n", currRoom->currWaveIdx);
             if (currRoom->currWaveIdx >= 0) {
                 entities *currWave = getCurrentEntityWave(currLevel);
+                printf("this is the entities: %p \n", (entity_t **)currWave->items);
                 updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel), (entity_t **)currWave->items,
                                         currWave->count, ctx->player, deltaTime);
             } else {
