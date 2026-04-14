@@ -206,7 +206,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
         SDL_FRect *rect = getBB(e);
         V2f frame_movement = {e->velocity.x, e->velocity.y};
         e->onGround = false;
-        
+
         rect->y += frame_movement.y;
         objs collisions = collision_test_entity(e, objects);
         da_foreach (obj, it, &collisions) {
@@ -221,13 +221,13 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
             e->velocity.y = 0;
         }
         free(collisions.items);
-    
+
         e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
         // p->velocity.y = p->velocity.y + (gravity * deltaTime);
         switch (e->attributs.state) {
         case STATE_IDLE:
             printf("NOT in hot pursuit\n");
-        
+
             enemyIdle(e, objects);
             printf("this is the ennemies detection range: %f \n", e->attributs.detection_range);
             if (distanceToPlayer < e->attributs.detection_range) {
@@ -235,7 +235,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                 printf("starting pursuit\n");
             }
             break;
-        
+
         case STATE_PURSUING:
             printf("in hot pursuit\n");
             switch (e->type) {
@@ -249,7 +249,8 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                 } else {
                     setEntityState(e, STATE_IDLE);
                 }
-            } break;/*
+            } break;
+            /*
             case E_STRAY: {
                 if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
                     if (lineOfSight(objects, player, e)) {
@@ -262,10 +263,10 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
             default:
                 UNREACHABLE("enemy type");
             }
-        
+
             break;
         }
-    
+
         keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         // behaviour_func(e, player, projectiles, objects, deltaTime);
     } else{
