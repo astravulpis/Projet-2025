@@ -73,7 +73,7 @@ bool gameLoop(gameContext *ctx)
 
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
                 if (currRoom->currWaveIdx >= 0) {
-                    updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime);
+                    updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime, &ctx->bullet_arr, ctx->sdl_ctx);
                     // da_foreach (ennemy_t *, en, getCurrentEntityWave(currRoom)) {
                     //     updateTriggers(currLevel, (entity_t *)en);
                     // }

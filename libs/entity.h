@@ -14,6 +14,7 @@
 
 #include "common.h"
 #include "player.h"
+#include "bullets.h"
 
 #define BASE_SPEED 250
 
@@ -162,7 +163,7 @@ void renderEntities(entities *entities);
  * takes one entity and tests it for collisions against all elements of the level with \ref collision_test_entity
  * then moves it and makes sure it's still in bounds with \ref keepRectInbounds
  */
-void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime);
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, bullets * bullet_array, sdl_ctx_t * ctx);
 
 /**
  * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
@@ -174,7 +175,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
  *
  * goes through a loop to check on every entity by then calling \ref updateEntity for each of them
  */
-void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime);
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime, bullets * bullet_array, sdl_ctx_t * ctx);
 
 #define setEntityAttributs(e, ...) _setEntityAttributs((e), (entity_attributs){__VA_ARGS__});
 
@@ -282,5 +283,9 @@ objs collision_test_entity(ennemy_t *e, objs *tiles);
 bool lineOfSight(objs *objects, player_t *player, ennemy_t *e);
 
 void enemyIdle(ennemy_t *e, objs *objects);
+
+void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx);
+
+bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx);
 
 #endif // ENTITY_H_

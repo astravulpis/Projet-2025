@@ -2,7 +2,7 @@
 #define BULLETS_H_
 
 #include "common.h"
-#include "level.h"
+#include "player.h"
 
 /**
  * @struct bullet

@@ -15,7 +15,6 @@
 #include "player.h"
 #include "sdl_helpers.h"
 #include <math.h>
-#include "guns.h"
 
 #define PURSUIT_STOP_RANGE 50.0
 
@@ -195,7 +194,7 @@ float getDistanceBetween(SDL_FRect *a, SDL_FRect *b)
     return sqrt(xAxis + yAxis);
 }
 
-void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, bullets * bullet_array, sdl_ctx_t * ctx)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     if (e->entity_attribs.isAlive){
@@ -250,16 +249,14 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                     setEntityState(e, STATE_IDLE);
                 }
             } break;
-            /*
             case E_STRAY: {
                 if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
                     if (lineOfSight(objects, player, e)) {
                         V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
-                        shootGun(ctx, &guns->arsenal[e->entity_attribs.selectedGunIndex], bullet_array, ennemy_pos,
-                                 frame_movement); // cast to V2f idk how this works anymore
+                        entityShootGun(bullet_array, ennemy_pos, ennemy_pos, ctx); // cast to V2f idk how this works anymore
                     }
                 }
-            } break; */
+            } break;
             default:
                 UNREACHABLE("enemy type");
             }
@@ -284,12 +281,12 @@ void playEnemyDeath(sdl_ctx_t *ctx)
     playSfx(ctx, &enemySfxs, "enemyDie");
 }
 
-void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime)
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime, bullets * bullet_array, sdl_ctx_t * ctx)
 {
     UNUSED(player);
     if (entities != NULL) {
         da_foreach (ennemy_t *, e, entities) {
-            updateEntity((*e), player, objects, deltaTime);
+            updateEntity((*e), player, objects, deltaTime, bullet_array, ctx);
         }
     }
 }
@@ -361,5 +358,26 @@ bool lineOfSight(objs *objects, player_t *player, ennemy_t *e)
     UNUSED(objects);
     UNUSED(player);
     UNUSED(e);
+    return true;
+}
+
+void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
+{
+    // avoid the bullets spawning in the ground (mostly a rocket launcher issue but also just looks nicer)
+    V2f newPos = (V2f){position.x, position.y - 7.27f};
+    createBulletEntity(bullet_arr, position, vel, ctx);
+}
+
+bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
+{
+    bullet projectile = {0};
+    projectile.boundingBox = createRect(position.x, position.y, 10, 10);
+    projectile.velocity.x = vel.x;
+    projectile.velocity.y = vel.y;
+    projectile.texture = IMG_LoadTexture(ctx->renderer, "./assets/img/weapons/piercer.png");
+    projectile.dmg = 20;
+
+    da_append(bullet_arr, projectile);
+
     return true;
 }
