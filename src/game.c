@@ -217,7 +217,7 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         if (!ctx->sdl_ctx->currMenu) { //updates the game elements only if we aren't in a menu
             updateTriggers(currLevel, ctx->player);
             updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
-            updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime);
+            updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime, ctx, &ctx->bullet_arr, &ctx->guns);
             updatePlayer(ctx->player, getRoomObjects(currLevel), deltaTime);
         }
 

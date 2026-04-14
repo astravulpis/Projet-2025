@@ -10,24 +10,6 @@
  *
  * individual bullet information
  */
-typedef struct {
-    SDL_FRect *boundingBox; //!< the bullet's hitbox
-    V2f velocity; //!< the speed of the bullet in both x and y direction
-    SDL_Texture *texture; //!< the texture of the bullet
-    float dmg; //!< the damage of the bullet
-} bullet;
-
-/**
- * @struct bullets
- * @brief list of all bullets
- *
- * contains all bullets with count and capacity
- */
-typedef struct {
-    bullet *items; //!< list of all bullets
-    size_t count;  //!< current amount of bullets in the list
-    size_t capacity; //!< upper capacity of the list (should never be reached since it's a dynamic array)
-} bullets;
 
 /**
  * @fn createBullet(bullets *arr, V2f init_pos, V2f vel)

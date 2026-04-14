@@ -138,7 +138,8 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
         break;
     }
     case E_STRAY: {
-        TODO("stray");
+        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
+        setEntityAttributs(e, .entity_speed = 120, .maxHP = 25.0f, .score = 30, .detection_range = 500.0f); //need to scale this at one point
         break;
     }
     case E_SWORDSMACHINE: {
@@ -235,7 +236,7 @@ objs collision_test_entity(ennemy_t *e, objs *tiles)
     return collisions;
 }
 
-void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, sdl_ctx_t * ctx, bullets * bullet_array, Guns_t * guns)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     float distanceToPlayer = sqrt(pow(player->entity_attribs.boundingBox->x - e->entity_attribs.boundingBox->x, 2) + pow(player->entity_attribs.boundingBox->y - e->entity_attribs.boundingBox->y, 2));
@@ -268,7 +269,6 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
         printf("NOT in hot pursuit\n");
 
         enemyIdle(e, objects);
-
         if (distanceToPlayer < e->attributs.detection_range) {
             setEntityState(e, STATE_PURSUING);
             printf("starting pursuit\n");
@@ -277,16 +277,26 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
 
     case STATE_PURSUING:
         printf("in hot pursuit\n");
-
-        if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
-            if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
-                e->entity_attribs.boundingBox->x -= 5.0;
-            } else {
-                e->entity_attribs.boundingBox->x += 5.0;
-            }
-        } else {
-            setEntityState(e, STATE_IDLE);
+        switch(e->type){
+            case E_FILTH:
+                if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
+                    if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
+                        e->entity_attribs.boundingBox->x -= 5.0;
+                    } else {
+                        e->entity_attribs.boundingBox->x += 5.0;
+                    }
+                } else {
+                    setEntityState(e, STATE_IDLE);
+                }
+            case E_STRAY:  
+                if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
+                    if (lineOfSight(objects, player, e)){
+                        V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
+                        shootGun(ctx, &guns->arsenal[0], bullet_array, ennemy_pos, e->velocity); //cast to V2f idk how this works anymore
+                    }
+                }
         }
+        
         break;
 }
     keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -303,12 +313,12 @@ void playEnemyDeath(sdl_ctx_t *ctx)
     playSfx(ctx, &enemySfxs, "enemyDie");
 }
 
-void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime)
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime, sdl_ctx_t * ctx, bullets * bullet_array, Guns_t * guns)
 {
     UNUSED(player);
     if (entities != NULL) {
         da_foreach (ennemy_t *, e, entities) {
-            updateEntity((*e), player, objects, deltaTime);
+            updateEntity((*e), player, objects, deltaTime, ctx, bullet_array, guns);
         }
     }
 }
@@ -372,6 +382,10 @@ void enemyIdle(ennemy_t *e, objs *objects) {
         e->direction *= -1;
         e->velocity.x = 0;
     }
+}
+
+bool lineOfSight(objs * objects, player_t * player, ennemy_t *e){
+    return true;
 }
 // TODO(2026-03-30 08:15:26): Create test to test the creation of a valid entity, wrongly typed entity, with both bad and good
 // position (test with keepInbounds)

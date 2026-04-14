@@ -14,6 +14,7 @@
 
 #include "common.h"
 #include "player.h"
+#include "guns.h"
 
 #define BASE_SPEED 250
 
@@ -163,7 +164,7 @@ void renderEntities(entities *entities);
  * takes one entity and tests it for collisions against all elements of the level with \ref collision_test_entity
  * then moves it and makes sure it's still in bounds with \ref keepRectInbounds
  */
-void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime);
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, sdl_ctx_t * ctx, bullets * bullet_array, Guns_t * guns);
 
 /**
  * @fn updateEntities(entities *entities, player_t *player, bullets *projectiles, objs *objects, float deltaTime)
@@ -175,7 +176,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
  *
  * goes through a loop to check on every entity by then calling \ref updateEntity for each of them
  */
-void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime);
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime, sdl_ctx_t * ctx, bullets * bullet_array, Guns_t * guns);
 
 #define setEntityAttributs(e, ...) _setEntityAttributs((e), (entity_attributs){__VA_ARGS__});
 
@@ -281,5 +282,7 @@ float getAngle(ennemy_t *e);
 objs collision_test_entity(ennemy_t *e, objs *tiles);
 
 void enemyIdle(ennemy_t *e, objs *objects);
+
+bool lineOfSight(objs * objects, player_t * player, ennemy_t *e);
 
 #endif // ENTITY_H_
