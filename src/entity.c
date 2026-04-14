@@ -14,13 +14,17 @@
 #include "music.h"
 #include "player.h"
 #include "sdl_helpers.h"
+#include <math.h>
+
+#define PURSUIT_STOP_RANGE 50.0
 
 static struct entityBaseAttributs {
     entity_type type;
     entity_attributs stats;
     V2f size;
+    float detection_range;
 } baseStats[__count_enemy_type] = {
-    {.type = E_FILTH, .stats = {.maxHP = 7.f, .entity_speed = 300.0f, .score = 20}, .size = (V2f){60, 100}},
+    {.type = E_FILTH, .stats = {.maxHP = 7.f, .entity_speed = 300.0f, .score = 20, .detection_range=200.0f}, .size = (V2f){60, 100}},
     {.type = E_STRAY, .stats = {}, .size = (V2f){80, 140}},
     {.type = E_SWORDSMACHINE, .stats = {}, .size = (V2f){100, 180}},
     {.type = E_PROVIDENCE, .stats = {}, .size = (V2f){128, 128}},
@@ -123,6 +127,11 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
+    e->entity_attribs.selectedGunIndex = 0;
+    e->entity_attribs.isAlive=true;
+    e->direction=-1;
+    e->attributs.state=STATE_IDLE;
+    e->attributs.detection_range=400.0f;
     memset(&e->velocity, 0, sizeof(V2f));
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
@@ -178,9 +187,18 @@ objs collision_test_entity(ennemy_t *e, objs *tiles)
     return collisions;
 }
 
+float getDistanceBetween(SDL_FRect *a, SDL_FRect *b)
+{
+    float xAxis = pow(a->x - b->x, 2);
+    float yAxis = pow(a->y - b->y, 2);
+    return sqrt(xAxis + yAxis);
+}
+
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
+    float distanceToPlayer = getDistanceBetween(getBB(player), getBB(e));
+    printf("current distance between the ennemy and the player is: %f \n", distanceToPlayer);
     UNUSED(player);
     float gravity = 28.0f;
     SDL_FRect *rect = getBB(e);
@@ -204,6 +222,48 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime)
 
     e->velocity.y = MIN(100.0f, e->velocity.y + (gravity * deltaTime));
     // p->velocity.y = p->velocity.y + (gravity * deltaTime);
+    switch (e->attributs.state) {
+    case STATE_IDLE:
+        printf("NOT in hot pursuit\n");
+
+        enemyIdle(e, objects);
+        printf("this is the ennemies detection range: %f \n", e->attributs.detection_range);
+        if (distanceToPlayer < e->attributs.detection_range) {
+            setEntityState(e, STATE_PURSUING);
+            printf("starting pursuit\n");
+        }
+        break;
+
+    case STATE_PURSUING:
+        printf("in hot pursuit\n");
+        switch (e->type) {
+        case E_FILTH: {
+            if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
+                if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
+                    e->entity_attribs.boundingBox->x -= 5.0;
+                } else {
+                    e->entity_attribs.boundingBox->x += 5.0;
+                }
+            } else {
+                setEntityState(e, STATE_IDLE);
+            }
+        } break;
+        /*
+        case E_STRAY: {
+            if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
+                if (lineOfSight(objects, player, e)) {
+                    V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
+                    shootGun(ctx, &guns->arsenal[e->entity_attribs.selectedGunIndex], bullet_array, ennemy_pos,
+                             frame_movement); // cast to V2f idk how this works anymore
+                }
+            }
+        } break; */
+        default:
+            UNREACHABLE("enemy type");
+        }
+
+        break;
+    }
 
     keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     // behaviour_func(e, player, projectiles, objects, deltaTime);
@@ -269,4 +329,32 @@ void destroyEntities(entities *entities)
     destroySfxs(&enemySfxs);
 
     free(entities->items);
+}
+
+void enemyIdle(ennemy_t *e, objs *objects)
+{
+    float accel = 0.3f;
+    float maxSpeed = 2.0f;
+    e->velocity.x += accel * e->direction;
+
+    if (e->velocity.x > maxSpeed) e->velocity.x = maxSpeed;
+    if (e->velocity.x < -maxSpeed) e->velocity.x = -maxSpeed;
+
+    e->entity_attribs.boundingBox->x += e->velocity.x;
+
+    objs collisions = collision_test_entity(e, objects);
+
+    if (collisions.count > 0 || e->entity_attribs.boundingBox->x < 0 || e->entity_attribs.boundingBox->x > WINDOW_WIDTH) {
+        e->entity_attribs.boundingBox->x -= e->velocity.x;
+        e->direction *= -1;
+        e->velocity.x = 0;
+    }
+}
+
+bool lineOfSight(objs *objects, player_t *player, ennemy_t *e)
+{
+    UNUSED(objects);
+    UNUSED(player);
+    UNUSED(e);
+    return true;
 }

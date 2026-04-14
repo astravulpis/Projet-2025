@@ -167,6 +167,8 @@ typedef struct {
     float hp; //!< Player's current HP
     float maxHp; //!< Player's max HP
     float score; //!< Player's score
+    int selectedGunIndex;
+    bool isAlive;
 } entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \

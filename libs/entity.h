@@ -70,6 +70,7 @@ typedef struct {
     float score; //!< the score value of the entity, used to give the player points when killed
     // BEHAVIOUR PART
     entity_state state; //!< the current state of the entity, used to determine its behaviour in the update function
+    float detection_range;
 
 } entity_attributs;
 
@@ -86,6 +87,7 @@ typedef struct {
     V2f velocity; //!< not used for now
     bool onGround; //!< used for the jump functions
     char *attackSfx; //!< path to the entity's attack sound effect
+    int direction;
 } ennemy_t;
 
 /**
@@ -276,5 +278,9 @@ float getAngle(ennemy_t *e);
  * put the collisions intto an array which it returns
  */
 objs collision_test_entity(ennemy_t *e, objs *tiles);
+
+bool lineOfSight(objs *objects, player_t *player, ennemy_t *e);
+
+void enemyIdle(ennemy_t *e, objs *objects);
 
 #endif // ENTITY_H_
