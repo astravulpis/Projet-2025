@@ -4,11 +4,11 @@
 #include "entity.h"
 #include "event.h"
 #include "file_parsing.h"
+#include "jsonParsing.h"
 #include "player.h"
 #include "sdl_ctx.h"
 #include "sdl_helpers.h"
 #include "triggers.h"
-#include "jsonParsing.h"
 
 void closeGame(gameContext *ctx)
 {
@@ -214,10 +214,17 @@ bool gameLoop(gameContext *ctx, int argc, char **argv)
         renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
         prevMouseInput = mouseInputFlag;
 
-        if (!ctx->sdl_ctx->currMenu) { //updates the game elements only if we aren't in a menu
+        if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
             updateTriggers(currLevel, ctx->player);
-            updateBulletState(&ctx->bullet_arr, currLevel, deltaTime, ctx->player);
-            updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime, ctx, &ctx->bullet_arr, &ctx->guns);
+            if (currRoom->currWaveIdx >= 0) {
+                entities *currWave = getCurrentEntityWave(currLevel);
+                updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel), (entity_t **)currWave->items,
+                                        currWave->count, ctx->player, deltaTime);
+            } else {
+                updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel), NULL, 0, ctx->player, deltaTime);
+            }
+            updateEntities(getCurrentEntityWave(currLevel), ctx->player, getRoomObjects(currLevel), deltaTime, ctx->sdl_ctx,
+                           &ctx->bullet_arr, ctx->guns);
             updatePlayer(ctx->player, getRoomObjects(currLevel), deltaTime);
         }
 

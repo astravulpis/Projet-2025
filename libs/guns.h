@@ -5,11 +5,6 @@
 #include "common.h"
 #include "music.h"
 
-/**
- * @typedef enum gun_kind
- * @brief enum for all the weapon types in the game
- */
-typedef enum { PIERCER, SHARPSHOOTER, SHOTGUN, MACHINEGUN, RAILCANNON, ROCKET, __count_gun_kind = 6 } gun_kind;
 
 /**
  * @typedef struct Gun_t

@@ -127,8 +127,8 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->entity_attribs.ctx = sdl_ctx;
     e->type = type;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
-    e->direction=-1; //default movement direction
-    e->selectedGunIndex = 0;
+    e->direction = -1; // default movement direction
+    e->entity_attribs.selectedGunIndex = 0;
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     switch (type) {
@@ -139,8 +139,10 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
         break;
     }
     case E_STRAY: {
-        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
-        setEntityAttributs(e, .entity_speed = 120, .maxHP = 25.0f, .score = 30, .detection_range = 500.0f); //need to scale this at one point
+        e->entity_attribs.boundingBox =
+            createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
+        setEntityAttributs(e, .entity_speed = 120, .maxHP = 25.0f, .score = 30,
+                           .detection_range = 500.0f); // need to scale this at one point
         break;
     }
     case E_SWORDSMACHINE: {
@@ -237,10 +239,14 @@ objs collision_test_entity(ennemy_t *e, objs *tiles)
     return collisions;
 }
 
-void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, sdl_ctx_t * ctx, bullets * bullet_array, Guns_t * guns)
+void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, sdl_ctx_t *ctx, bullets *bullet_array,
+                  Guns_t *guns)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
-    float distanceToPlayer = sqrt(pow(player->entity_attribs.boundingBox->x - e->entity_attribs.boundingBox->x, 2) + pow(player->entity_attribs.boundingBox->y - e->entity_attribs.boundingBox->y, 2));
+    assert(e->entity_attribs.boundingBox != NULL);
+    float xAxis = pow(player->entity_attribs.boundingBox->x - e->entity_attribs.boundingBox->x, 2);
+    float yAxis = pow(player->entity_attribs.boundingBox->y - e->entity_attribs.boundingBox->y, 2);
+    float distanceToPlayer = sqrt(xAxis + yAxis);
     printf("current distance between the entity and the player: %f \n", distanceToPlayer);
     UNUSED(player);
     float gravity = 28.0f;
@@ -278,28 +284,33 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
 
     case STATE_PURSUING:
         printf("in hot pursuit\n");
-        switch(e->type){
-            case E_FILTH:
-                if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
-                    if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
-                        e->entity_attribs.boundingBox->x -= 5.0;
-                    } else {
-                        e->entity_attribs.boundingBox->x += 5.0;
-                    }
+        switch (e->type) {
+        case E_FILTH: {
+            if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
+                if (player->entity_attribs.boundingBox->x < e->entity_attribs.boundingBox->x) {
+                    e->entity_attribs.boundingBox->x -= 5.0;
                 } else {
-                    setEntityState(e, STATE_IDLE);
+                    e->entity_attribs.boundingBox->x += 5.0;
                 }
-            case E_STRAY:  
-                if (distanceToPlayer < e->attributs.detection_range+PURSUIT_STOP_RANGE) {
-                    if (lineOfSight(objects, player, e)){
-                        V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
-                        shootGun(ctx, &guns->arsenal[e->selectedGunIndex], bullet_array, ennemy_pos, frame_movement); //cast to V2f idk how this works anymore
-                    }
+            } else {
+                setEntityState(e, STATE_IDLE);
+            }
+        } break;
+        case E_STRAY: {
+            if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
+                if (lineOfSight(objects, player, e)) {
+                    V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
+                    shootGun(ctx, &guns->arsenal[e->entity_attribs.selectedGunIndex], bullet_array, ennemy_pos,
+                             frame_movement); // cast to V2f idk how this works anymore
                 }
+            }
+        } break;
+        default:
+            UNREACHABLE("enemy type");
         }
-        
+
         break;
-}
+    }
     keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     // behaviour_func(e, player, projectiles, objects, deltaTime);
 }
@@ -314,7 +325,8 @@ void playEnemyDeath(sdl_ctx_t *ctx)
     playSfx(ctx, &enemySfxs, "enemyDie");
 }
 
-void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime, sdl_ctx_t * ctx, bullets * bullet_array, Guns_t * guns)
+void updateEntities(entities *entities, player_t *player, objs *objects, float deltaTime, sdl_ctx_t *ctx, bullets *bullet_array,
+                    Guns_t *guns)
 {
     UNUSED(player);
     if (entities != NULL) {
@@ -366,7 +378,8 @@ void destroyEntities(entities *entities)
     free(entities->items);
 }
 
-void enemyIdle(ennemy_t *e, objs *objects) {
+void enemyIdle(ennemy_t *e, objs *objects)
+{
     float accel = 0.3f;
     float maxSpeed = 2.0f;
     e->velocity.x += accel * e->direction;
@@ -377,15 +390,19 @@ void enemyIdle(ennemy_t *e, objs *objects) {
     e->entity_attribs.boundingBox->x += e->velocity.x;
 
     objs collisions = collision_test_entity(e, objects);
-    
-    if (collisions.count>0 || e->entity_attribs.boundingBox->x < 0 || e->entity_attribs.boundingBox->x > WINDOW_WIDTH) {
+
+    if (collisions.count > 0 || e->entity_attribs.boundingBox->x < 0 || e->entity_attribs.boundingBox->x > WINDOW_WIDTH) {
         e->entity_attribs.boundingBox->x -= e->velocity.x;
         e->direction *= -1;
         e->velocity.x = 0;
     }
 }
 
-bool lineOfSight(objs * objects, player_t * player, ennemy_t *e){
+bool lineOfSight(objs *objects, player_t *player, ennemy_t *e)
+{
+    UNUSED(objects);
+    UNUSED(player);
+    UNUSED(e);
     return true;
 }
 // TODO(2026-03-30 08:15:26): Create test to test the creation of a valid entity, wrongly typed entity, with both bad and good

@@ -172,6 +172,12 @@ typedef struct {
 } objs;
 
 /**
+ * @typedef enum gun_kind
+ * @brief enum for all the weapon types in the game
+ */
+typedef enum { PIERCER, SHARPSHOOTER, SHOTGUN, MACHINEGUN, RAILCANNON, ROCKET, __count_gun_kind = 6 } gun_kind;
+
+/**
  * @typedef struct entity_t
  * @brief entity information
  *
@@ -185,8 +191,10 @@ typedef struct {
     float maxHp; //!< Player's max HP
     float score; //!< Player's score
     float entity_speed; //!< entity's speed
-    float detection_range; //!< entity's detection range
+    gun_kind selectedGunIndex;
+    bool isAlive;
 } entity_t;
+
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \
     da_append((array), ((obj){createRect((x), (y), (width), (height)), IMG_LoadTexture((ctx)->renderer, (path))}));

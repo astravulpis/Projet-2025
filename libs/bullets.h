@@ -2,7 +2,7 @@
 #define BULLETS_H_
 
 #include "common.h"
-#include "level.h"
+#include "player.h"
 
 /**
  * @struct bullet
@@ -35,10 +35,10 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
  * @brief updates bullet position
  *
  * goes through the list of all bullets to updat their positions.
- * then it goes back through said list to check for collisions between the bullets and everything else 
+ * then it goes back through said list to check for collisions between the bullets and everything else
  * by calling the \ref checkCollision function
  */
-void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *p);
+void updateBulletStatePlayer(bullets *arr, objs *objects, entity_t **entities, size_t count, player_t *p, float deltaTime);
 
 /**
  * @fn checkCollision(bullets *arr, objs *level)
@@ -51,7 +51,7 @@ void updateBulletState(bullets *arr, level_t *level, float deltaTime, player_t *
  * then does so for all the ennemies based on the current wave index. If there is a collision with an enemy,
  * the enemy's hp is reduced by the bullet's damage and if it reaches 0, the enemy is killed and the player score is increased by the enemy's score value
  */
-bool checkCollision(bullet *bullet, level_t *level, player_t *p);
+bool checkCollision(bullet *bullet, objs *objects, player_t *p, entity_t **entities, size_t count);
 
 /**
  * @fn renderBullets(sdl_ctx_t *ctx, bullets *arr)
@@ -67,7 +67,7 @@ void renderBullets(sdl_ctx_t *ctx, bullets *arr);
  * @fn deleteBullets(bullets *arr)
  * @param[in] bullet Address of the bullet to delete
  * @brief detroys the bullet
- * 
+ *
  * frees the bullet's hitbox, not the texture however as it's handled by \ref SDL_DestroyRenderer
  */
 void deleteBullet(bullet **bullet);
