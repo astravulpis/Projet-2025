@@ -1,8 +1,15 @@
 info "levelC" 2
-bg "./assets/img/ice1.jpg"
+bg "./assets/img/levels/CBg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
-obj "./assets/img/white.png" 0 0 760 1080
-obj "./assets/img/white.png" 930 0 30 520
-obj "./assets/img/white.png" 930 0 1000 480
-obj "./assets/img/white.png" 760 800 1920 800
+obj "./assets/img/levels/C_onAir1.png" 150 300.0 235.0 96.0
+obj "./assets/img/levels/C_onAir1.png" 1535 300.0 235.0 96.0
+obj "./assets/img/levels/C_onAir2.png" 350.0 625.0 150.0 32.0
+obj "./assets/img/levels/C_onAir2.png" 1420.0 625.0 150.0 32.0
+obj "./assets/img/levels/C_onAir2.png" 885.0 625.0 150.0 32.0
+obj "./assets/img/levels/C_onAir2.png" 885.0 1048.0 150.0 32.0
+obj "./assets/img/levels/C_onAir3.png" 785.0 300.0 350.0 32.0
+obj "./assets/img/levels/C_FVertical.png" 853.0 888.0 32.0 192.0
+obj "./assets/img/levels/C_FVertical.png" 1035.0 888.0 32.0 192.0
+
+C_FVertical.png

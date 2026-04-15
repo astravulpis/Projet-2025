@@ -1,11 +1,11 @@
 info "levelB" 1
-bg "./assets/img/ice1.jpg"
+bg "./assets/img/levels/BBg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
-obj "./assets/img/white.png" 0.0 850.0 1980.0 150.0
-obj "./assets/img/white.png" 0.0 300.0 300.0 150.0
-obj "./assets/img/white.png" 0.0 300.0 150.0 300.0
-obj "./assets/img/white.png" 500.0 465.0 150.0 400.0
-obj "./assets/img/white.png" 1420.0 600.0 150.0 400.0
-obj "./assets/img/white.png" 910.0 0.0 150.0 200.0
-obj "./assets/img/white.png" 910.0 450.0 150.0 25.0
+obj "./assets/img/levels/Bsol.png" 0.0 850.0 1920.0 230.0
+obj "./assets/img/levels/Bstart.png" 0.0 300.0 300.0 300.0
+obj "./assets/img/levels/B_onAir.png" 500.0 465.0 150.0 32.0
+obj "./assets/img/levels/B_onAir.png" 1420.0 600.0 150.0 32.0
+obj "./assets/img/levels/Bhaut.png" 910.0 0.0 150.0 200.0
+obj "./assets/img/levels/B_onAir.png" 910.0 450.0 150.0 32.0
+obj "./assets/img/levels/B_end.png" 1685.0 805.0 235.0 32.0
