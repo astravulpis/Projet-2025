@@ -281,13 +281,55 @@ float getAngle(ennemy_t *e);
  */
 objs collision_test_entity(ennemy_t *e, objs *tiles);
 
+/**
+ * @fn lineOfSight(objs *objects, player_t *player, ennemy_t *e)
+ * @param[in] objects list of level objects
+ * @param[in] player player structure for the coordinates
+ * @param[in] e entity structure for the coordinates
+ * @brief checks for a line of sight between the player and an entity
+ * 
+ * goes through the list of all level objects and draws a line between the player and an entity, then checks if that line is colliding
+ * with anything and if it isn't that means there's a line of sight for the enemty to shoot the player
+ */
 bool lineOfSight(objs *objects, player_t *player, ennemy_t *e);
 
+/**
+ * @fn enemyIdle(ennemy_t *e, objs *objects)
+ * @param[in] objects list of level objects
+ * @param[in] e entity structure for the coordinates
+ * @brief simple ennemy idle function for when the player is not within its range
+ */
 void enemyIdle(ennemy_t *e, objs *objects);
 
+/**
+ * @fn entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx, ennemy_t * e)
+ * @param[in] bullet_arr list of bullets
+ * @param[in] position entity position
+ * @param[in] vel normalised direction for the bullet
+ * @param[in] ctx our context variable to pass into \ref createBulletEntity
+ * @param[in] e entity structure to handle the shot cooldown
+ * @brief shooting function for an entity
+ * 
+ * We are not reusing the \ref shootGun function as we end up with a circular dependancy but it functions in the same way
+ */
 void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx, ennemy_t * e);
 
+/**
+ * @fn createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
+ * @param[in] bullet_arr list of bullets, the same as the one for the player
+ * @param[in] position entity position
+ * @param[in] vel normalised direction for the bullets
+ * @param[in] ctx our context variable to handle the rendering
+ * @brief creates a bullet that is shot by an entity. functions in the same way \ref createBullet does but adjusted to avoid 
+ * a circular dependancy
+ */
 bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx);
 
+/**
+ * @fn entityCollision(player_t * player, ennemy_t * entity)
+ * @param[in] player list of bullets, the same as the one for the player
+ * @param[in] entity entity position
+ * @brief looks for a collision between the player and an entity and if it's the case then reduce the player's health
+ */
 void entityCollision(player_t * player, ennemy_t * entity);
 #endif // ENTITY_H_

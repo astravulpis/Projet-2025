@@ -189,7 +189,8 @@ void assignTriggerToRoom(room_t *room, trigger_t *trigger);
 /**
  * @fn updateTriggers(level_t *level, player_t *p)
  * @param[in] level current level
- * @param[in] p player pointer
+ * @param[in] e entity structure
+ * @param[in] ctx our context variable passed into \ref updateTrigger
  * @brief goes through the list of triggers in a level to update them if needed
  */
 void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx);
@@ -199,6 +200,7 @@ void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx);
  * @param[in] level current level
  * @param[in] e The entity to tamper with
  * @param[in] trigger the trigger to be checked for potential updates
+ * @param[in] ctx context variable, used for spawning
  * @brief updates a trigger's state and executes the corresponding function
  */
 void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger, sdl_ctx_t * ctx);

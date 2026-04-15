@@ -142,6 +142,12 @@ void destroyGun(Gun_t *gun);
  */
 void destroyGuns(Guns_t **guns);
 
+/**
+ * @fn setBulletTexture(Gun_t *gun, const char *path)
+ * @param[in] gun gun structure
+ * @param[in] path path to the bullet texture
+ * @brief asigns a texture to the bullet associated with the gun
+ */
 void setBulletTexture(Gun_t *gun, const char *path);
 
 /**

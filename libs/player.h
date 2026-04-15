@@ -97,8 +97,9 @@ void destroyPlayer(player_t **p);
 /**
  * @fn UpdatePlayer(player_t *p, SDL_FRect *objects, int object_count, float deltaTime)
  * @param[in] p The player
- * @param[in] object Object that we check collisions against
- * @param[in] deltaTime To make thing independent of refresh of one's screen
+ * @param[in] arr list of objects (for their bounding box)
+ * @param[in] deltaTime Object that we check collisions against
+ * @param[in] ctx context variable for the sound
  * @brief updates the player position
  *
  * updates the player position and checks for collisions with all other textures on the map
@@ -115,10 +116,10 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx);
 void renderPlayer(player_t *p);
 
 /**
- * @fn movePlayer(player_t *p, V2f newPos)
- * @param[in] p player structure
- * @param[in] newPos the player's new position after moving
- * @brief moves the player
+ * @fn moveBox(SDL_FRect *box, V2f newPos)
+ * @param[in] box bounding box
+ * @param[in] newPos entity new position
+ * @brief moves an entity
  *
  * moves the player's bounding box based on the new position
  */
@@ -192,7 +193,7 @@ void resetAnimationStates(player_t *player, player_anim_kind excluded_anim);
 
 /**
  * @fn resetPlayerState(player_t *p)
- * @param[in] player player structure
+ * @param[in] p player structure
  * @param[in] position The position to reset the player at
  * @brief resets the player's state
  */

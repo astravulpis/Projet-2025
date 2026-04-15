@@ -4,5 +4,4 @@ nob
 Conduite.md
 *.tar.gz
 *.zip
-*.json
 /doc/doxygen-docs/html
