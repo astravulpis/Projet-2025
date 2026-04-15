@@ -1,8 +1,13 @@
 info "levelD" 4
-bg "./assets/img/ice1.jpg"
+bg "./assets/img/levels/D_Bg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
-obj "./assets/img/white.png" 0 0 760 1080
-obj "./assets/img/white.png" 930 0 30 520
-obj "./assets/img/white.png" 930 0 1000 480
-obj "./assets/img/white.png" 760 800 1920 800
+obj "./assets/img/levels/D_verticalD.png" 0 0 240 1080
+obj "./assets/img/levels/D_verticalG.png" 1680 0 240 1080
+obj "./assets/img/levels/D_sol.png" 240 930 1440 150
+obj "./assets/img/levels/D_Plateforme1.png" 240 834 235 96
+obj "./assets/img/levels/D_onAir1.png" 885 650 150 32
+obj "./assets/img/levels/D_Plateforme2.png" 1445 466 235 96
+obj "./assets/img/levels/D_onAir1.png" 885 282 150 32
+obj "./assets/img/levels/D_Plateforme2B.png" 240 130 235 96
+
