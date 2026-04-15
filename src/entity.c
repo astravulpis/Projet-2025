@@ -46,6 +46,7 @@ void loadEntityTex(sdl_ctx_t *ctx)
 {
     const char *texPaths[__count_enemy_type] = {
         "./assets/img/filth.png",
+        "./assets/img/StrayFull.png"
     };
 
     for (size_t i = 0; i < ARRAY_LEN(texPaths); ++i) {
@@ -198,8 +199,9 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     if (e->entity_attribs.isAlive){
+        entityCollision(player, e);
         float distanceToPlayer = getDistanceBetween(getBB(player), getBB(e));
-        printf("current distance between the ennemy and the player is: %f \n", distanceToPlayer);
+        //printf("current distance between the ennemy and the player is: %f \n", distanceToPlayer);
         UNUSED(player);
         float gravity = 28.0f;
         SDL_FRect *rect = getBB(e);
@@ -225,18 +227,18 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
         // p->velocity.y = p->velocity.y + (gravity * deltaTime);
         switch (e->attributs.state) {
         case STATE_IDLE:
-            printf("NOT in hot pursuit\n");
+            //printf("NOT in hot pursuit\n");
 
             enemyIdle(e, objects);
-            printf("this is the ennemies detection range: %f \n", e->attributs.detection_range);
+            //printf("this is the ennemies detection range: %f \n", e->attributs.detection_range);
             if (distanceToPlayer < e->attributs.detection_range) {
                 setEntityState(e, STATE_PURSUING);
-                printf("starting pursuit\n");
+                //printf("starting pursuit\n");
             }
             break;
 
         case STATE_PURSUING:
-            printf("in hot pursuit\n");
+            //printf("in hot pursuit\n");
             switch (e->type) {
             case E_FILTH: {
                 if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
@@ -252,6 +254,7 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
             case E_STRAY: {
                 if (distanceToPlayer < e->attributs.detection_range + PURSUIT_STOP_RANGE) {
                     if (lineOfSight(objects, player, e)) {
+                        printf("ennemy spotted \n");
                         V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
                         entityShootGun(bullet_array, ennemy_pos, ennemy_pos, ctx); // cast to V2f idk how this works anymore
                     }
@@ -365,7 +368,7 @@ void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
 {
     // avoid the bullets spawning in the ground (mostly a rocket launcher issue but also just looks nicer)
     V2f newPos = (V2f){position.x, position.y - 7.27f};
-    createBulletEntity(bullet_arr, position, vel, ctx);
+    createBulletEntity(bullet_arr, newPos, vel, ctx);
 }
 
 bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
@@ -380,4 +383,15 @@ bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * 
     da_append(bullet_arr, projectile);
 
     return true;
+}
+
+void entityCollision(player_t *player, ennemy_t *entity){
+    if (SDL_HasRectIntersectionFloat(getBB(player), getBB(entity))){
+        
+        if (player->dmgCooldown <= 0.0f) {
+            player->entity_attribs.hp -= 10;
+            player->dmgCooldown = 1.0f; // 1 second cooldown (tweak as needed)
+        }
+
+    }
 }

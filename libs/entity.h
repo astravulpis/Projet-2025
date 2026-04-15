@@ -288,4 +288,5 @@ void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
 
 bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx);
 
+void entityCollision(player_t * player, ennemy_t * entity);
 #endif // ENTITY_H_

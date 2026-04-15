@@ -61,6 +61,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
 
     p->dashAnimationTime = 500; // en ms
     p->prevDashTick = -1;
+    p->dmgCooldown=0.5f;
 
     // Loading audios sfx
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "jump", "./assets/audio/SFX/jump.wav");
@@ -249,11 +250,17 @@ objs collision_test_player(player_t *p, objs *tiles)
 //     return collisions;
 // }
 
-void updatePlayer(player_t *p, objs *arr, float deltaTime)
+void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx)
 {
+    if (p->entity_attribs.hp < 0){
+        ctx->currMenu=LEVEL_SELECTION_MENU;
+    }
     float gravity = 28.0f;
     float dragCoef = 0.75f;
     float epsi = 1e-6;
+    if (p->dmgCooldown > 0) {
+        p->dmgCooldown -= deltaTime;
+    }
     SDL_FRect *rect = getBB(p);
     V2f movement = inputUpdate(p, deltaTime);
     V2f frame_movement = {movement.x + p->velocity.x, movement.y + p->velocity.y};

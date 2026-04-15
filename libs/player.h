@@ -64,6 +64,7 @@ typedef struct {
     bool noclip;
 
     bool run;
+    float dmgCooldown;
 } player_t;
 
 #define getBB(p) (p)->entity_attribs.boundingBox
@@ -102,7 +103,7 @@ void destroyPlayer(player_t **p);
  *
  * updates the player position and checks for collisions with all other textures on the map
  */
-void updatePlayer(player_t *p, objs *arr, float deltaTime);
+void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx);
 
 /**
  * @fn renderPlayer(player_t *p)

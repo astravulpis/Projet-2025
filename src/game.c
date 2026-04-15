@@ -81,13 +81,13 @@ bool gameLoop(gameContext *ctx)
                 updateProjectileShooting(ctx);
                 if (currRoom->currWaveIdx >= 0) {
                     entities *currWave = getCurrentEntityWave(currLevel->items[currLevel->currentLoadedRoomID]);
-                    printf("this is the entities: %p \n", (entity_t **)currWave->items);
+                    //printf("this is the entities: %p \n", (entity_t **)currWave->items);
                     updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]), (entity_t **)currWave->items, currWave->count, ctx->player, deltaTime);
                 } else {
-                    printf("NULL entities \n");
+                    //printf("NULL entities \n");
                     updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]), NULL, 0, ctx->player, deltaTime);
                 }
-                updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime);
+                updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime, ctx->sdl_ctx);
                 updateTriggers(currLevel, (entity_t *)ctx->player);
             }
 
