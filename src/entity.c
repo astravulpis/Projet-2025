@@ -133,6 +133,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     e->direction=-1;
     e->attributs.state=STATE_IDLE;
     e->attributs.detection_range=400.0f;
+    e->entity_attribs.shotcooldown = 1.0f;
     memset(&e->velocity, 0, sizeof(V2f));
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
@@ -199,6 +200,9 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
     if (e->entity_attribs.isAlive){
+        if (e->entity_attribs.shotcooldown > 0) {
+        e->entity_attribs.shotcooldown -= deltaTime;
+    }
         entityCollision(player, e);
         float distanceToPlayer = getDistanceBetween(getBB(player), getBB(e));
         //printf("current distance between the ennemy and the player is: %f \n", distanceToPlayer);
@@ -256,7 +260,11 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
                     if (lineOfSight(objects, player, e)) {
                         printf("ennemy spotted \n");
                         V2f ennemy_pos = {e->entity_attribs.boundingBox->x, e->entity_attribs.boundingBox->y};
-                        entityShootGun(bullet_array, ennemy_pos, ennemy_pos, ctx); // cast to V2f idk how this works anymore
+                        //V2f player_pos = {player->entity_attribs.boundingBox->x, player->entity_attribs.boundingBox->y};
+                        V2f deltaPos = (V2f){player->entity_attribs.boundingBox->x - ennemy_pos.x + 35, player->entity_attribs.boundingBox->y - ennemy_pos.y};
+                        float magnitude = SDL_sqrt((deltaPos.x * deltaPos.x) + (deltaPos.y * deltaPos.y));
+                        V2f vel = (V2f){((deltaPos.x / magnitude) * 2500), ((deltaPos.y / magnitude) * 2500)};
+                        entityShootGun(bullet_array, (V2f){ennemy_pos.x, ennemy_pos.y+35}, vel, ctx, e); // cast to V2f idk how this works anymore
                     }
                 }
             } break;
@@ -364,21 +372,25 @@ bool lineOfSight(objs *objects, player_t *player, ennemy_t *e)
     return true;
 }
 
-void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
+void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx, ennemy_t * e)
 {
     // avoid the bullets spawning in the ground (mostly a rocket launcher issue but also just looks nicer)
     V2f newPos = (V2f){position.x, position.y - 7.27f};
-    createBulletEntity(bullet_arr, newPos, vel, ctx);
+    if (e->entity_attribs.shotcooldown <= 0.0f){ 
+        createBulletEntity(bullet_arr, newPos, vel, ctx);
+        e->entity_attribs.shotcooldown=1.0f;
+    }
 }
 
 bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx)
 {
     bullet projectile = {0};
-    projectile.boundingBox = createRect(position.x, position.y, 10, 10);
+    projectile.boundingBox = createRect(position.x, position.y, 15, 15);
     projectile.velocity.x = vel.x;
     projectile.velocity.y = vel.y;
     projectile.texture = IMG_LoadTexture(ctx->renderer, "./assets/img/weapons/piercer.png");
     projectile.dmg = 20;
+    projectile.whoShot = 1;
 
     da_append(bullet_arr, projectile);
 

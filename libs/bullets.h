@@ -15,6 +15,7 @@ typedef struct {
     V2f velocity; //!< the speed of the bullet in both x and y direction
     SDL_Texture *texture; //!< the texture of the bullet
     float dmg; //!< the damage of the bullet
+    bool whoShot; //!< 0 for the player and 1 for the ennemy
 } bullet;
 
 /**

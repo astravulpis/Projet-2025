@@ -13,6 +13,7 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
     projectile.velocity.y = vel.y;
     projectile.texture = texture;
     projectile.dmg = dmg;
+    projectile.whoShot = 0;
 
     da_append(arr, projectile);
 
@@ -32,19 +33,26 @@ bool checkCollision(bullet *bullet, objs *objects, player_t *p, entity_t **entit
         //printf("now entering entity treatement \n");
         for (size_t idx = 0; idx < count; idx++) {
             entity_t *e = entities[idx];
-            if (e->isAlive){
-                if (SDL_HasRectIntersectionFloat(bullet->boundingBox, e->boundingBox)) {
-                    //printf("we have a collision between an enemy and a bullet \n");
-                    e->hp -= bullet->dmg;
-                    //printf("deleting bullet\n");
-                    deleteBullet(&bullet);
-                    if (e->hp <= 0) {
-                        playEnemyDeath(*e->ctx);
-                        p->score += e->score;
-                        //printf("Player score after killing an enemy: %f\n", p->score);
-                        e->isAlive = false;
+            if (!bullet->whoShot){
+                if (e->isAlive){
+                    if (SDL_HasRectIntersectionFloat(bullet->boundingBox, e->boundingBox)) {
+                        //printf("we have a collision between an enemy and a bullet \n");
+                        e->hp -= bullet->dmg;
+                        //printf("deleting bullet\n");
+                        deleteBullet(&bullet);
+                        if (e->hp <= 0) {
+                            playEnemyDeath(*e->ctx);
+                            p->score += e->score;
+                            //printf("Player score after killing an enemy: %f\n", p->score);
+                            e->isAlive = false;
+                        }
+                        return true;
                     }
-                    return true;
+                }
+            }
+            else{
+                if (SDL_HasRectIntersectionFloat(bullet->boundingBox, p->entity_attribs.boundingBox)){
+                    p->entity_attribs.hp-=bullet->dmg;
                 }
             }
         }

@@ -284,7 +284,7 @@ bool lineOfSight(objs *objects, player_t *player, ennemy_t *e);
 
 void enemyIdle(ennemy_t *e, objs *objects);
 
-void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx);
+void entityShootGun(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx, ennemy_t * e);
 
 bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t * ctx);
 
