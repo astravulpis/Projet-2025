@@ -25,9 +25,10 @@ bool createSlider(slider **s, SDL_FRect rect, float nbValue, float borderSize, f
     }
 
     float cursorSize = (rect.w - borderSize * 2.0f) / 20.0f;
+    float xBox = rect.x + (borderSize) + baseVal * nbValue / cursorSize;
+    float yBox = rect.y + (borderSize);
     (*s)->sliderBox = createRect_Ex(rect);
-    (*s)->cursorBox =
-        createRect_Ex((SDL_FRect){rect.x + (borderSize), rect.y + (borderSize), cursorSize, ((rect.h - borderSize * 2))});
+    (*s)->cursorBox = createRect(xBox, yBox, cursorSize, ((rect.h - borderSize * 2)));
 
     (*s)->nbValue = nbValue;
     (*s)->borderSize = borderSize;

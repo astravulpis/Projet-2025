@@ -22,37 +22,37 @@ bool createBullet(bullets *arr, V2f init_pos, V2f vel, int size, SDL_Texture *te
 
 bool checkCollision(bullet *bullet, objs *objects, player_t *p, entity_t **entities, size_t count)
 {
-    //printf("entering checkCollision \n");
+    // printf("entering checkCollision \n");
     da_foreach (obj, tile, objects) {
         if (SDL_HasRectIntersectionFloat(bullet->boundingBox, tile->boundingBox)) {
             return true;
         }
     }
-    //printf("%p \n", entities);
+    // printf("%p \n", entities);
     if (entities != NULL) {
-        //printf("now entering entity treatement \n");
+        // printf("now entering entity treatement \n");
         for (size_t idx = 0; idx < count; idx++) {
             entity_t *e = entities[idx];
-            if (!bullet->whoShot){
-                if (e->isAlive){
+            if (!bullet->whoShot) {
+                if (e->isAlive) {
                     if (SDL_HasRectIntersectionFloat(bullet->boundingBox, e->boundingBox)) {
-                        //printf("we have a collision between an enemy and a bullet \n");
+                        // printf("we have a collision between an enemy and a bullet \n");
                         e->hp -= bullet->dmg;
-                        //printf("deleting bullet\n");
+                        // printf("deleting bullet\n");
                         deleteBullet(&bullet);
                         if (e->hp <= 0) {
                             playEnemyDeath(*e->ctx);
                             p->score += e->score;
-                            //printf("Player score after killing an enemy: %f\n", p->score);
+                            // printf("Player score after killing an enemy: %f\n", p->score);
                             e->isAlive = false;
                         }
                         return true;
                     }
                 }
-            }
-            else{
-                if (SDL_HasRectIntersectionFloat(bullet->boundingBox, p->entity_attribs.boundingBox)){
-                    p->entity_attribs.hp-=bullet->dmg;
+            } else {
+                if (SDL_HasRectIntersectionFloat(bullet->boundingBox, p->entity_attribs.boundingBox)) {
+                    p->entity_attribs.hp -= bullet->dmg;
+                    return true;
                 }
             }
         }
@@ -60,7 +60,7 @@ bool checkCollision(bullet *bullet, objs *objects, player_t *p, entity_t **entit
     return false;
 }
 
-//internal function
+// internal function
 bool isInbounds(SDL_FRect *rect)
 {
     return (rect->x < -64 || rect->x >= WINDOW_WIDTH * 2) || (rect->y < -64 || rect->y >= WINDOW_HEIGHT * 2);
@@ -68,7 +68,7 @@ bool isInbounds(SDL_FRect *rect)
 
 void updateBulletStatePlayer(bullets *arr, objs *objects, entity_t **entities, size_t count, player_t *p, float deltaTime)
 {
-    //printf("entering updateBulletStatePlayer \n");
+    // printf("entering updateBulletStatePlayer \n");
     size_t i = 0;
     while (i < arr->count) {
         bullet *it = &arr->items[i];

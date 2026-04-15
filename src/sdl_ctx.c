@@ -49,7 +49,7 @@ void setMusicTrackGain(sdl_ctx_t *ctx)
 
 void setSfxTrackGain(sdl_ctx_t *ctx)
 {
-    for (int id = BACKGROUND_MUSIC + 1; id < __count_tracks; ++id) {
+    for (int id = START_MENU_MUSIC + 1; id < __count_tracks; ++id) {
         MIX_SetTrackGain(ctx->tracks[id], ctx->opts.sfxVolume / 100.f);
     }
 }

@@ -69,6 +69,7 @@ typedef struct {
     float hp; //!< the current HP of the entity, used to check for death and such
     float maxHP; //!< the maximum HP of the entity, used when initializing the entity
     float score; //!< the score value of the entity, used to give the player points when killed
+    float contactDamage;
     // BEHAVIOUR PART
     entity_state state; //!< the current state of the entity, used to determine its behaviour in the update function
     float detection_range;

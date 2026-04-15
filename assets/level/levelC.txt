@@ -11,5 +11,3 @@ obj "./assets/img/levels/C_onAir2.png" 885.0 1048.0 150.0 32.0
 obj "./assets/img/levels/C_onAir3.png" 785.0 300.0 350.0 32.0
 obj "./assets/img/levels/C_FVertical.png" 853.0 888.0 32.0 192.0
 obj "./assets/img/levels/C_FVertical.png" 1035.0 888.0 32.0 192.0
-
-C_FVertical.png
