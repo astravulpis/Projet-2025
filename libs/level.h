@@ -192,7 +192,7 @@ void assignTriggerToRoom(room_t *room, trigger_t *trigger);
  * @param[in] p player pointer
  * @brief goes through the list of triggers in a level to update them if needed
  */
-void updateTriggers(level_t *level, entity_t *e);
+void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx);
 
 /**
  * @fn updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
@@ -201,7 +201,7 @@ void updateTriggers(level_t *level, entity_t *e);
  * @param[in] trigger the trigger to be checked for potential updates
  * @brief updates a trigger's state and executes the corresponding function
  */
-void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger);
+void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger, sdl_ctx_t * ctx);
 
 /**
  * @fn typeDisplayName(String_View sv)

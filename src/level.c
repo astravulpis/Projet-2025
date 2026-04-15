@@ -184,7 +184,7 @@ triggers_t *getRoomTriggers(level_t *level)
     return &level->items[level->currentLoadedRoomID]->triggers;
 }
 
-void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
+void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger, sdl_ctx_t * ctx)
 {
     if (hasEntityCollidedWithTrigger(trigger, e)) {
         switch (trigger->kind) {
@@ -194,7 +194,7 @@ void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
                     (V2f){trigger->newPos.x * (*(e->ctx))->screenRatio, trigger->newPos.y * (*(e->ctx))->screenRatio});
         } break;
         case ONESHOT: {
-            deathTrigger(e);
+            deathTrigger(e, ctx);
         } break;
         case SPAWNER: {
             room_t *currRoom = getLoadedRoom(level);
@@ -207,11 +207,11 @@ void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
     }
 }
 
-void updateTriggers(level_t *level, entity_t *e)
+void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx)
 {
     room_t *curr = getLoadedRoom(level);
     assert(curr != NULL && "update triggers: current room is not set");
     for (size_t i = 0; i < curr->triggers.count; ++i) {
-        updateTrigger(level, e, curr->triggers.items[i]);
+        updateTrigger(level, e, curr->triggers.items[i], ctx);
     }
 }

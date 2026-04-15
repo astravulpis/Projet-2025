@@ -45,9 +45,11 @@ bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e)
     return false;
 }
 
-void deathTrigger(entity_t *e)
+void deathTrigger(entity_t *e, sdl_ctx_t * ctx)
 {
     e->hp = 0;
+    ctx->currMenu = LEVEL_SELECTION_MENU;
+    e->hp = 100.0f;
 }
 
 trigger_kind getTriggerKindFromSV(String_View sv)
