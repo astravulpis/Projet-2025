@@ -163,6 +163,9 @@ bool initCtx(sdl_ctx_t *sdl_ctx)
     setMusicTrackGain(sdl_ctx);
     setSfxTrackGain(sdl_ctx);
 
+    // *********************** LOGO IMG ************************** //
+    sdl_ctx->logoImg = IMG_LoadTexture(sdl_ctx->renderer, "./assets/img/logo.png"); // used to be printed in menu's
+
 defer:
     if (result == false) {
         closeCtx(&sdl_ctx);
@@ -185,6 +188,8 @@ void closeCtx(sdl_ctx_t **sdl_ctx)
         // Safe function that does nothing when given a NULL
         TTF_CloseFont(c->font);
         c->font = NULL;
+
+        SDL_DestroyTexture(c->logoImg);
 
         if (c->renderer != NULL) {
             SDL_DestroyRenderer(c->renderer);

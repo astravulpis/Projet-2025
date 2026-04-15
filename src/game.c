@@ -256,7 +256,11 @@ void updateMenus(gameContext *ctx)
 }
 
 void renderMenus(gameContext *ctx)
-{
+{   
+    // box du logo affiché au mileu de l'écran en haut dans touts les menus
+    SDL_FRect logoBox =  (SDL_FRect){420.0f, 25.0f, 1080.0f, 270.0f};
+    boxToScale(&logoBox, ctx->sdl_ctx->screenRatio);
+
     switch (ctx->sdl_ctx->currMenu) {
     case NONE_MENU:
         break;
@@ -264,9 +268,11 @@ void renderMenus(gameContext *ctx)
     case OPTIONS_MENU: // Fallthrough
     case START_MENU: {
         renderMenu(ctx->sdl_ctx, ctx->menus[ctx->sdl_ctx->currMenu]);
-        SDL_FRect temp =  (SDL_FRect){1200.0f, 250.0f, 660.0f, 600.0f};
+        renderImage(ctx->sdl_ctx, ctx->sdl_ctx->logoImg, &logoBox);
+        // rendu du guide de jeu
+        SDL_FRect temp =  (SDL_FRect){950.0f, 325.0f, 660.0f, 600.0f};
         SDL_FRect temp2 =  (SDL_FRect){temp.x + 10.0f, temp.y + 10.0f, temp.w - 20.0f, temp.h - 20.0f};
-        SDL_FRect ligneBlanche =  (SDL_FRect){temp2.x + 10.0f, 675.0f, temp2.w - 20.0f, 4.0f};
+        SDL_FRect ligneBlanche =  (SDL_FRect){temp2.x + 10.0f, 750.0f, temp2.w - 20.0f, 4.0f};
         // rectangle scalé
         boxToScale(&temp, ctx->sdl_ctx->screenRatio);
         boxToScale(&temp2, ctx->sdl_ctx->screenRatio);
@@ -276,14 +282,15 @@ void renderMenus(gameContext *ctx)
         renderFillRect(ctx->sdl_ctx->renderer, &temp2, (SDL_Color){48, 48, 48, 128});
         renderFillRect(ctx->sdl_ctx->renderer, &ligneBlanche, (SDL_Color){255, 255, 255, 255});
         // guide des touches
-        renderText(ctx->sdl_ctx, "comment jouer ? :\n  Q pour aller a gauche\n  D pour aller a droite\n  ESPACE pour sauter\n  SHIFT pour glisser\n  CTRL pour se jeter au sol\n  CLIC GAUCHE pour tirer\n  1, 2, 3, 4, 5 pour changer d'arme\n\n  ESC pour mettre en pause\n\n(A aulieu de Q si clavier QWERTY)\n\n\n\n But du Jeu :\n\nTuer les ennemis et ne pas mourir ...", WHITE, temp.x + 50.0f,  temp.y + 50.0f);
+        renderText(ctx->sdl_ctx, "Comment jouer ? :\n  Q pour aller a gauche\n  D pour aller a droite\n  ESPACE pour sauter\n  SHIFT pour glisser\n  CTRL pour se jeter au sol\n  CLIC GAUCHE pour tirer\n  1, 2, 3, 4, 5 pour changer d'arme\n\n  ESC pour mettre en pause\n\n(A aulieu de Q si clavier QWERTY)\n\n\n\n But du Jeu :\n\nTuer les ennemis et ne pas mourir ...", WHITE, temp.x + 50.0f,  temp.y + 50.0f);
         // surlignage rouge
         renderText(ctx->sdl_ctx, "\n  Q\n  D\n  ESPACE\n  SHIFT\n  CTRL\n  CLIC GAUCHE\n  1, 2, 3, 4, 5\n\n  ESC\n\n A           Q\n\n\n\n But du Jeu :\n\n                           mourir", RED, temp.x + 50.0f,  temp.y + 50.0f);
     } break;
     case LEVEL_SELECTION_MENU: {
         renderMenu(ctx->sdl_ctx, ctx->menus[LEVEL_SELECTION_MENU]);
-        renderText_Ex(ctx->sdl_ctx, "choose a level :", BLACK, (V2f){94.0f, 198.0f}); // ombre
-        renderText_Ex(ctx->sdl_ctx, "choose a level :", WHITE, (V2f){92.0f, 196.0f});
+        renderImage(ctx->sdl_ctx, ctx->sdl_ctx->logoImg, &logoBox);
+        renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", BLACK, (V2f){(WINDOW_WIDTH / 2.0f - 406.0f) * ctx->sdl_ctx->screenRatio, (WINDOW_HEIGHT / 2.0f - 48.0f - 126.0f) * ctx->sdl_ctx->screenRatio}); // ombre
+        renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", WHITE, (V2f){(WINDOW_WIDTH / 2.0f - 408.0f) * ctx->sdl_ctx->screenRatio, (WINDOW_HEIGHT / 2.0f - 48.0f - 128.0f) * ctx->sdl_ctx->screenRatio});
     } break;
     default:
         break;

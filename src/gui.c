@@ -48,15 +48,12 @@ void addSliderToMenu(gui_menu *menu, slider *slider)
 // ******************* PAUSE MENU ***********************
 gui_menu *createPauseMenu(sdl_ctx_t *sdl_ctx)
 {
-    SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 120.0f), 384.0f, 96.0f};
+    SDL_FRect boxResume = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 384.0f * 1.25f), (WINDOW_HEIGHT / 2.0f - 48.0f - 164.0f), 384.0f, 96.0f};
     boxToScale(&boxResume, sdl_ctx->screenRatio);
 
-    SDL_FRect boxOptions = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f), 384.0f, 96.0f};
-    boxToScale(&boxOptions, sdl_ctx->screenRatio);
+    SDL_FRect boxOptions = (SDL_FRect){boxResume.x, boxResume.y + boxResume.h + (64 * sdl_ctx->screenRatio), 384.0f, 96.0f};
 
-    SDL_FRect boxExitLevel =
-        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f + 120.0f), 384.0f, 96.0f};
-    boxToScale(&boxExitLevel, sdl_ctx->screenRatio);
+    SDL_FRect boxExitLevel = (SDL_FRect){boxResume.x, boxOptions.y + boxOptions.h + (64 * sdl_ctx->screenRatio), 384.0f, 96.0f};
 
     button *resumeButton = NULL;
     createButton(sdl_ctx, &resumeButton, "RESUME", boxResume, "./assets/img/buttons/base128.png",
@@ -104,16 +101,16 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 // ******************* OPTIONS MENU ***********************
 gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx)
 {
-    SDL_FRect goBackBox = (SDL_FRect){100.f, WINDOW_HEIGHT - 350.f, 384.f, 96.f};
+    SDL_FRect goBackBox = (SDL_FRect){438.f, 615.5f, 384.f, 96.f};
     boxToScale(&goBackBox, sdl_ctx->screenRatio);
 
-    SDL_FRect masterBox = (SDL_FRect){300, 200, 512, 64};
+    SDL_FRect masterBox = (SDL_FRect){375, 368.5f, 512, 64};
     boxToScale(&masterBox, sdl_ctx->screenRatio);
 
-    SDL_FRect musicBox = (SDL_FRect){300, 278, 512, 64};
+    SDL_FRect musicBox = (SDL_FRect){masterBox.x, masterBox.y + masterBox.h + 14, 512, 64};
     boxToScale(&musicBox, sdl_ctx->screenRatio);
 
-    SDL_FRect sfxBox = (SDL_FRect){300, 352, 512, 64};
+    SDL_FRect sfxBox = (SDL_FRect){masterBox.x, musicBox.y + musicBox.h + 14, 512, 64};
     boxToScale(&sfxBox, sdl_ctx->screenRatio);
 
     button *goBackButton = NULL;
@@ -165,9 +162,9 @@ void updateOptionsMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 // ******************* HOME MENU ***********************
 gui_menu *createHomeMenu(sdl_ctx_t *sdl_ctx)
 {
-    // Box to scale n'est utilisé qu'avec le premier bouton, car les prochains se base sur lui, donc ils sont déja scale
+    // Box to scale n'est utilisé qu'avec le premier bouton, car les prochains se basent sur lui, donc ils sont déja scale
     SDL_FRect boxLevelSelect =
-        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f - 164.0f), 384.0f, 96.0f};
+        (SDL_FRect){(WINDOW_WIDTH / 2.0f - 384.0f * 1.25f), (WINDOW_HEIGHT / 2.0f - 48.0f - 164.0f), 384.0f, 96.0f};
     boxToScale(&boxLevelSelect, sdl_ctx->screenRatio);
 
     SDL_FRect boxOption = (SDL_FRect){boxLevelSelect.x, boxLevelSelect.y + boxLevelSelect.h + (64 * sdl_ctx->screenRatio),
@@ -218,7 +215,7 @@ void updateHomeMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
 gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
 {
     float offset = 15.f;
-    SDL_FRect boxLevelA = (SDL_FRect){92, 256, 256.0f, 64.0f};
+    SDL_FRect boxLevelA = (SDL_FRect){950, 350, 256.0f, 64.0f};
     boxToScale(&boxLevelA, sdl_ctx->screenRatio); // pas utilisé pour les autres boutons de niveau car ils vont être crée a
                                                   // partir de cette box (ratio déja fait)
 
@@ -237,28 +234,27 @@ gui_menu *createLevelMenu(sdl_ctx_t *sdl_ctx)
     SDL_FRect boxLevelDebug =
         (SDL_FRect){boxLevelA.x, boxLevelE.y + boxLevelA.h + (offset * sdl_ctx->screenRatio), boxLevelA.w, boxLevelA.h};
 
-    SDL_FRect boxBackToHomeMenu = (SDL_FRect){30, 64, 384.0f, 96.0f};
+    SDL_FRect boxBackToHomeMenu = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 384.0f * 1.25f), (WINDOW_HEIGHT / 2.0f - 48.0f - 164.0f + 96.0f + 64.0f), 384.0f, 96.0f};
     boxToScale(&boxBackToHomeMenu, sdl_ctx->screenRatio);
 
+    char *basePath = "./assets/img/buttons/b2_128.png";
+    char *hoverPath = "./assets/img/buttons/h2_128.png";
+    char *clickPath = "./assets/img/buttons/c2_128.png";
+
     button *levelAButton = NULL;
-    createButton(sdl_ctx, &levelAButton, "A", boxLevelA, "./assets/img/buttons/base128.png",
-                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &levelAButton, "A", boxLevelA, basePath, hoverPath, clickPath);
 
     button *levelBButton = NULL;
-    createButton(sdl_ctx, &levelBButton, "B", boxLevelB, "./assets/img/buttons/base128.png",
-                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &levelBButton, "B", boxLevelB, basePath, hoverPath, clickPath);
 
     button *levelCButton = NULL;
-    createButton(sdl_ctx, &levelCButton, "C", boxLevelC, "./assets/img/buttons/base128.png",
-                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &levelCButton, "C", boxLevelC, basePath, hoverPath, clickPath);
 
     button *levelDButton = NULL;
-    createButton(sdl_ctx, &levelDButton, "D", boxLevelD, "./assets/img/buttons/base128.png",
-                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &levelDButton, "D", boxLevelD, basePath, hoverPath, clickPath);
 
     button *levelEButton = NULL;
-    createButton(sdl_ctx, &levelEButton, "E", boxLevelE, "./assets/img/buttons/base128.png",
-                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+    createButton(sdl_ctx, &levelEButton, "E", boxLevelE, basePath, hoverPath, clickPath);
 
     button *levelDebugButton = NULL;
     createButton(sdl_ctx, &levelDebugButton, "Debug Level", boxLevelDebug, "./assets/img/buttons/base128.png",

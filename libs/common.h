@@ -108,6 +108,7 @@ struct sdl_context_s {
     SDL_Window *window;     //!< SDL3 window context
     SDL_Renderer *renderer; //!< SDL3 renderer context
     SDL_Texture *bgTexture; //!< SDL3 surface renderer texture context
+    SDL_Texture *logoImg;   //!< The logo of the game used in menu's
     SDL_FRect *bgRect;      //!< SDL3 surface renderer rectangle
     TTF_Font *font;         //!< SDL3 ttf font
     SDL_Event event;        //!< Event struct to pull from
