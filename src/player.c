@@ -40,7 +40,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
         return_defer(false);
     }
 
-    p->entity_attribs.boundingBox = createRect(0, 0, playerSize.x, playerSize.y);
+    p->entity_attribs.boundingBox = createRect(0, 0, playerSize.x * (*sdl_ctx)->screenRatio, playerSize.y * (*sdl_ctx)->screenRatio);
     p->entity_attribs.ctx = sdl_ctx;
     memset(&p->anims, 0, sizeof(player_animation *) * __count_player_anim_kind);
     if (!initAllPlayerAnimation((*sdl_ctx), p)) return_defer(false);
@@ -254,6 +254,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx)
 {
     if (p->entity_attribs.hp < 0){
         ctx->currMenu=LEVEL_SELECTION_MENU;
+        p->entity_attribs.hp=100.0f;
     }
     float gravity = 28.0f;
     float dragCoef = 0.75f;

@@ -139,7 +139,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     e->entity_attribs.boundingBox =
-        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x, baseStats[type].size.y});
+        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x * (*sdl_ctx)->screenRatio, baseStats[type].size.y * (*sdl_ctx)->screenRatio});
     _setEntityAttributs(e, baseStats[type].stats);
     return e;
 }
