@@ -264,6 +264,21 @@ void renderMenus(gameContext *ctx)
     case OPTIONS_MENU: // Fallthrough
     case START_MENU: {
         renderMenu(ctx->sdl_ctx, ctx->menus[ctx->sdl_ctx->currMenu]);
+        SDL_FRect temp =  (SDL_FRect){1200.0f, 250.0f, 660.0f, 600.0f};
+        SDL_FRect temp2 =  (SDL_FRect){temp.x + 10.0f, temp.y + 10.0f, temp.w - 20.0f, temp.h - 20.0f};
+        SDL_FRect ligneBlanche =  (SDL_FRect){temp2.x + 10.0f, 675.0f, temp2.w - 20.0f, 4.0f};
+        // rectangle scalé
+        boxToScale(&temp, ctx->sdl_ctx->screenRatio);
+        boxToScale(&temp2, ctx->sdl_ctx->screenRatio);
+        boxToScale(&ligneBlanche, ctx->sdl_ctx->screenRatio);
+        //bg du guide
+        renderFillRect(ctx->sdl_ctx->renderer, &temp, (SDL_Color){37, 37, 37, 128});
+        renderFillRect(ctx->sdl_ctx->renderer, &temp2, (SDL_Color){48, 48, 48, 128});
+        renderFillRect(ctx->sdl_ctx->renderer, &ligneBlanche, (SDL_Color){255, 255, 255, 255});
+        // guide des touches
+        renderText(ctx->sdl_ctx, "comment jouer ? :\n  Q pour aller a gauche\n  D pour aller a droite\n  ESPACE pour sauter\n  SHIFT pour glisser\n  CTRL pour se jeter au sol\n  CLIC GAUCHE pour tirer\n  1, 2, 3, 4, 5 pour changer d'arme\n\n  ESC pour mettre en pause\n\n(A aulieu de Q si clavier QWERTY)\n\n\n\n But du Jeu :\n\nTuer les ennemis et ne pas mourir ...", WHITE, temp.x + 50.0f,  temp.y + 50.0f);
+        // surlignage rouge
+        renderText(ctx->sdl_ctx, "\n  Q\n  D\n  ESPACE\n  SHIFT\n  CTRL\n  CLIC GAUCHE\n  1, 2, 3, 4, 5\n\n  ESC\n\n A           Q\n\n\n\n But du Jeu :\n\n                           mourir", RED, temp.x + 50.0f,  temp.y + 50.0f);
     } break;
     case LEVEL_SELECTION_MENU: {
         renderMenu(ctx->sdl_ctx, ctx->menus[LEVEL_SELECTION_MENU]);
