@@ -14,6 +14,7 @@ trigger 650.0 500.0 250.0 600.0 SPAWNER 0
 trigger 875.0 835.0 1000.0 25.0 ONESHOT
 trigger 1900 420 50 200 PORTAL 1 55 150
 room 1
+bg "./assets/img/levels/BBg.png"
 obj "./assets/img/levels/Bsol.png" 0.0 850.0 1920.0 230.0
 obj "./assets/img/levels/Bstart.png" 0.0 300.0 300.0 300.0
 obj "./assets/img/levels/B_onAir.png" 500.0 465.0 150.0 32.0
@@ -24,7 +25,7 @@ obj "./assets/img/levels/B_end.png" 1685.0 805.0 235.0 32.0
 trigger 0 100 50 300 PORTAL 0 1800 460
 trigger 1870 605 50 200 PORTAL 2 920 100
 room 2
-player 920 0
+bg "./assets/img/levels/CBg.png"
 obj "./assets/img/levels/C_onAir1.png" 150 300.0 235.0 96.0
 obj "./assets/img/levels/C_onAir1.png" 1535 300.0 235.0 96.0
 obj "./assets/img/levels/C_onAir2.png" 350.0 625.0 150.0 32.0
@@ -37,7 +38,7 @@ obj "./assets/img/levels/C_FVertical.png" 1035.0 888.0 32.0 192.0
 trigger 820 0 200 75 PORTAL 1 1700 605
 trigger 885 998 150 50 PORTAL 3 1425 750
 room 3
-player 1575 810 
+bg "./assets/img/levels/D_Bg.png"
 obj "./assets/img/levels/D_verticalD.png" 0 0 240 1080
 obj "./assets/img/levels/D_verticalG.png" 1680 0 240 1080
 obj "./assets/img/levels/D_sol.png" 240 930 1440 150
@@ -49,7 +50,7 @@ obj "./assets/img/levels/D_Plateforme2B.png" 240 130 235 96
 trigger 1645 750 50 200 PORTAL 2 800 700
 trigger 240 0 50 130 PORTAL 4 80 500
 room 4
-player 0 900
+bg "./assets/img/levels/E_Bg.png"
 obj "./assets/img/levels/E_Pilier.png" 0 805 150 275
 obj "./assets/img/levels/E_Pilier.png" 600 805 150 275
 obj "./assets/img/levels/E_Pilier.png" 1200 805 150 275

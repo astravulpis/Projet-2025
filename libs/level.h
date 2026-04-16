@@ -19,7 +19,7 @@ typedef struct {
     V2f startPos;
     triggers_t triggers;
     int currWaveIdx;
-
+    SDL_Texture *bgTexture; 
     int roomID;
 } room_t;
 

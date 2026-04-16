@@ -38,7 +38,11 @@ void loadRoom(level_t *level, int id)
 }
 
 void renderRoom(sdl_ctx_t *ctx, room_t *room)
-{
+{   
+    if (room->bgTexture != NULL) { // si sa ne s'affiche pas, render Level aura rendu le bg par défaut
+        SDL_RenderTexture(ctx->renderer, room->bgTexture, NULL, NULL);  // plein écran
+    }
+
     da_foreach (obj, it, &room->structures) {
         renderImage(ctx, it->texture, it->boundingBox);
     }
@@ -141,6 +145,9 @@ void destroyObjects(objs *objects)
 void destroyRoom(room_t **room)
 {
     if (*room != NULL) {
+        SDL_DestroyTexture((*room)->bgTexture);
+        (*room)->bgTexture = NULL;
+
         destroyObjects(&(*room)->structures);
         destroyTriggers(&(*room)->triggers);
         for (int i = 0; i < MAX_WAVE_COUNT; ++i) {
