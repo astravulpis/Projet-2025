@@ -323,6 +323,10 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx)
 
     if (!p->flight) p->velocity.y = MAX(150.0f, p->velocity.y + (gravity * deltaTime));
 
+    p->entity_attribs.hp += deltaTime * 5;
+    if (p->entity_attribs.hp > 100)
+         p->entity_attribs.hp = p->entity_attribs.maxHp;
+
     keepRectInbounds(getBB(p), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 

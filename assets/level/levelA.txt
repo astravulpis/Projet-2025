@@ -1,6 +1,7 @@
 info "levelA" 0
 bg "./assets/img/levels/ABg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
+
 room 0
 player 120 720
 obj "./assets/img/levels/AbasHorizontal.png" 0.0 850.0 1920.0 230.0
@@ -9,10 +10,13 @@ obj "./assets/img/levels/ABasVertical2.png" 1775.0 625.0 150.0 225.0
 obj "./assets/img/levels/plafond.png" 0.0 0.0 1920.0 250.0
 obj "./assets/img/levels/platefromeOnAir.png" 1400.0 575.0 150.0 25.0
 obj "./assets/img/levels/platefromeOnAir.png" 1075.0 575.0 150.0 25.0
-entity FILTH 1250.0 500.0 0
+entity FILTH 900.0 750.0 0
+entity FILTH 1100.0 750.0 0
+entity STRAY 1400.0 500.0 0
 trigger 650.0 500.0 250.0 600.0 SPAWNER 0
 trigger 875.0 835.0 1000.0 25.0 ONESHOT
 trigger 1900 420 50 200 PORTAL 1 55 150
+
 room 1
 bg "./assets/img/levels/BBg.png"
 obj "./assets/img/levels/Bsol.png" 0.0 850.0 1920.0 230.0
@@ -22,8 +26,13 @@ obj "./assets/img/levels/B_onAir.png" 1420.0 600.0 150.0 32.0
 obj "./assets/img/levels/Bhaut.png" 910.0 0.0 150.0 200.0
 obj "./assets/img/levels/B_onAir.png" 910.0 450.0 150.0 32.0
 obj "./assets/img/levels/B_end.png" 1685.0 805.0 235.0 32.0
+entity FILTH 500.0 380.0 0
+entity STRAY 1420.0 515.0 0
+trigger 50 100 50 500 SPAWNER 0
 trigger 0 100 50 300 PORTAL 0 1800 460
 trigger 1870 605 50 200 PORTAL 2 920 100
+trigger 0 850.0 1920.0 230.0 ONESHOT
+
 room 2
 bg "./assets/img/levels/CBg.png"
 obj "./assets/img/levels/C_onAir1.png" 150 300.0 235.0 96.0
@@ -35,8 +44,15 @@ obj "./assets/img/levels/C_onAir2.png" 885.0 1048.0 150.0 32.0
 obj "./assets/img/levels/C_onAir3.png" 785.0 300.0 350.0 32.0
 obj "./assets/img/levels/C_FVertical.png" 853.0 888.0 32.0 192.0
 obj "./assets/img/levels/C_FVertical.png" 1035.0 888.0 32.0 192.0
+entity FILTH 350.0 540.0 0
+entity FILTH 1420.0 540.0 0
+entity STRAY 785.0 215.0 0
+trigger 870 50 200 960 SPAWNER 0
 trigger 820 0 200 75 PORTAL 1 1700 605
 trigger 885 998 150 50 PORTAL 3 1425 750
+trigger 0 898.0 853.0 182.0 ONESHOT
+trigger 1067.0 898.0 853.0 182.0 ONESHOT
+
 room 3
 bg "./assets/img/levels/D_Bg.png"
 obj "./assets/img/levels/D_verticalD.png" 0 0 240 1080
@@ -47,8 +63,13 @@ obj "./assets/img/levels/D_onAir1.png" 885 650 150 32
 obj "./assets/img/levels/D_Plateforme2.png" 1445 466 235 96
 obj "./assets/img/levels/D_onAir1.png" 885 282 150 32
 obj "./assets/img/levels/D_Plateforme2B.png" 240 130 235 96
+entity FILTH 885.0 550.0 0
+entity STRAY 1445.0 370.0 0
+entity FILTH 700.0 840.0 0
+trigger 1380 650 300 400 SPAWNER 0
 trigger 1645 750 50 200 PORTAL 2 800 700
 trigger 240 0 50 130 PORTAL 4 80 500
+
 room 4
 bg "./assets/img/levels/E_Bg.png"
 obj "./assets/img/levels/E_Pilier.png" 0 805 150 275
@@ -57,5 +78,10 @@ obj "./assets/img/levels/E_Pilier.png" 1200 805 150 275
 obj "./assets/img/levels/E_Plateforme1.png" 1450 500 470 96
 obj "./assets/img/levels/C_onAir1.png" 875.0 250.0 235.0 96.0
 obj "./assets/img/levels/E_Plateforme1Bt.png" 0.0 250.0 705.0 96.0
+entity FILTH 300.0 700.0 0
+entity FILTH 900.0 700.0 0
+entity STRAY 1450.0 400.0 0
+trigger 100 550 400 300 SPAWNER 0
 trigger 0 605 50 200 PORTAL 3 340 0
 trigger 0 50 50 200 ONESHOT
+trigger 0.0 873.0 1920.0 207.0 ONESHOT

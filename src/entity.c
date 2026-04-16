@@ -405,7 +405,7 @@ bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t *c
 
 void entityCollision(player_t *player, ennemy_t *entity)
 {
-    printf("entity collision! \n");
+    //printf("entity collision! \n");
     if (SDL_HasRectIntersectionFloat(getBB(player), getBB(entity))) {
         if (player->dmgCooldown < 0.0f) {
             if (entity->attackSfx) playSfx(*player->entity_attribs.ctx, &enemySfxs, entity->attackSfx);

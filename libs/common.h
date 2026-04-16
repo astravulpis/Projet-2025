@@ -76,7 +76,8 @@ typedef enum {
     OPTIONS_MENU,
     START_MENU,
     LEVEL_SELECTION_MENU,
-    __menu_count = 5,
+    DEAD_SCREEN,
+    __menu_count = 6,
 } menu_kind;
 
 

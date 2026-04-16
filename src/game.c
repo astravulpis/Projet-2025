@@ -163,7 +163,7 @@ bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
         //   - Start
         //   - Option
         //   - Level selection
-        assert(__menu_count == 5 && "Amount of menu changed");
+        assert(__menu_count == 6 && "Amount of menu changed");
         ctx->menus = malloc(sizeof(gui_menu *) * __menu_count); // At best, we'll have 5 menus
 
         if (ctx->menus == NULL) {
@@ -185,6 +185,7 @@ bool initAllMenus(gameContext *ctx)
     if (!addMenu(ctx, createOptionsMenu(ctx->sdl_ctx), OPTIONS_MENU)) return false;
     if (!addMenu(ctx, createHomeMenu(ctx->sdl_ctx), START_MENU)) return false;
     if (!addMenu(ctx, createLevelMenu(ctx->sdl_ctx), LEVEL_SELECTION_MENU)) return false;
+    if (!addMenu(ctx, createDeadMenu(ctx->sdl_ctx), DEAD_SCREEN)) return false;
     return true;
 }
 
@@ -250,6 +251,9 @@ void updateMenus(gameContext *ctx)
     case START_MENU: {
         updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[START_MENU], updateHomeMenu);
     } break;
+    case DEAD_SCREEN: {
+        updateMenu(ctx->sdl_ctx, &ctx->mouse, ctx->menus[DEAD_SCREEN], updateDeadMenu);
+    } break;
     default:
         break;
     }
@@ -291,6 +295,11 @@ void renderMenus(gameContext *ctx)
         renderImage(ctx->sdl_ctx, ctx->sdl_ctx->logoImg, &logoBox);
         renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", BLACK, (V2f){(WINDOW_WIDTH / 2.0f - 406.0f) * ctx->sdl_ctx->screenRatio, (WINDOW_HEIGHT / 2.0f - 48.0f - 126.0f) * ctx->sdl_ctx->screenRatio}); // ombre
         renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", WHITE, (V2f){(WINDOW_WIDTH / 2.0f - 408.0f) * ctx->sdl_ctx->screenRatio, (WINDOW_HEIGHT / 2.0f - 48.0f - 128.0f) * ctx->sdl_ctx->screenRatio});
+    } break;
+    case DEAD_SCREEN: {
+        renderMenu(ctx->sdl_ctx, ctx->menus[ctx->sdl_ctx->currMenu]);
+        renderText(ctx->sdl_ctx, "YOU ARE DEAD !", BLACK, (WINDOW_WIDTH / 2 - 98.0f) * ctx->sdl_ctx->screenRatio,  (WINDOW_HEIGHT / 2 - 93.0f) * ctx->sdl_ctx->screenRatio);
+        renderText(ctx->sdl_ctx, "YOU ARE DEAD !", RED, (WINDOW_WIDTH / 2 - 100.0f) * ctx->sdl_ctx->screenRatio,  (WINDOW_HEIGHT / 2 - 95.0f) * ctx->sdl_ctx->screenRatio);
     } break;
     default:
         break;
