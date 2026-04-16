@@ -40,7 +40,9 @@ void loadRoom(level_t *level, int id)
 void renderRoom(sdl_ctx_t *ctx, room_t *room)
 {   
     if (room->bgTexture != NULL) { // si sa ne s'affiche pas, render Level aura rendu le bg par défaut
-        SDL_RenderTexture(ctx->renderer, room->bgTexture, NULL, NULL);  // plein écran
+        SDL_FRect bgBox = {0, 0, 1920, 1080};
+        boxToScale(&bgBox, ctx->screenRatio);
+        renderImage(ctx, room->bgTexture, &bgBox);
     }
 
     da_foreach (obj, it, &room->structures) {
