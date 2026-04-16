@@ -31,7 +31,7 @@ entity STRAY 1420.0 515.0 0
 trigger 50 100 50 500 SPAWNER 0
 trigger 0 100 50 300 PORTAL 0 1800 460
 trigger 1870 605 50 200 PORTAL 2 920 100
-trigger 0 850.0 1920.0 230.0 ONESHOT
+trigger 0 848.0 1920.0 232.0 ONESHOT
 
 room 2
 bg "./assets/img/levels/CBg.png"
