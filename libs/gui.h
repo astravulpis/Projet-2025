@@ -147,5 +147,7 @@ void renderMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu);
 void destroyMenu(gui_menu **menu);
 void addButtonToMenu(gui_menu *menu, button *btn);
 void addSliderToMenu(gui_menu *menu, slider *slider);
+gui_menu *createDeadMenu(sdl_ctx_t *sdl_ctx);
+void updateDeadMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts);
 
 #endif // GUI_H_

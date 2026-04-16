@@ -98,6 +98,32 @@ void updatePauseMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
     }
 }
 
+// ******************* DEAD MENU ***********************
+gui_menu *createDeadMenu(sdl_ctx_t *sdl_ctx)
+{
+    SDL_FRect quitBox = (SDL_FRect){(WINDOW_WIDTH / 2.0f - 192.0f), (WINDOW_HEIGHT / 2.0f - 48.0f), 384.0f, 96.0f};
+    boxToScale(&quitBox, sdl_ctx->screenRatio);
+
+
+    button *quitButton = NULL;
+    createButton(sdl_ctx, &quitButton, "QUIT THE GAME ...", quitBox, "./assets/img/buttons/base128.png",
+                 "./assets/img/buttons/hover128.png", "./assets/img/buttons/click128.png");
+
+    gui_menu *menu = createMenu((SDL_Color){60, 60, 60, 120});
+    addButtonToMenu(menu, quitButton);
+
+    return menu;
+}
+
+void updateDeadMenu(sdl_ctx_t *sdl_ctx, gui_menu *menu, helperFuncOpts opts)
+{   
+    
+    // Resume button
+    if (menu->btns.items[0]->isLeftClicked == true) {
+        sdl_ctx->quit = true;
+    }
+}
+
 // ******************* OPTIONS MENU ***********************
 gui_menu *createOptionsMenu(sdl_ctx_t *sdl_ctx)
 {
