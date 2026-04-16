@@ -57,5 +57,4 @@ obj "./assets/img/levels/E_Plateforme1.png" 1450 500 470 96
 obj "./assets/img/levels/C_onAir1.png" 875.0 250.0 235.0 96.0
 obj "./assets/img/levels/E_Plateforme1Bt.png" 0.0 250.0 705.0 96.0
 trigger 0 605 50 200 PORTAL 3 340 0
-trigger 0 405 50 200 ONESHOT
 trigger 0 50 50 200 ONESHOT
