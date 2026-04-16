@@ -88,7 +88,7 @@ bool gameLoop(gameContext *ctx)
                     updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]), NULL, 0, ctx->player, deltaTime);
                 }
                 updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime, ctx->sdl_ctx);
-                updateTriggers(currLevel, (entity_t *)ctx->player, ctx->sdl_ctx);
+                updateTriggers(currLevel, (entity_t *)ctx->player, NULL);
             }
 
             renderPlayer(ctx->player);
