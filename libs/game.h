@@ -4,6 +4,7 @@
 #include "bullets.h"
 #include "common.h"
 #include "bars.h"
+#include "checkboxes.h"
 #include "gui.h"
 #include "guns.h"
 #include "level.h"

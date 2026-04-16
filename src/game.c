@@ -45,6 +45,11 @@ bool gameLoop(gameContext *ctx)
     int frameCounter = 0;
     int frameRate = 0;
 
+    checkbox *enableDebugInfo;
+    SDL_FRect debugCheckBox = {10.0f, 50.0f, 40.0f, 40.0f}; 
+    SDL_FRect debugTickBox = {15.0f, 55.0f, 30.0f, 30.0f}; 
+    createCheckbox(ctx->sdl_ctx, &enableDebugInfo, debugCheckBox, debugTickBox, NULL, NULL, NULL, 5.0f, 5);
+
     playTrack(ctx->sdl_ctx, START_MENU_MUSIC);
     while (!ctx->sdl_ctx->quit) {
         temp_rewind(mark);
@@ -68,7 +73,16 @@ bool gameLoop(gameContext *ctx)
             }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
-            renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
+
+            if (enableDebugInfo->checked) {
+                renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
+                ctx->player->noclip = true;
+                ctx->player->flight = true;
+            } else {
+                ctx->player->noclip = false;
+                ctx->player->flight = false;
+            }
+
             renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
 
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
@@ -95,18 +109,27 @@ bool gameLoop(gameContext *ctx)
             renderPlayer(ctx->player);
             renderFooter(ctx);
         }
+        updateCheckboxStates(enableDebugInfo, (V2f){ctx->mouse.position.x, ctx->mouse.position.y}, ctx->mouse.currState);
+
         updateMenus(ctx);
         renderMenus(ctx);
-        renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), BLACK, (V2f){10.0f, 10.0f});
-        renderText_Ex(ctx->sdl_ctx, temp_sprintf("x : %.2f", ctx->player->entity_attribs.boundingBox->x), BLACK,
-                      (V2f){10.0f, 24.0f});
+        renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), BLACK, (V2f){12.0f, 12.0f});
+        renderText_Ex(ctx->sdl_ctx, temp_sprintf("fps : %d", frameRate), WHITE, (V2f){10.0f, 10.0f});
+        
+        if (enableDebugInfo->checked == true)
+            renderCheckbox(ctx->sdl_ctx, enableDebugInfo, "debug : true");
+        else
+            renderCheckbox(ctx->sdl_ctx, enableDebugInfo, "debug : false");
+
+        //renderText_Ex(ctx->sdl_ctx, temp_sprintf("x : %.2f", ctx->player->entity_attribs.boundingBox->x), BLACK,
+        //              (V2f){10.0f, 24.0f});
         SDL_RenderPresent(ctx->sdl_ctx->renderer);
 
         // currLevel = getLoadedLevel(ctx);
         frameCounter++;
         if (needsFpsCap) SDL_Delay(16); // 16.6667 ms ~= 60fps
     }
-
+    destroyCheckbox(&enableDebugInfo);
     // destroyPlayerStatusBar(&dashBar1, &dashBar2, &dashBar3, &hpBar);
     return true;
 }

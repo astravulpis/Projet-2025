@@ -28,6 +28,9 @@ bool createCheckbox(sdl_ctx_t *sdl_ctx, checkbox **c, SDL_FRect checkRect, SDL_F
     (*c)->checkBox = createRect_Ex(checkRect);
     (*c)->tickBox = createRect_Ex(tickRect);
 
+    boxToScale((*c)->checkBox, sdl_ctx->screenRatio);
+    boxToScale((*c)->tickBox, sdl_ctx->screenRatio);
+
     // Images are loaded
     if (bgImg_Path != NULL) (*c)->checkboxImg = IMG_LoadTexture(sdl_ctx->renderer, bgImg_Path);
     else
@@ -46,7 +49,7 @@ bool createCheckbox(sdl_ctx_t *sdl_ctx, checkbox **c, SDL_FRect checkRect, SDL_F
     SDL_SetTextureScaleMode((*c)->tickImg, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode((*c)->tickHoverImg, SDL_SCALEMODE_NEAREST);
 
-    (*c)->spaceWithText = spaceWithText;
+    (*c)->spaceWithText = spaceWithText * sdl_ctx->screenRatio;
     (*c)->boxBorderSize =
         boxBorderSize; // its usefull only if there is no image loaded (error or NULL in path parameter)
 
