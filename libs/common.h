@@ -77,8 +77,14 @@ typedef enum {
     START_MENU,
     LEVEL_SELECTION_MENU,
     DEAD_SCREEN,
-    __menu_count = 6,
+    __count_menu_kind = 6,
 } menu_kind;
+
+typedef enum {
+    PLAYER_KIND,
+    ENEMY_KIND,
+    __count_entity_kind = 2
+} entity_kind;
 
 
 /**
@@ -173,6 +179,7 @@ typedef struct {
     bool isAlive;
     float shotcooldown;
     float contactDamage;
+    entity_kind kind;
 } entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \

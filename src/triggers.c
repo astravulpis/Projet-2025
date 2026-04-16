@@ -39,17 +39,16 @@ bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e)
 {
     if (SDL_HasRectIntersectionFloat(e->boundingBox, trigger->boundingBox)) {
         if (trigger->toggled) return false;
-        if (trigger->kind != PORTAL) trigger->toggled = true;
+        if (trigger->kind == SPAWNER) trigger->toggled = true;
         return true;
     }
     return false;
 }
 
-void deathTrigger(entity_t *e, sdl_ctx_t * ctx)
+void deathTrigger(entity_t *e)
 {
-    e->hp = 0;
-    ctx->currMenu = DEAD_SCREEN;
-    e->hp = 100.0f;
+    e->hp = -1.f;
+    e->isAlive = false;
 }
 
 trigger_kind getTriggerKindFromSV(String_View sv)

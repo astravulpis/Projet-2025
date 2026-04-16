@@ -15,6 +15,7 @@
 #include "player.h"
 #include "sdl_helpers.h"
 #include <math.h>
+#include <stdbool.h>
 
 #define PURSUIT_STOP_RANGE 50.0
 
@@ -127,6 +128,7 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
 
     e->entity_attribs.tex = getEntityTex(*sdl_ctx, type);
     e->entity_attribs.ctx = sdl_ctx;
+    e->entity_attribs.kind = ENEMY_KIND;
     e->type = type;
     e->attackSfx = loadEnemySfx(e, *sdl_ctx, "attack");
     e->entity_attribs.selectedGunIndex = 0;
@@ -139,7 +141,8 @@ ennemy_t *createEntity(sdl_ctx_t **sdl_ctx, entity_type type, V2f basePos)
     // Each entity has its own parameters
     // That it'd be the size of its bounding box, to each and every attribut defined
     e->entity_attribs.boundingBox =
-        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x * (*sdl_ctx)->screenRatio, baseStats[type].size.y * (*sdl_ctx)->screenRatio});
+        createRect_Ex((SDL_FRect){basePos.x, basePos.y, baseStats[type].size.x * (*sdl_ctx)->screenRatio,
+                                  baseStats[type].size.y * (*sdl_ctx)->screenRatio});
     _setEntityAttributs(e, baseStats[type].stats);
     return e;
 }
@@ -202,6 +205,7 @@ float getDistanceBetween(SDL_FRect *a, SDL_FRect *b)
 void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime, bullets *bullet_array, sdl_ctx_t *ctx)
                   // void (*behaviour_func)(entity_t *, player_t *, objs *, float))
 {
+    if (e->entity_attribs.hp <= 0) e->entity_attribs.isAlive = false;
     if (e->entity_attribs.isAlive) {
         if (e->entity_attribs.shotcooldown > 0) {
             e->entity_attribs.shotcooldown -= deltaTime;
@@ -281,8 +285,6 @@ void updateEntity(ennemy_t *e, player_t *player, objs *objects, float deltaTime,
 
         keepRectInbounds(getBB(e), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         // behaviour_func(e, player, projectiles, objects, deltaTime);
-    } else {
-        return;
     }
 }
 
@@ -374,7 +376,7 @@ bool lineOfSight(objs *objects, player_t *player, ennemy_t *e)
     UNUSED(objects);
     UNUSED(player);
     UNUSED(e);
- 
+
     return true;
 }
 
@@ -405,12 +407,12 @@ bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t *c
 
 void entityCollision(player_t *player, ennemy_t *entity)
 {
-    //printf("entity collision! \n");
+    // printf("entity collision! \n");
     if (SDL_HasRectIntersectionFloat(getBB(player), getBB(entity))) {
         if (player->dmgCooldown < 0.0f) {
             if (entity->attackSfx) playSfx(*player->entity_attribs.ctx, &enemySfxs, entity->attackSfx);
             player->entity_attribs.hp -= 20;
-        
+
             player->dmgCooldown = 0.675f;
         }
     }

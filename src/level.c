@@ -38,7 +38,7 @@ void loadRoom(level_t *level, int id)
 }
 
 void renderRoom(sdl_ctx_t *ctx, room_t *room)
-{   
+{
     if (room->bgTexture != NULL) { // si sa ne s'affiche pas, render Level aura rendu le bg par défaut
         SDL_FRect bgBox = {0, 0, 1920, 1080};
         boxToScale(&bgBox, ctx->screenRatio);
@@ -193,17 +193,19 @@ triggers_t *getRoomTriggers(level_t *level)
     return &level->items[level->currentLoadedRoomID]->triggers;
 }
 
-void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger, sdl_ctx_t * ctx)
+void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
 {
     if (hasEntityCollidedWithTrigger(trigger, e)) {
         switch (trigger->kind) {
         case PORTAL: {
-            loadRoom(level, trigger->room_dst);
-            moveBox(e->boundingBox,
-                    (V2f){trigger->newPos.x * (*(e->ctx))->screenRatio, trigger->newPos.y * (*(e->ctx))->screenRatio});
+            if (e->kind == PLAYER_KIND) {
+                loadRoom(level, trigger->room_dst);
+                moveBox(e->boundingBox,
+                        (V2f){trigger->newPos.x * (*(e->ctx))->screenRatio, trigger->newPos.y * (*(e->ctx))->screenRatio});
+            }
         } break;
         case ONESHOT: {
-            deathTrigger(e, ctx);
+            deathTrigger(e);
         } break;
         case SPAWNER: {
             room_t *currRoom = getLoadedRoom(level);
@@ -216,11 +218,11 @@ void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger, sdl_ctx_t * 
     }
 }
 
-void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx)
+void updateTriggers(level_t *level, entity_t *e)
 {
     room_t *curr = getLoadedRoom(level);
     assert(curr != NULL && "update triggers: current room is not set");
     for (size_t i = 0; i < curr->triggers.count; ++i) {
-        updateTrigger(level, e, curr->triggers.items[i], ctx);
+        updateTrigger(level, e, curr->triggers.items[i]);
     }
 }

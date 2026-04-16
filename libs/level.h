@@ -19,7 +19,7 @@ typedef struct {
     V2f startPos;
     triggers_t triggers;
     int currWaveIdx;
-    SDL_Texture *bgTexture; 
+    SDL_Texture *bgTexture;
     int roomID;
 } room_t;
 
@@ -193,7 +193,7 @@ void assignTriggerToRoom(room_t *room, trigger_t *trigger);
  * @param[in] ctx our context variable passed into \ref updateTrigger
  * @brief goes through the list of triggers in a level to update them if needed
  */
-void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx);
+void updateTriggers(level_t *level, entity_t *e);
 
 /**
  * @fn updateTrigger(level_t *level, entity_t *e, trigger_t *trigger)
@@ -203,7 +203,7 @@ void updateTriggers(level_t *level, entity_t *e, sdl_ctx_t * ctx);
  * @param[in] ctx context variable, used for spawning
  * @brief updates a trigger's state and executes the corresponding function
  */
-void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger, sdl_ctx_t * ctx);
+void updateTrigger(level_t *level, entity_t *e, trigger_t *trigger);
 
 /**
  * @fn typeDisplayName(String_View sv)

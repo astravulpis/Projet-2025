@@ -40,7 +40,9 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
         return_defer(false);
     }
 
-    p->entity_attribs.boundingBox = createRect(0, 0, playerSize.x * (*sdl_ctx)->screenRatio, playerSize.y * (*sdl_ctx)->screenRatio);
+    p->entity_attribs.kind = PLAYER_KIND;
+    p->entity_attribs.boundingBox =
+        createRect(0, 0, playerSize.x * (*sdl_ctx)->screenRatio, playerSize.y * (*sdl_ctx)->screenRatio);
     p->entity_attribs.ctx = sdl_ctx;
     memset(&p->anims, 0, sizeof(player_animation *) * __count_player_anim_kind);
     if (!initAllPlayerAnimation((*sdl_ctx), p)) return_defer(false);
@@ -61,7 +63,7 @@ bool createPlayer(player_t **player, V2f playerSize, sdl_ctx_t **sdl_ctx)
 
     p->dashAnimationTime = 500; // en ms
     p->prevDashTick = -1;
-    p->dmgCooldown=0.5f;
+    p->dmgCooldown = 0.5f;
 
     // Loading audios sfx
     loadSfx((*sdl_ctx), &p->audios, SFX_PLAYER_MOVE, "jump", "./assets/audio/SFX/jump.wav");
@@ -250,11 +252,11 @@ objs collision_test_player(player_t *p, objs *tiles)
 //     return collisions;
 // }
 
-void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx)
+void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t *ctx)
 {
-    if (p->entity_attribs.hp < 0){
-        ctx->currMenu=LEVEL_SELECTION_MENU;
-        p->entity_attribs.hp=100.0f;
+    if (p->entity_attribs.hp < 0) {
+        ctx->currMenu = DEAD_SCREEN;
+        p->entity_attribs.hp = 100.0f;
     }
     float gravity = 28.0f;
     float dragCoef = 0.75f;
@@ -324,8 +326,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx)
     if (!p->flight) p->velocity.y = MAX(150.0f, p->velocity.y + (gravity * deltaTime));
 
     p->entity_attribs.hp += deltaTime * 5;
-    if (p->entity_attribs.hp > 100)
-         p->entity_attribs.hp = p->entity_attribs.maxHp;
+    if (p->entity_attribs.hp > 100) p->entity_attribs.hp = p->entity_attribs.maxHp;
 
     keepRectInbounds(getBB(p), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }

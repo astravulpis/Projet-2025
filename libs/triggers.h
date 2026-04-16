@@ -80,7 +80,7 @@ bool hasEntityCollidedWithTrigger(trigger_t *trigger, entity_t *e);
  * @param[in] e entity structure we are checking as well
  * @brief sets the entity's health to 0, effectively killing them
  */
-void deathTrigger(entity_t *e, sdl_ctx_t * ctx);
+void deathTrigger(entity_t *e);
 
 /**
  * @fn destroyTrigger(trigger_t **trigger)

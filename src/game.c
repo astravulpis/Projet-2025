@@ -68,27 +68,28 @@ bool gameLoop(gameContext *ctx)
             }
             renderBackground(ctx->sdl_ctx);
             renderRoom(ctx->sdl_ctx, currRoom);
-            //renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
+            renderTriggers(ctx->sdl_ctx, &currRoom->triggers);
             renderBullets(ctx->sdl_ctx, &ctx->bullet_arr);
 
             if (!ctx->sdl_ctx->currMenu) { // updates the game elements only if we aren't in a menu
                 if (currRoom->currWaveIdx >= 0) {
-                    updateEntities(getCurrentEntityWave(currRoom), ctx->player, getRoomObjects(currRoom), deltaTime, &ctx->bullet_arr, ctx->sdl_ctx);
-                    // da_foreach (ennemy_t *, en, getCurrentEntityWave(currRoom)) {
-                    //     updateTriggers(currLevel, (entity_t *)en);
-                    // }
+                    entities *wave = getCurrentEntityWave(currRoom);
+                    updateEntities(wave, ctx->player, getRoomObjects(currRoom), deltaTime, &ctx->bullet_arr, ctx->sdl_ctx);
+                    da_foreach (ennemy_t *, en, wave) {
+                        updateTriggers(currLevel, (entity_t *)*en);
+                    }
                 }
                 updateProjectileShooting(ctx);
                 if (currRoom->currWaveIdx >= 0) {
                     entities *currWave = getCurrentEntityWave(currLevel->items[currLevel->currentLoadedRoomID]);
-                    //printf("this is the entities: %p \n", (entity_t **)currWave->items);
-                    updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]), (entity_t **)currWave->items, currWave->count, ctx->player, deltaTime);
+                    updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]),
+                                            (entity_t **)currWave->items, currWave->count, ctx->player, deltaTime);
                 } else {
-                    //printf("NULL entities \n");
-                    updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]), NULL, 0, ctx->player, deltaTime);
+                    updateBulletStatePlayer(&ctx->bullet_arr, getRoomObjects(currLevel->items[currLevel->currentLoadedRoomID]),
+                                            NULL, 0, ctx->player, deltaTime);
                 }
                 updatePlayer(ctx->player, getRoomObjects(currRoom), deltaTime, ctx->sdl_ctx);
-                updateTriggers(currLevel, (entity_t *)ctx->player, ctx->sdl_ctx);
+                updateTriggers(currLevel, (entity_t *)ctx->player);
             }
 
             renderPlayer(ctx->player);
@@ -163,14 +164,14 @@ bool addMenu(gameContext *ctx, gui_menu *menu, menu_kind kind)
         //   - Start
         //   - Option
         //   - Level selection
-        assert(__menu_count == 6 && "Amount of menu changed");
-        ctx->menus = malloc(sizeof(gui_menu *) * __menu_count); // At best, we'll have 5 menus
+        assert(__count_menu_kind == 6 && "Amount of menu changed");
+        ctx->menus = malloc(sizeof(gui_menu *) * __count_menu_kind); // At best, we'll have 5 menus
 
         if (ctx->menus == NULL) {
-            nob_log(ERROR, "Failed to allocate space for %d menus", __menu_count);
+            nob_log(ERROR, "Failed to allocate space for %d menus", __count_menu_kind);
             return false;
         }
-        memset(ctx->menus, 0, sizeof(gui_menu *) * __menu_count);
+        memset(ctx->menus, 0, sizeof(gui_menu *) * __count_menu_kind);
     }
 
     ctx->menus[kind] = menu;
@@ -260,9 +261,9 @@ void updateMenus(gameContext *ctx)
 }
 
 void renderMenus(gameContext *ctx)
-{   
+{
     // box du logo affiché au mileu de l'écran en haut dans touts les menus
-    SDL_FRect logoBox =  (SDL_FRect){420.0f, 25.0f, 1080.0f, 270.0f};
+    SDL_FRect logoBox = (SDL_FRect){420.0f, 25.0f, 1080.0f, 270.0f};
     boxToScale(&logoBox, ctx->sdl_ctx->screenRatio);
 
     switch (ctx->sdl_ctx->currMenu) {
@@ -274,32 +275,46 @@ void renderMenus(gameContext *ctx)
         renderMenu(ctx->sdl_ctx, ctx->menus[ctx->sdl_ctx->currMenu]);
         renderImage(ctx->sdl_ctx, ctx->sdl_ctx->logoImg, &logoBox);
         // rendu du guide de jeu
-        SDL_FRect temp =  (SDL_FRect){950.0f, 325.0f, 660.0f, 600.0f};
-        SDL_FRect temp2 =  (SDL_FRect){temp.x + 10.0f, temp.y + 10.0f, temp.w - 20.0f, temp.h - 20.0f};
-        SDL_FRect ligneBlanche =  (SDL_FRect){temp2.x + 10.0f, 750.0f, temp2.w - 20.0f, 4.0f};
+        SDL_FRect temp = (SDL_FRect){950.0f, 325.0f, 660.0f, 600.0f};
+        SDL_FRect temp2 = (SDL_FRect){temp.x + 10.0f, temp.y + 10.0f, temp.w - 20.0f, temp.h - 20.0f};
+        SDL_FRect ligneBlanche = (SDL_FRect){temp2.x + 10.0f, 750.0f, temp2.w - 20.0f, 4.0f};
         // rectangle scalé
         boxToScale(&temp, ctx->sdl_ctx->screenRatio);
         boxToScale(&temp2, ctx->sdl_ctx->screenRatio);
         boxToScale(&ligneBlanche, ctx->sdl_ctx->screenRatio);
-        //bg du guide
+        // bg du guide
         renderFillRect(ctx->sdl_ctx->renderer, &temp, (SDL_Color){37, 37, 37, 128});
         renderFillRect(ctx->sdl_ctx->renderer, &temp2, (SDL_Color){48, 48, 48, 128});
         renderFillRect(ctx->sdl_ctx->renderer, &ligneBlanche, (SDL_Color){255, 255, 255, 255});
         // guide des touches
-        renderText(ctx->sdl_ctx, "Comment jouer ? :\n  Q pour aller a gauche\n  D pour aller a droite\n  ESPACE pour sauter\n  SHIFT pour glisser\n  CTRL pour se jeter au sol\n  CLIC GAUCHE pour tirer\n  1, 2, 3, 4, 5 pour changer d'arme\n\n  ESC pour mettre en pause\n\n(A aulieu de Q si clavier QWERTY)\n\n\n\n But du Jeu :\n\nTuer les ennemis et ne pas mourir ...", WHITE, temp.x + 50.0f,  temp.y + 50.0f);
+        renderText(
+            ctx->sdl_ctx,
+            "Comment jouer ? :\n  Q pour aller a gauche\n  D pour aller a droite\n  ESPACE pour sauter\n  SHIFT pour glisser\n "
+            " CTRL pour se jeter au sol\n  CLIC GAUCHE pour tirer\n  1, 2, 3, 4, 5 pour changer d'arme\n\n  ESC pour mettre en "
+            "pause\n\n(A aulieu de Q si clavier QWERTY)\n\n\n\n But du Jeu :\n\nTuer les ennemis et ne pas mourir ...",
+            WHITE, temp.x + 50.0f, temp.y + 50.0f);
         // surlignage rouge
-        renderText(ctx->sdl_ctx, "\n  Q\n  D\n  ESPACE\n  SHIFT\n  CTRL\n  CLIC GAUCHE\n  1, 2, 3, 4, 5\n\n  ESC\n\n A           Q\n\n\n\n But du Jeu :\n\n                           mourir", RED, temp.x + 50.0f,  temp.y + 50.0f);
+        renderText(ctx->sdl_ctx,
+                   "\n  Q\n  D\n  ESPACE\n  SHIFT\n  CTRL\n  CLIC GAUCHE\n  1, 2, 3, 4, 5\n\n  ESC\n\n A           Q\n\n\n\n "
+                   "But du Jeu :\n\n                           mourir",
+                   RED, temp.x + 50.0f, temp.y + 50.0f);
     } break;
     case LEVEL_SELECTION_MENU: {
         renderMenu(ctx->sdl_ctx, ctx->menus[LEVEL_SELECTION_MENU]);
         renderImage(ctx->sdl_ctx, ctx->sdl_ctx->logoImg, &logoBox);
-        renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", BLACK, (V2f){(WINDOW_WIDTH / 2.0f - 406.0f) * ctx->sdl_ctx->screenRatio, (WINDOW_HEIGHT / 2.0f - 48.0f - 126.0f) * ctx->sdl_ctx->screenRatio}); // ombre
-        renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", WHITE, (V2f){(WINDOW_WIDTH / 2.0f - 408.0f) * ctx->sdl_ctx->screenRatio, (WINDOW_HEIGHT / 2.0f - 48.0f - 128.0f) * ctx->sdl_ctx->screenRatio});
+        renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", BLACK,
+                      (V2f){(WINDOW_WIDTH / 2.0f - 406.0f) * ctx->sdl_ctx->screenRatio,
+                            (WINDOW_HEIGHT / 2.0f - 48.0f - 126.0f) * ctx->sdl_ctx->screenRatio}); // ombre
+        renderText_Ex(ctx->sdl_ctx, "CHOOSE A LEVEL :", WHITE,
+                      (V2f){(WINDOW_WIDTH / 2.0f - 408.0f) * ctx->sdl_ctx->screenRatio,
+                            (WINDOW_HEIGHT / 2.0f - 48.0f - 128.0f) * ctx->sdl_ctx->screenRatio});
     } break;
     case DEAD_SCREEN: {
         renderMenu(ctx->sdl_ctx, ctx->menus[ctx->sdl_ctx->currMenu]);
-        renderText(ctx->sdl_ctx, "YOU ARE DEAD !", BLACK, (WINDOW_WIDTH / 2 - 98.0f) * ctx->sdl_ctx->screenRatio,  (WINDOW_HEIGHT / 2 - 93.0f) * ctx->sdl_ctx->screenRatio);
-        renderText(ctx->sdl_ctx, "YOU ARE DEAD !", RED, (WINDOW_WIDTH / 2 - 100.0f) * ctx->sdl_ctx->screenRatio,  (WINDOW_HEIGHT / 2 - 95.0f) * ctx->sdl_ctx->screenRatio);
+        renderText(ctx->sdl_ctx, "YOU ARE DEAD !", BLACK, (WINDOW_WIDTH / 2 - 98.0f) * ctx->sdl_ctx->screenRatio,
+                   (WINDOW_HEIGHT / 2 - 93.0f) * ctx->sdl_ctx->screenRatio);
+        renderText(ctx->sdl_ctx, "YOU ARE DEAD !", RED, (WINDOW_WIDTH / 2 - 100.0f) * ctx->sdl_ctx->screenRatio,
+                   (WINDOW_HEIGHT / 2 - 95.0f) * ctx->sdl_ctx->screenRatio);
     } break;
     default:
         break;
@@ -415,7 +430,7 @@ void closeGame(gameContext **ctx)
         (*ctx)->levels = NULL;
 
         if ((*ctx)->menus != NULL) {
-            for (menu_kind kind = 0; kind < __menu_count; ++kind) {
+            for (menu_kind kind = 0; kind < __count_menu_kind; ++kind) {
                 if ((*ctx)->menus[kind] != NULL) {
                     destroyMenu(&(*ctx)->menus[kind]);
                 }
