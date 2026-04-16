@@ -259,7 +259,7 @@ void updatePlayer(player_t *p, objs *arr, float deltaTime, sdl_ctx_t * ctx)
     float gravity = 28.0f;
     float dragCoef = 0.75f;
     float epsi = 1e-6;
-    if (p->dmgCooldown > 0) {
+    if (p->dmgCooldown > 0.0f) {
         p->dmgCooldown -= deltaTime;
     }
     SDL_FRect *rect = getBB(p);

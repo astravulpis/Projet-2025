@@ -171,6 +171,7 @@ typedef struct {
     int selectedGunIndex;
     bool isAlive;
     float shotcooldown;
+    float contactDamage;
 } entity_t;
 
 #define obj_create(array, ctx, path, x, y, width, height)                                                           \

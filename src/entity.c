@@ -161,6 +161,8 @@ void _setEntityAttributs(ennemy_t *e, entity_attributs attrib)
     if (attrib.jumpForce > 0) e->attributs.jumpForce = attrib.jumpForce;
 
     if (attrib.score > 0) e->attributs.score = attrib.score;
+
+    if (attrib.contactDamage > 0) e->attributs.contactDamage = attrib.contactDamage;
 }
 
 void setEntityState(ennemy_t *e, entity_state state)
@@ -372,6 +374,7 @@ bool lineOfSight(objs *objects, player_t *player, ennemy_t *e)
     UNUSED(objects);
     UNUSED(player);
     UNUSED(e);
+ 
     return true;
 }
 
@@ -402,10 +405,12 @@ bool createBulletEntity(bullets *bullet_arr, V2f position, V2f vel, sdl_ctx_t *c
 
 void entityCollision(player_t *player, ennemy_t *entity)
 {
+    printf("entity collision! \n");
     if (SDL_HasRectIntersectionFloat(getBB(player), getBB(entity))) {
-        if (player->dmgCooldown <= 0.0f) {
+        if (player->dmgCooldown < 0.0f) {
             if (entity->attackSfx) playSfx(*player->entity_attribs.ctx, &enemySfxs, entity->attackSfx);
-            player->entity_attribs.hp -= entity->attributs.contactDamage;
+            player->entity_attribs.hp -= 20;
+        
             player->dmgCooldown = 0.675f;
         }
     }
