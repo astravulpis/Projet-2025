@@ -2,6 +2,7 @@ info "levelB" 1
 bg "./assets/img/levels/BBg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
+player 0 300
 obj "./assets/img/levels/Bsol.png" 0.0 850.0 1920.0 230.0
 obj "./assets/img/levels/Bstart.png" 0.0 300.0 300.0 300.0
 obj "./assets/img/levels/B_onAir.png" 500.0 465.0 150.0 32.0

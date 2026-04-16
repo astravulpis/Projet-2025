@@ -2,6 +2,7 @@ info "levelD" 4
 bg "./assets/img/levels/D_Bg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
+player 1575 810 
 obj "./assets/img/levels/D_verticalD.png" 0 0 240 1080
 obj "./assets/img/levels/D_verticalG.png" 1680 0 240 1080
 obj "./assets/img/levels/D_sol.png" 240 930 1440 150

@@ -2,9 +2,11 @@ info "levelE" 4
 bg "./assets/img/levels/E_Bg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
+player 0 900
 obj "./assets/img/levels/E_Pilier.png" 0 805 150 275
 obj "./assets/img/levels/E_Pilier.png" 600 805 150 275
 obj "./assets/img/levels/E_Pilier.png" 1200 805 150 275
 obj "./assets/img/levels/E_Plateforme1.png" 1450 500 470 96
 obj "./assets/img/levels/C_onAir1.png" 875.0 250.0 235.0 96.0
 obj "./assets/img/levels/E_Plateforme1Bt.png" 0.0 250.0 705.0 96.0
+trigger 0 50 50 200 ONESHOT

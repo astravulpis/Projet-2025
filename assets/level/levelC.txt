@@ -2,6 +2,7 @@ info "levelC" 2
 bg "./assets/img/levels/CBg.png"
 mus "./assets/audio/OST/SneakySnitch.mp3"
 room 0
+player 920 0
 obj "./assets/img/levels/C_onAir1.png" 150 300.0 235.0 96.0
 obj "./assets/img/levels/C_onAir1.png" 1535 300.0 235.0 96.0
 obj "./assets/img/levels/C_onAir2.png" 350.0 625.0 150.0 32.0
