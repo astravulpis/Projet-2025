@@ -5,3 +5,5 @@ Conduite.md
 *.tar.gz
 *.zip
 /doc/doxygen-docs/html
+/compile_commands.json
+/Plan compte rendu ULTRACOOL.odt
